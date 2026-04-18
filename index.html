@@ -472,9 +472,8 @@ let upbitKoLoaded=false;
 async function loadUpbitKoNames(){
   if(upbitKoLoaded)return;
   try{
-    const r=await fetch('https://api.upbit.com/v1/market/all?is_details=false');
-    if(r.ok){
-      const d=await r.json();
+    const d=await upbitGet('/v1/market/all?is_details=false');
+    if(Array.isArray(d)){
       d.forEach(m=>{if(m.market?.startsWith('KRW-')){const s=m.market.replace('KRW-','');upbitKoNames[s]=m.korean_name;}});
     }
   }catch{}
@@ -510,16 +509,30 @@ const NAMES={BTC:'Bitcoin',ETH:'Ethereum',BNB:'BNB',XRP:'XRP',SOL:'Solana',ADA:'
 async function bnGet(path){const r=await fetch(BN+path);if(!r.ok)throw Error(`Binance ${r.status}`);return r.json();}
 async function safeFetch(url){try{const r=await fetch(url,{signal:AbortSignal.timeout(4000)});if(r.ok)return r.json();}catch{}return null;}
 async function dsGet(path){const r=await fetch(DS+path);if(!r.ok)throw Error(`DS ${r.status}`);return r.json();}
-async function ccGet(path){const url=CC+path;for(const u of[url,`https://corsproxy.io/?${encodeURIComponent(url)}`]){try{const r=await fetch(u,{signal:AbortSignal.timeout(5000)});if(r.ok)return r.json();}catch{}}return null;}
-
-// CryptoCompare (무료, 안정적, CORS 친화적 — CoinGecko 실패 시 주요 폴백)
-async function ccrGet(path){
-  try{
-    const r=await fetch(`https://min-api.cryptocompare.com${path}`,{signal:AbortSignal.timeout(5000)});
-    if(r.ok)return r.json();
-  }catch{}
+// ── CORS 프록시 체인 (GitHub Pages 등에서 직접 호출 차단된 API 우회) ──
+const CORS_PROXIES=[
+  u=>u, // 1순위: 직접 호출 (CORS 허용 API용)
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
+  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u=>`https://cors.eu.org/${u}`,
+];
+async function corsFetch(url,opts={}){
+  for(const wrap of CORS_PROXIES){
+    try{
+      const r=await fetch(wrap(url),{...opts,signal:AbortSignal.timeout(opts.timeout||8000)});
+      if(r.ok)return r;
+      if(r.status===429)await new Promise(res=>setTimeout(res,1200));
+    }catch{}
+  }
   return null;
 }
+async function corsJson(url,opts){const r=await corsFetch(url,opts);return r?r.json().catch(()=>null):null;}
+
+async function ccGet(path){return await corsJson(CC+path);}
+
+// CryptoCompare (무료, 안정적 — CoinGecko 실패 시 주요 폴백). CORS 프록시 체인 경유
+async function ccrGet(path){return await corsJson(`https://min-api.cryptocompare.com${path}`);}
 function ccrNormalize(d,sym){
   const raw=d?.RAW?.[sym]?.USD;const disp=d?.DISPLAY?.[sym]?.USD;
   if(!raw)return null;
@@ -538,19 +551,15 @@ function ccrNormalize(d,sym){
   };
 }
 
-// CoinLore (무료, CORS 친화적 — 추가 폴백)
-async function clGet(path){
-  try{
-    const r=await fetch(`https://api.coinlore.net${path}`,{signal:AbortSignal.timeout(5000)});
-    if(r.ok)return r.json();
-  }catch{}
+// CoinLore — CORS 프록시 체인 경유
+async function clGet(path){return await corsJson(`https://api.coinlore.net${path}`);}
+async function cgGet(path){
+  const d=await corsJson(CG+path,{headers:{'Accept':'application/json'}});
+  if(d&&(Array.isArray(d)||d?.id||d?.data||d?.coins||d?.market_caps))return d;
   return null;
 }
-async function cgGet(path){
-  const url=CG+path;
-  const urls=[url,`https://corsproxy.io/?${encodeURIComponent(url)}`,`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`];
-  for(const u of urls){try{const r=await fetch(u,{signal:AbortSignal.timeout(8000),headers:{'Accept':'application/json'}});if(r.ok){const d=await r.json();if(Array.isArray(d)||d?.id||d?.data||d?.coins||d?.market_caps)return d;}if(r.status===429){await new Promise(res=>setTimeout(res,2000));}}catch{}}return null;
-}
+// Upbit API 프록시 래퍼 — GitHub Pages 등에서 CORS 막힐 때
+async function upbitGet(path){return await corsJson(`https://api.upbit.com${path}`);}
 function cgNormalize(cg){return{cgId:cg.id,name:cg.name,image:cg.image,rank:cg.market_cap_rank,marketCapUsd:cg.market_cap,supply:cg.circulating_supply,maxSupply:cg.max_supply,totalSupply:cg.total_supply,priceUsd:cg.current_price,volumeUsd24Hr:cg.total_volume,vwap24Hr:null,ath:cg.ath,athDate:cg.ath_date,atl:cg.atl,atlDate:cg.atl_date,ch1h:cg.price_change_percentage_1h_in_currency,ch24h:cg.price_change_percentage_24h_in_currency,ch7d:cg.price_change_percentage_7d_in_currency,source:'coingecko'};}
 
 // CoinPaprika (무료, 안정적 — 주요 폴백)
@@ -1306,7 +1315,7 @@ async function loadKimchiList(){
   document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">업비트 · 바이낸스 시세 비교 중…</span></div>`;
   try{
     // 업비트 전체 KRW 마켓 목록 + 이름
-    const mkts=await fetch('https://api.upbit.com/v1/market/all').then(r=>r.json());
+    const mkts=await upbitGet('/v1/market/all')||[];
     const krwMkts=mkts.filter(m=>m.market.startsWith('KRW-'));
     const upbitNameMap={};krwMkts.forEach(m=>{upbitNameMap[m.market.replace('KRW-','')]=m.korean_name||m.english_name||'';});
     const krwCodes=krwMkts.map(m=>m.market);
@@ -1314,7 +1323,7 @@ async function loadKimchiList(){
     const chunks=[];for(let i=0;i<krwCodes.length;i+=100)chunks.push(krwCodes.slice(i,i+100));
     const upbitRows=[];
     for(const chunk of chunks){
-      const d=await fetch(`https://api.upbit.com/v1/ticker?markets=${chunk.join(',')}`).then(r=>r.json());
+      const d=await upbitGet(`/v1/ticker?markets=${chunk.join(',')}`)||[];
       upbitRows.push(...d);
     }
     const upbitMap={};
@@ -1491,14 +1500,14 @@ function renderKimchiList(list){
 async function loadUpbitList(){
   document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">업비트 KRW 조회 중…</span></div>`;
   try{
-    const mkts=await fetch('https://api.upbit.com/v1/market/all').then(r=>r.json());
+    const mkts=await upbitGet('/v1/market/all')||[];
     const krwMkts=mkts.filter(m=>m.market.startsWith('KRW-'));
     const upbitNameMap={};krwMkts.forEach(m=>{upbitNameMap[m.market.replace('KRW-','')]=m.korean_name||m.english_name||'';upbitKoNames[m.market.replace('KRW-','')]=m.korean_name;});
     const krwCodes=krwMkts.map(m=>m.market);
     const chunks=[];for(let i=0;i<krwCodes.length;i+=100)chunks.push(krwCodes.slice(i,i+100));
     const upbitRows=[];
     for(const chunk of chunks){
-      const d=await fetch(`https://api.upbit.com/v1/ticker?markets=${chunk.join(',')}`).then(r=>r.json());
+      const d=await upbitGet(`/v1/ticker?markets=${chunk.join(',')}`)||[];
       upbitRows.push(...d);
     }
     const list=upbitRows
@@ -1610,9 +1619,7 @@ function pickUpbit(sym){
 async function upbitTickerRaw(sym){
   // KRW 그대로 반환 (환산 없음)
   const base=sym.replace('USDT','');
-  const r=await fetch(`https://api.upbit.com/v1/ticker?markets=KRW-${base}`);
-  if(!r.ok)return null;
-  const arr=await r.json();
+  const arr=await upbitGet(`/v1/ticker?markets=KRW-${base}`);
   if(!arr?.[0])return null;
   const t=arr[0];
   return{
@@ -1629,9 +1636,7 @@ async function upbitKlinesRaw(sym,interval,limit){
   const base=sym.replace('USDT','');
   const map={'1m':'minutes/1','5m':'minutes/5','15m':'minutes/15','30m':'minutes/30','1h':'minutes/60','4h':'minutes/240','1d':'days','1w':'weeks','1M':'months'};
   const path=map[interval];if(!path)return null;
-  const r=await fetch(`https://api.upbit.com/v1/candles/${path}?market=KRW-${base}&count=${Math.min(limit,200)}`);
-  if(!r.ok)return null;
-  const d=await r.json();
+  const d=await upbitGet(`/v1/candles/${path}?market=KRW-${base}&count=${Math.min(limit,200)}`);
   if(!Array.isArray(d)||!d.length)return null;
   return d.slice().reverse().map(c=>[
     c.timestamp,
@@ -1653,13 +1658,10 @@ async function spotOrFutTicker(sym){
   // 바이낸스 실패 시 Upbit 폴백 — KRW를 USD로 환산
   try{
     const base=sym.replace('USDT','');
-    const ur=await fetch(`https://api.upbit.com/v1/ticker?markets=KRW-${base}`);
-    if(ur.ok){
-      const arr=await ur.json();
-      if(arr?.[0]){
-        const t=arr[0];
-        return{symbol:sym,lastPrice:(t.trade_price/G_KRW).toString(),priceChangePercent:(t.change_rate*100).toString(),quoteVolume:(t.acc_trade_price_24h/G_KRW).toString(),highPrice:(t.high_price/G_KRW).toString(),lowPrice:(t.low_price/G_KRW).toString(),_upbitOnly:true};
-      }
+    const arr=await upbitGet(`/v1/ticker?markets=KRW-${base}`);
+    if(arr?.[0]){
+      const t=arr[0];
+      return{symbol:sym,lastPrice:(t.trade_price/G_KRW).toString(),priceChangePercent:(t.change_rate*100).toString(),quoteVolume:(t.acc_trade_price_24h/G_KRW).toString(),highPrice:(t.high_price/G_KRW).toString(),lowPrice:(t.low_price/G_KRW).toString(),_upbitOnly:true};
     }
   }catch{}
   throw Error(`시세 조회 실패 (${sym})`);
@@ -1676,9 +1678,7 @@ async function spotOrFutKlines(sym,interval,limit){
     const path=map[interval];
     if(!path)return null;
     const cnt=Math.min(limit,200);
-    const r=await fetch(`https://api.upbit.com/v1/candles/${path}?market=KRW-${base}&count=${cnt}`);
-    if(!r.ok)return null;
-    const d=await r.json();
+    const d=await upbitGet(`/v1/candles/${path}?market=KRW-${base}&count=${cnt}`);
     if(!Array.isArray(d)||!d.length)return null;
     // Upbit 캔들은 최신부터 내림차순 → Binance 포맷(오름차순)으로 변환, KRW→USD 환산
     return d.slice().reverse().map(c=>[
