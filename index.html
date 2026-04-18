@@ -509,11 +509,9 @@ const NAMES={BTC:'Bitcoin',ETH:'Ethereum',BNB:'BNB',XRP:'XRP',SOL:'Solana',ADA:'
 async function bnGet(path){const r=await fetch(BN+path);if(!r.ok)throw Error(`Binance ${r.status}`);return r.json();}
 async function safeFetch(url){try{const r=await fetch(url,{signal:AbortSignal.timeout(4000)});if(r.ok)return r.json();}catch{}return null;}
 async function dsGet(path){const r=await fetch(DS+path);if(!r.ok)throw Error(`DS ${r.status}`);return r.json();}
-// ── CORS 프록시 시스템 ──
-// GitHub Pages/모든 정적 호스팅에서 Upbit·CoinGecko 직접 호출이 CORS로 차단됨
-// 전략: (1) 풀 분리 — 업비트는 독립 (2) 요청 캐시로 중복 제거 (3) 점진적 병렬로 첫 성공 채택
-
-// 일반 API 프록시 풀
+// ── CORS 프록시 풀 ──────────────────────────────────
+// GitHub Pages에서는 직접 호출이 항상 차단되므로 제거.
+// 공용 프록시는 전세계 공유 → 레이트리밋 분산을 위해 랜덤 셔플 사용.
 const _GENERAL_PROXIES=[
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
@@ -524,7 +522,9 @@ const _GENERAL_PROXIES=[
   u=>`https://proxy.cors.sh/${u}`,
 ];
 // 업비트 전용 프록시 풀 (일반 풀과 독립 — 레이트리밋 간섭 방지)
+// 1순위: 전용 Cloudflare Worker, 나머지: 공용 프록시 폴백
 const _UPBIT_PROXIES=[
+  u=>`https://upbit-proxy.akakzldzhd.workers.dev/?url=${encodeURIComponent(u)}`,
   u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u=>`https://cors.eu.org/${u}`,
@@ -534,65 +534,41 @@ const _UPBIT_PROXIES=[
 ];
 function _shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-// ── 요청 캐시 (중복 API 호출 방지 — 10초 TTL) ──
-const _reqCache=new Map();
-function _cacheGet(url){const e=_reqCache.get(url);if(e&&Date.now()-e.t<10000)return e.v;_reqCache.delete(url);return undefined;}
-function _cacheSet(url,v){_reqCache.set(url,{t:Date.now(),v});if(_reqCache.size>200){const k=_reqCache.keys().next().value;_reqCache.delete(k);}}
-
-// 일반 프록시 — 순차 폴백 (캐시 후 3개 동시 경쟁, 안 되면 나머지 순차)
+// 순차 폴백 fetch (일반 API용)
 async function corsFetch(url,opts={}){
-  const cached=_cacheGet(url);if(cached!==undefined)return cached?cached.clone():null;
   const proxies=_shuffle(_GENERAL_PROXIES);
-  // 1단계: 첫 3개 병렬 경쟁
-  const first3=proxies.slice(0,3);
-  try{
-    const r=await Promise.any(first3.map(async wrap=>{
-      const res=await fetch(wrap(url),{...opts,signal:AbortSignal.timeout(opts.timeout||7000)});
-      if(!res.ok)throw Error(res.status);
-      return res;
-    }));
-    _cacheSet(url,r.clone());return r;
-  }catch{}
-  // 2단계: 남은 프록시 순차 시도
-  for(const wrap of proxies.slice(3)){
+  for(const wrap of proxies){
     try{
-      const r=await fetch(wrap(url),{...opts,signal:AbortSignal.timeout(opts.timeout||7000)});
-      if(r.ok){_cacheSet(url,r.clone());return r;}
-      if(r.status===429)await new Promise(res=>setTimeout(res,500));
+      const r=await fetch(wrap(url),{...opts,signal:AbortSignal.timeout(opts.timeout||8000)});
+      if(r.ok)return r;
+      if(r.status===429){await new Promise(res=>setTimeout(res,600));continue;}
     }catch{}
   }
-  _cacheSet(url,null);
   return null;
 }
 async function corsJson(url,opts){const r=await corsFetch(url,opts);return r?r.json().catch(()=>null):null;}
 
-// 업비트 전용 — 3개 병렬 경쟁 (첫 성공), 실패 시 나머지 순차
+// 업비트 전용 fetch — Worker 1순위 고정, 나머지 병렬 경쟁
 async function upbitFetch(url){
-  const cached=_cacheGet(url);if(cached!==undefined)return cached?cached.clone():null;
-  const proxies=_shuffle(_UPBIT_PROXIES);
-  // 1차: 3개 병렬
-  const first3=proxies.slice(0,3);
-  try{
-    const r=await Promise.any(first3.map(async wrap=>{
-      const res=await fetch(wrap(url),{signal:AbortSignal.timeout(6000),headers:{'Accept':'application/json'}});
-      if(!res.ok)throw Error(res.status);
-      return res;
-    }));
-    _cacheSet(url,r.clone());return r;
-  }catch{}
-  // 2차: 남은 3개 순차
-  for(const wrap of proxies.slice(3)){
-    try{
-      const r=await fetch(wrap(url),{signal:AbortSignal.timeout(6000),headers:{'Accept':'application/json'}});
-      if(r.ok){_cacheSet(url,r.clone());return r;}
-      if(r.status===429)await new Promise(res=>setTimeout(res,400));
-    }catch{}
-  }
-  _cacheSet(url,null);
-  return null;
+  // Worker(인덱스 0)는 항상 1순위, 나머지만 셔플
+  const [worker,...rest]=_UPBIT_PROXIES;
+  const proxies=[worker,..._shuffle(rest)];
+  return new Promise(resolve=>{
+    let done=false;let remaining=proxies.length;
+    proxies.forEach(wrap=>{
+      const controller=new AbortController();
+      fetch(wrap(url),{signal:controller.signal,headers:{'Accept':'application/json'}})
+        .then(r=>{if(r.ok&&!done){done=true;resolve(r);}})
+        .catch(()=>{})
+        .finally(()=>{remaining--;if(remaining===0&&!done)resolve(null);});
+      // 각 요청은 10초 타임아웃
+      setTimeout(()=>controller.abort(),10000);
+    });
+  });
 }
 async function upbitGet(path){
-  const r=await upbitFetch(`https://api.upbit.com${path}`);
+  const url=`https://api.upbit.com${path}`;
+  const r=await upbitFetch(url);
   return r?r.json().catch(()=>null):null;
 }
 
@@ -2729,27 +2705,23 @@ function renderDepositChart(results,sym,circSupply){
   });
 }
 
-// USD→KRW 환율 자동 갱신 (JSDelivr CDN은 CORS 허용 → 직접 호출)
+// USD→KRW 환율 자동 갱신
 async function fetchKRW(){
-  const urls=[
-    'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
-    'https://latest.currency-api.pages.dev/v1/currencies/usd.json',
-  ];
-  for(const u of urls){
-    try{
-      const r=await fetch(u,{signal:AbortSignal.timeout(5000)});
-      if(r.ok){const d=await r.json();if(d?.usd?.krw){G_KRW=Math.round(d.usd.krw);return;}}
-    }catch{}
-  }
+  try{
+    const r=await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',{signal:AbortSignal.timeout(5000)});
+    const d=await r.json();
+    if(d?.usd?.krw)G_KRW=Math.round(d.usd.krw);
+  }catch{}
 }
 fetchKRW();
 
 // ── 공포·탐욕 지수 + BTC/ETH 도미넌스 ──
 async function loadMarketSentiment(){
-  // F&G: alternative.me (CORS 프록시 경유)
+  // F&G: alternative.me
   try{
-    const d=await corsJson('https://api.alternative.me/fng/?limit=1');
-    if(d){
+    const r=await fetch('https://api.alternative.me/fng/?limit=1');
+    if(r.ok){
+      const d=await r.json();
       const val=parseInt(d?.data?.[0]?.value);
       const cls=d?.data?.[0]?.value_classification||'';
       const el=document.getElementById('fng-badge');
