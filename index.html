@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -31,12 +32,21 @@ body{font-family:-apple-system,'Segoe UI','Noto Sans KR','Noto Sans SC','Malgun 
 .back-btn:hover{background:var(--b1);color:var(--t1)}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 </style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FSJLP52835"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-FSJLP52835');
+</script>
 <script>try{const t=localStorage.getItem('woc-theme');if(t)document.documentElement.dataset.theme=t;}catch{}</script>
 </head>
 <body>
 <div id="app">
 
 <!-- HEADER -->
+
 <div id="hdr" style="background:var(--bg2);border-bottom:1px solid var(--b1);flex-shrink:0;">
   <!-- 상단: 로고 + 컨트롤 -->
   <div style="padding:10px 16px 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -71,9 +81,11 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 </div>
 
 <!-- BODY -->
+
 <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
 
   <!-- 코인 목록 뷰 -->
+
   <div id="list-view" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
     <!-- 정렬 바 (현물) -->
     <div id="sortbar" style="display:none;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;align-items:center;">
@@ -99,6 +111,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   </div>
 
   <!-- 상세 뷰 (전체화면) -->
+
   <div id="detail-view" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
     <!-- 상세 헤더 -->
     <div id="detail-hdr" style="background:var(--bg2);border-bottom:1px solid var(--b1);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;"></div>
@@ -2818,5 +2831,6 @@ window.addEventListener('popstate',applyRoute);
   }
 })();
 </script>
+
 </body>
 </html>
