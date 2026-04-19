@@ -1508,17 +1508,50 @@ function renderKimchiList(list){
   const filtered=G.showWatchOnly?list.filter(k=>G.watchlist.has(k.symbol)):list;
   if(!filtered.length){document.getElementById('lw').innerHTML=`<div style="padding:24px;text-align:center;color:#475569;font-size:13px;">${G.showWatchOnly?'관심종목 없음':'공통 상장 종목 없음'}</div>`;return;}
   list=filtered;
-  const cols='22px 20px minmax(110px,1fr) 90px 90px 60px 80px';
+
+  // 상단 통계 요약 — 공통 상장 코인 기준
+  const withPrem=list.filter(k=>!k.upbitOnly&&k.premium!=null&&!isNaN(k.premium));
+  const upbitOnlyCnt=list.filter(k=>k.upbitOnly).length;
+  let statsBar='';
+  if(withPrem.length){
+    const avg=withPrem.reduce((s,k)=>s+k.premium,0)/withPrem.length;
+    const mx=withPrem.reduce((m,k)=>k.premium>m.premium?k:m,withPrem[0]);
+    const mn=withPrem.reduce((m,k)=>k.premium<m.premium?k:m,withPrem[0]);
+    const avgC=avg>=0?'#10b981':'#ef4444';
+    const stat=(label,val,col,sub)=>`<div style="flex:1;min-width:0;text-align:center;padding:7px 6px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;">
+      <div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;">${label}</div>
+      <div style="font-size:13px;font-weight:800;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${val}</div>
+      ${sub?`<div style="font-size:9px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${sub}</div>`:''}
+    </div>`;
+    statsBar=`<div style="padding:10px 12px 8px;border-bottom:1px solid var(--bd3);background:var(--bg2);">
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        ${stat('평균 김프',`${avg>=0?'+':''}${avg.toFixed(2)}%`,avgC,`${withPrem.length}개 공통`)}
+        ${stat('최고',`+${mx.premium.toFixed(2)}%`,'#10b981',mx.symbol)}
+        ${stat('최저',`${mn.premium.toFixed(2)}%`,'#ef4444',mn.symbol)}
+      </div>
+      <div style="font-size:9px;color:var(--t3);text-align:center;line-height:1.4;">
+        총 <b style="color:var(--t2);">${list.length}개</b>
+        · 공통 <b style="color:#10b981;">${withPrem.length}</b>
+        · 업비트 단독 <b style="color:#64748b;">${upbitOnlyCnt}</b>
+      </div>
+    </div>`;
+  }
+
+  const cols='22px 20px minmax(88px,1fr) 100px 56px 78px 62px';
   const arr=G.kimAsc?'↑':'↓';
   const sh=(label,key)=>{const a=G.kimSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setKimchiSort('${key}')" style="font-size:10px;font-weight:700;text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;white-space:nowrap;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'" title="${label} 기준 정렬">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:6px;padding:10px 12px 9px;border-bottom:1px solid var(--bd3);background:var(--bg3);position:sticky;top:0;z-index:2;align-items:center;">
+  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:5px;padding:10px 12px 9px;border-bottom:1px solid var(--bd3);background:var(--bg3);position:sticky;top:0;z-index:2;align-items:center;">
     ${watchHdr()}
     <span style="font-size:10px;color:#475569;font-weight:600;text-align:center;">#</span>
     <span style="font-size:10px;color:#64748b;font-weight:700;padding-left:32px;">코인</span>
-    <span style="font-size:10px;color:#64748b;font-weight:700;text-align:right;">업비트</span>
-    <span style="font-size:10px;color:#64748b;font-weight:700;text-align:right;">바이낸스</span>
+    <span style="font-size:10px;color:#64748b;font-weight:700;text-align:right;line-height:1.3;">업비트<br><span style="color:#475569;font-weight:600;font-size:9px;">바이낸스(환산)</span></span>
+    <span style="font-size:10px;color:#64748b;font-weight:700;text-align:right;line-height:1.3;">전일대비<br><span style="color:#475569;font-weight:600;font-size:9px;">(24h%)</span></span>
     ${sh('김프%','premium')}
     ${sh('거래대금','vol')}
+  </div>`;
+  // 설명 배너
+  const tipBar=`<div style="padding:7px 12px;background:rgba(245,158,11,.06);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--t3);line-height:1.4;text-align:center;">
+    📊 <b style="color:#f59e0b;">업비트와 바이낸스 가격차이</b> · 회색 숫자는 바이낸스 환산 원화
   </div>`;
   const rows=list.map((k,i)=>{
     const uc=k.ch24>=0?'#10b981':'#ef4444';
@@ -1535,19 +1568,21 @@ function renderKimchiList(list){
           </div>
         </div>
         <div style="text-align:right;line-height:1.25;">
-          <div style="font-size:11px;font-weight:700;color:var(--t1);">${F.krw(k.upbitKrw)}</div>
-          <div style="font-size:10px;color:${uc};font-weight:700;">${k.ch24>=0?'+':''}${k.ch24.toFixed(2)}%</div>
+          <div style="font-size:12px;font-weight:700;color:var(--t1);">${F.krwPrice(k.upbitKrw)}</div>
+          <div style="font-size:10px;color:#475569;font-weight:500;margin-top:1px;">바낸 미상장</div>
+        </div>
+        <div style="text-align:right;line-height:1.25;">
+          <div style="font-size:11px;font-weight:700;color:${uc};">${k.ch24>=0?'+':''}${k.ch24.toFixed(2)}%</div>
         </div>
         <div style="text-align:right;">
-          <span style="font-size:9px;background:rgba(100,116,139,.15);color:#64748b;padding:2px 6px;border-radius:4px;border:1px solid var(--bd3);font-weight:700;">미상장</span>
+          <span style="font-size:9px;background:rgba(100,116,139,.15);color:#64748b;padding:2px 6px;border-radius:4px;border:1px solid var(--bd3);font-weight:700;">—</span>
         </div>
-        <div style="text-align:right;font-size:12px;color:#475569;">—</div>
         <div style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
       </div>`;
     }
     const pc=k.premium>=0?'#10b981':'#ef4444';
     const bc=k.binCh24>=0?'#10b981':'#ef4444';
-    return`<div class="ci" onclick="pickCoin('${k.symbol}USDT')" style="display:grid;grid-template-columns:${cols};gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);">
+    return`<div class="ci" onclick="pickCoin('${k.symbol}USDT')" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);">
       <span style="text-align:center;">${starCell(k.symbol)}</span>
       <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
       <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
@@ -1557,21 +1592,22 @@ function renderKimchiList(list){
           <div style="font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">${k.name}</div>
         </div>
       </div>
-      <div style="text-align:right;line-height:1.25;">
-        <div style="font-size:11px;font-weight:700;color:var(--t1);">${F.krw(k.upbitKrw)}</div>
-        <div style="font-size:10px;color:${uc};">${k.ch24>=0?'+':''}${k.ch24.toFixed(2)}%</div>
+      <div style="text-align:right;line-height:1.3;">
+        <div style="font-size:12px;font-weight:700;color:var(--t1);">${F.krwPrice(k.upbitKrw)}</div>
+        <div style="font-size:10px;color:#64748b;font-weight:500;margin-top:1px;">${F.krwPrice(k.binKrw)}</div>
       </div>
-      <div style="text-align:right;line-height:1.25;">
-        <div style="font-size:11px;font-weight:700;color:var(--t1);">${F.price(k.binUsd)}</div>
-        <div style="font-size:10px;color:${bc};">${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%</div>
+      <div style="text-align:right;line-height:1.3;">
+        <div style="font-size:11px;font-weight:700;color:${uc};">${k.ch24>=0?'+':''}${k.ch24.toFixed(2)}%</div>
+        <div style="font-size:10px;color:${bc};opacity:.65;font-weight:600;margin-top:1px;">${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%</div>
       </div>
-      <div style="text-align:right;">
-        <div style="font-size:12px;font-weight:800;color:${pc};">${k.premium>=0?'+':''}${k.premium.toFixed(2)}%</div>
+      <div style="text-align:right;line-height:1.15;">
+        <div style="font-size:13px;font-weight:800;color:${pc};">${k.premium>=0?'+':''}${k.premium.toFixed(2)}%</div>
+        ${(()=>{const d=k.upbitKrw-k.binKrw;const ad=Math.abs(d);if(ad<0.5)return'';const s=d>=0?'+':'-';return`<div style="font-size:9px;font-weight:700;color:${pc};opacity:.75;margin-top:2px;white-space:nowrap;">${s}${F.krwAbbrRaw(ad).replace('₩','₩')}</div>`;})()}
       </div>
       <div style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
     </div>`;
   }).join('');
-  document.getElementById('lw').innerHTML=`<div style="min-width:520px;padding-top:10px;">${hdr}${rows}</div>`;
+  document.getElementById('lw').innerHTML=`<div>${statsBar}${tipBar}${hdr}${rows}</div>`;
 }
 
 // ── 업비트 탭 (업비트 KRW 상장 전체) ────────────────
