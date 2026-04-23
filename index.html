@@ -5,6 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wings OnChain</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪽</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,6 +32,118 @@ body{font-family:-apple-system,'Segoe UI','Noto Sans KR','Noto Sans SC','Malgun 
 .back-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--t2);border:1px solid var(--b1);transition:all .15s}
 .back-btn:hover{background:var(--b1);color:var(--t1)}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+
+/* ── 모바일 반응형 ───────────────────────────────── */
+@supports(height:100dvh){#app{height:100dvh}}
+@media(max-width:600px){
+  body{font-size:13px;-webkit-text-size-adjust:100%}
+  #app{max-width:100%;padding-bottom:env(safe-area-inset-bottom)}
+
+  /* 가로 스크롤 강제 제거 (모든 리스트 wrapper) */
+  #lw{overflow-x:hidden}
+  #lw>div{min-width:0!important}
+  #lw>div>div{min-width:0!important}
+
+  /* ── 헤더 ── */
+  #hdr>div:first-child{padding:10px 10px 6px!important;gap:5px!important;row-gap:6px!important}
+  #hdr>div:first-child>div:first-child{flex:1;min-width:0;gap:5px!important}
+  #hdr>div:first-child>div:first-child>div:first-child{font-size:15px!important}
+  #fng-badge,#dom-badge,#online-badge{display:none!important}
+  #refresh-badge{display:none!important}
+  #si{width:100%!important;min-width:0;flex:1;font-size:13px!important;padding:8px 10px!important}
+  #hdr>div:first-child>div:last-child{width:100%;margin-left:0!important;gap:5px!important}
+  #theme-btn,#lang-btn,#cur-btn{padding:7px 9px!important;font-size:12px!important}
+
+  /* 메인 탭(바이낸스/업비트/김프/DEX) — 가로 스크롤 허용 */
+  #hdr>div:nth-child(2){padding:4px 10px 4px!important;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #hdr>div:nth-child(2)::-webkit-scrollbar{display:none}
+  #hdr>div:nth-child(2) button{padding:8px 14px!important;font-size:13px!important;flex-shrink:0}
+
+  /* 바이낸스 서브탭 (현물/선물/주식) */
+  #binance-subtabs{padding:0 10px 8px!important}
+  #binance-subtabs button{padding:6px 12px!important;font-size:12px!important;flex:1}
+
+  /* 정렬바 컴팩트화 */
+  #sortbar,#futsortbar,#kimchisortbar,#dexsortbar{padding:7px 8px!important;gap:4px!important}
+  #sortbar button,#futsortbar button,#kimchisortbar button,#dexsortbar button{font-size:11px!important}
+  #dexchainbar{padding:7px 8px 4px!important}
+  #dexchainbar button{padding:6px 10px!important;font-size:11px!important}
+
+  /* ── 코인 리스트 (현물): vol/mc 숨김, 5컬럼 ── */
+  .lhdr-coin,.ci-coin{
+    grid-template-columns:20px 24px minmax(0,1fr) minmax(70px,auto) 60px!important;
+    gap:6px!important;padding:10px 10px!important
+  }
+  .lhdr-coin>:nth-child(6),.lhdr-coin>:nth-child(7),
+  .ci-coin>:nth-child(6),.ci-coin>:nth-child(7){display:none!important}
+
+  /* ── 선물: vol 숨김, 5컬럼 ── */
+  .lhdr-fut,.ci-fut{
+    grid-template-columns:20px 24px minmax(0,1fr) minmax(70px,auto) 60px!important;
+    gap:6px!important;padding:10px 10px!important
+  }
+  .lhdr-fut>:nth-child(6),.ci-fut>:nth-child(6){display:none!important}
+
+  /* ── 주식: vol 숨김 ── */
+  .lhdr-stk,.ci-stk{
+    grid-template-columns:20px 24px minmax(0,1fr) minmax(70px,auto) 60px!important;
+    gap:6px!important;padding:10px 10px!important
+  }
+  .lhdr-stk>:nth-child(6),.ci-stk>:nth-child(6){display:none!important}
+
+  /* ── 업비트: vol 숨김 ── */
+  .lhdr-upb,.ci-upb{
+    grid-template-columns:20px 24px minmax(0,1fr) minmax(80px,auto) 60px!important;
+    gap:6px!important;padding:10px 10px!important
+  }
+  .lhdr-upb>:nth-child(6),.ci-upb>:nth-child(6){display:none!important}
+
+  /* ── 김프: vol 숨김, 6컬럼 (premium 유지) ── */
+  .lhdr-kim,.ci-kim{
+    grid-template-columns:18px 18px minmax(0,1fr) minmax(70px,auto) 50px 56px!important;
+    gap:4px!important;padding:9px 8px!important
+  }
+  .lhdr-kim>:nth-child(7),.ci-kim>:nth-child(7){display:none!important}
+
+  /* ── DEX: mc/1h/6h 숨김, 5컬럼 ── */
+  .lhdr-dex,.ci-dex{
+    grid-template-columns:18px minmax(0,1fr) minmax(60px,auto) 52px 64px!important;
+    gap:5px!important;padding:10px 8px!important
+  }
+  .lhdr-dex>:nth-child(3),.lhdr-dex>:nth-child(5),.lhdr-dex>:nth-child(6),
+  .ci-dex>:nth-child(3),.ci-dex>:nth-child(5),.ci-dex>:nth-child(6){display:none!important}
+
+  /* 행 글자/이미지 살짝 줄임 */
+  .ci{font-size:12px!important}
+  .ci img{width:22px!important;height:22px!important}
+
+  /* ── 상세 뷰 ── */
+  #detail-hdr{padding:9px 10px!important;gap:8px!important}
+  #detail-hdr .back-btn{padding:6px 10px!important;font-size:12px!important}
+  #detail-hdr>div:nth-child(3) span:first-child{font-size:15px!important}
+  #detail-hdr #hdr-price{font-size:18px!important}
+  #dp{padding:12px!important}
+  #dp .card{padding:10px 12px!important}
+  #cc-container{height:300px!important}
+  .dtab{font-size:11px!important;padding:7px 0!important}
+
+  /* 토스트 */
+  #toast{font-size:12px!important;bottom:14px!important}
+}
+
+/* 더 좁은 화면 (360px 이하) — 추가 압축 */
+@media(max-width:380px){
+  .lhdr-coin,.ci-coin,.lhdr-fut,.ci-fut,.lhdr-stk,.ci-stk,.lhdr-upb,.ci-upb{
+    grid-template-columns:18px 20px minmax(0,1fr) minmax(60px,auto) 56px!important;
+    gap:5px!important;padding:9px 8px!important
+  }
+  .lhdr-kim,.ci-kim{
+    grid-template-columns:16px 16px minmax(0,1fr) minmax(58px,auto) 46px 50px!important;
+    gap:3px!important;padding:8px 6px!important
+  }
+  #hdr>div:first-child>div:first-child>div:first-child{font-size:14px!important}
+  #cc-container{height:260px!important}
+}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-FSJLP52835"></script>
@@ -489,7 +602,7 @@ const COINGECKO_IDS={
   GMX:'gmx',STX:'blockstack',ORDI:'ordi',RNDR:'render-token',GRT:'the-graph',
   WLD:'worldcoin-wld',SEI:'sei-network',PENDLE:'pendle',ENA:'ethena',
   OM:'mantra-dao',TRUMP:'official-trump',PNUT:'peanut-the-squirrel',IO:'io-net',
-  MOVE:'movement',ZK:'zksync',
+  MOVE:'movement',ZK:'zksync',RAVE:'ravedao',
 };
 // ── CoinMarketCap 슬러그 오버라이드 (단순 name→slug 규칙 실패하는 코인) ──
 const CMC_SLUGS={BTC:'bitcoin',ETH:'ethereum',USDT:'tether',BNB:'bnb',SOL:'solana',USDC:'usd-coin',XRP:'xrp',DOGE:'dogecoin',TON:'toncoin',ADA:'cardano',TRX:'tron',AVAX:'avalanche',SHIB:'shiba-inu',DOT:'polkadot-new',LINK:'chainlink',BCH:'bitcoin-cash',NEAR:'near-protocol',MATIC:'polygon',LTC:'litecoin',UNI:'uniswap',ICP:'internet-computer',LEO:'unus-sed-leo',APT:'aptos',DAI:'multi-collateral-dai',ETC:'ethereum-classic',HBAR:'hedera',RNDR:'render-token',RENDER:'render-token',ATOM:'cosmos',ARB:'arbitrum',STX:'stacks',FIL:'filecoin',XLM:'stellar',IMX:'immutable-x',CRO:'cronos',OP:'optimism-ethereum',VET:'vechain',INJ:'injective',MKR:'maker',GRT:'the-graph',ORDI:'ordi',WIF:'dogwifhat',PEPE:'pepe',BONK:'bonk1',FLOKI:'floki-inu',TIA:'celestia',JUP:'jupiter-ag',WLD:'worldcoin-org',SEI:'sei',TRUMP:'official-trump',ENA:'ethena',SUI:'sui',PYTH:'pyth-network',BLUR:'blur-token',DYDX:'dydx-chain',GMX:'gmx',PENDLE:'pendle',OM:'mantra',IO:'io-net',MOVE:'movement',ZK:'zksync',PNUT:'peanut-the-squirrel',LDO:'lido-dao',CRV:'curve-dao-token',COMP:'compound',ALGO:'algorand',FTM:'fantom',SAND:'the-sandbox',MANA:'decentraland',AXS:'axie-infinity',RUNE:'thorchain',AAVE:'aave',NOT:'notcoin',HAEDAL:'haedal-protocol',AERGO:'aergo'};
@@ -567,15 +680,20 @@ function _shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Ma
 
 // 순차 폴백 fetch (일반 API용)
 async function corsFetch(url,opts={}){
+  // 프록시 경쟁: 가장 빠른 응답을 채택 (업비트 패턴과 동일)
   const proxies=_shuffle(_GENERAL_PROXIES);
-  for(const wrap of proxies){
-    try{
-      const r=await fetch(wrap(url),{...opts,signal:AbortSignal.timeout(opts.timeout||8000)});
-      if(r.ok)return r;
-      if(r.status===429){await new Promise(res=>setTimeout(res,600));continue;}
-    }catch{}
-  }
-  return null;
+  const timeout=opts.timeout||8000;
+  return new Promise(resolve=>{
+    let done=false;let remaining=proxies.length;
+    proxies.forEach(wrap=>{
+      const controller=new AbortController();
+      fetch(wrap(url),{...opts,signal:controller.signal})
+        .then(r=>{if(r.ok&&!done){done=true;resolve(r);proxies.forEach(()=>{});}})
+        .catch(()=>{})
+        .finally(()=>{remaining--;if(remaining===0&&!done)resolve(null);});
+      setTimeout(()=>controller.abort(),timeout);
+    });
+  });
 }
 async function corsJson(url,opts){const r=await corsFetch(url,opts);return r?r.json().catch(()=>null):null;}
 
@@ -1199,7 +1317,7 @@ function renderStocksList(list){
   const pct=v=>{if(v==null||isNaN(v))return`<span style="color:#475569;">—</span>`;const c=v>=0?'#10b981':'#ef4444';return`<span style="color:${c};font-weight:600;">${v>=0?'+':''}${v.toFixed(2)}%</span>`;};
   const arr=G.stkAsc?'↑':'↓';
   const sh=(label,key)=>{const a=G.stkSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setStkSort('${key}')" style="text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
+  const hdr=`<div class="lhdr lhdr-stk" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
     ${watchHdr()}
     <span style="text-align:center;color:var(--t3);">#</span>
     <span style="color:var(--t3);">주식</span>
@@ -1210,7 +1328,7 @@ function renderStocksList(list){
   const rows=visible.map(s=>{
     const priceDisp=isKrw?F.krw(s.priceUsd*G_KRW):F.price(s.priceUsd);
     const volDisp=isKrw?F.krwAbbr(s.vol24*G_KRW):F.money(s.vol24);
-    return`<div class="ci" onclick="pickCoin('${s.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;cursor:pointer;">
+    return`<div class="ci ci-stk" onclick="pickCoin('${s.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;cursor:pointer;">
       <span style="text-align:center;">${starCell(s.symbol)}</span>
       <span style="text-align:center;font-size:11px;color:var(--t3);font-weight:700;">${s.rank}</span>
       <div style="display:flex;align-items:center;gap:8px;min-width:0;">
@@ -1267,7 +1385,7 @@ function renderFuturesList(futures){
   const pct=v=>{if(v==null||isNaN(v))return`<span style="color:#475569;">—</span>`;const c=v>=0?'#10b981':'#ef4444';return`<span style="color:${c};font-weight:600;">${v>=0?'+':''}${v.toFixed(2)}%</span>`;};
   const arr=G.futAsc?'↑':'↓';
   const sh=(label,key)=>{const a=G.futSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setFutSort('${key}')" style="text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
+  const hdr=`<div class="lhdr lhdr-fut" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
     ${watchHdr()}
     <span style="text-align:center;color:var(--t3);">#</span>
     <span style="color:var(--t3);">코인</span>
@@ -1280,7 +1398,7 @@ function renderFuturesList(futures){
     // 선물은 USD 페어이므로 가격은 통화 토글 무관하게 항상 달러로
     const priceCell=`<span style="text-align:right;font-size:12px;font-weight:700;color:var(--t1);white-space:nowrap;display:block;">${F.price(f.priceUsd)}</span>`;
     const volCell=dual(F.money(f.vol24),F.krwAbbr(f.vol24*G_KRW));
-    return`<div class="ci" onclick="pickCoin('${f.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;">
+    return`<div class="ci ci-fut" onclick="pickCoin('${f.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;">
       <span style="text-align:center;">${starCell(f.symbol)}</span>
       <span style="text-align:center;font-size:11px;color:var(--t3);font-weight:700;">${f.rank}</span>
       <div style="display:flex;align-items:center;gap:8px;min-width:0;">
@@ -1320,7 +1438,7 @@ function renderCoinList(coins){
   const pct=v=>{if(v==null||isNaN(v))return`<span style="color:#475569;">—</span>`;const c=v>=0?'#10b981':'#ef4444';return`<span style="color:${c};font-weight:600;">${v>=0?'+':''}${v.toFixed(2)}%</span>`;};
   const arr=G.asc?'↑':'↓';
   const sh=(label,key)=>{const a=G.sort===key;const c=a?'#f59e0b':'var(--t3)';return`<span onclick="setSort('${key}')" style="text-align:right;cursor:pointer;user-select:none;color:${c};transition:color .1s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${a?'#f59e0b':'var(--t3)'}'">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
+  const hdr=`<div class="lhdr lhdr-coin" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
     ${watchHdr()}
     <span style="text-align:center;color:var(--t3);">#</span>
     <span style="color:var(--t3);">코인</span>
@@ -1335,7 +1453,7 @@ function renderCoinList(coins){
     const volCell=dual(F.money(c.vol24),F.krwAbbr(c.vol24*G_KRW));
     const mcUsd=c.mcUsd||cgCache[c.symbol]?.marketCapUsd||0; // 캐시 폴백
     const mcCell=mcUsd?dual(F.money(mcUsd),F.krwAbbr(mcUsd*G_KRW)):'<span style="color:#475569;">—</span>';
-    return`<div class="ci" onclick="pickCoin('${c.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;">
+    return`<div class="ci ci-coin" onclick="pickCoin('${c.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;">
       <span style="text-align:center;">${starCell(c.symbol)}</span>
       <span style="text-align:center;font-size:11px;color:var(--t3);font-weight:700;">${c.rank}</span>
       <div style="display:flex;align-items:center;gap:8px;min-width:0;">
@@ -1540,7 +1658,7 @@ function renderKimchiList(list){
   const cols='22px 20px minmax(88px,1fr) 100px 56px 78px 62px';
   const arr=G.kimAsc?'↑':'↓';
   const sh=(label,key)=>{const a=G.kimSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setKimchiSort('${key}')" style="font-size:10px;font-weight:700;text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;white-space:nowrap;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'" title="${label} 기준 정렬">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:5px;padding:10px 12px 9px;border-bottom:1px solid var(--bd3);background:var(--bg3);position:sticky;top:0;z-index:2;align-items:center;">
+  const hdr=`<div class="lhdr lhdr-kim" style="display:grid;grid-template-columns:${cols};gap:5px;padding:10px 12px 9px;border-bottom:1px solid var(--bd3);background:var(--bg3);position:sticky;top:0;z-index:2;align-items:center;">
     ${watchHdr()}
     <span style="font-size:10px;color:#475569;font-weight:600;text-align:center;">#</span>
     <span style="font-size:10px;color:#64748b;font-weight:700;padding-left:32px;">코인</span>
@@ -1557,7 +1675,7 @@ function renderKimchiList(list){
     const uc=k.ch24>=0?'#10b981':'#ef4444';
     const volStr=F.krwAbbr(k.upVol);
     if(k.upbitOnly){
-      return`<div class="ci" onclick="window.open('https://upbit.com/exchange?code=CRIX.UPBIT.KRW-${k.symbol}','_blank')" style="display:grid;grid-template-columns:${cols};gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);opacity:.8;cursor:pointer;">
+      return`<div class="ci ci-kim" onclick="window.open('https://upbit.com/exchange?code=CRIX.UPBIT.KRW-${k.symbol}','_blank')" style="display:grid;grid-template-columns:${cols};gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);opacity:.8;cursor:pointer;">
         <span style="text-align:center;">${starCell(k.symbol)}</span>
         <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
         <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
@@ -1582,7 +1700,7 @@ function renderKimchiList(list){
     }
     const pc=k.premium>=0?'#10b981':'#ef4444';
     const bc=k.binCh24>=0?'#10b981':'#ef4444';
-    return`<div class="ci" onclick="pickCoin('${k.symbol}USDT')" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);">
+    return`<div class="ci ci-kim" onclick="pickCoin('${k.symbol}USDT')" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);">
       <span style="text-align:center;">${starCell(k.symbol)}</span>
       <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
       <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
@@ -1673,7 +1791,7 @@ function renderUpbitList(list){
   const pct=v=>{if(v==null||isNaN(v))return`<span style="color:#475569;">—</span>`;const c=v>=0?'#10b981':'#ef4444';return`<span style="color:${c};font-weight:600;">${v>=0?'+':''}${v.toFixed(2)}%</span>`;};
   const arr=G.upAsc?'↑':'↓';
   const sh=(label,key)=>{const a=G.upSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setUpbitSort('${key}')" style="text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
+  const hdr=`<div class="lhdr lhdr-upb" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:2;">
     ${watchHdr()}
     <span style="text-align:center;color:var(--t3);">#</span>
     <span style="color:var(--t3);">코인</span>
@@ -1685,7 +1803,7 @@ function renderUpbitList(list){
     // 업비트 표기 — 가격은 원화 (1원 미만은 소수점), 거래대금은 백만 단위
     const priceDisp=F.krwPrice(u.priceKrw);
     const volDisp=F.krwMil(u.vol24);
-    return`<div class="ci" onclick="pickUpbit('${u.symbol}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;cursor:pointer;">
+    return`<div class="ci ci-upb" onclick="pickUpbit('${u.symbol}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;cursor:pointer;">
       <span style="text-align:center;">${starCell(u.symbol)}</span>
       <span style="text-align:center;font-size:11px;color:var(--t3);font-weight:700;">${u.rank}</span>
       <div style="display:flex;align-items:center;gap:8px;min-width:0;">
@@ -1930,7 +2048,7 @@ function renderDexList(list){
   // DexScreener 스타일 테이블 (5M 제거 → 컬럼 더 여유)
   const cols='22px minmax(110px,1fr) 68px 78px 56px 56px 56px 64px';
   const hdrCell=(txt,align='right')=>`<span style="text-align:${align};color:var(--t3);">${txt}</span>`;
-  const hdr=`<div style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:9px 10px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:3;">
+  const hdr=`<div class="lhdr lhdr-dex" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:9px 10px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:3;">
     ${hdrCell('#','center')}
     ${hdrCell('토큰','left')}
     ${hdrCell('시총')}
@@ -1944,7 +2062,7 @@ function renderDexList(list){
   const rows=visible.map(t=>{
     const m=CHAIN_META[t.chainId]||{c:'#64748b',n:t.chainId};
     const mc=t.mcUsd||t.fdv||0;
-    return`<div class="ci" onclick="pickDex('${t.address}','${t.chainId}')" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:10px;border-bottom:1px solid var(--bd3);font-size:11px;cursor:pointer;">
+    return`<div class="ci ci-dex" onclick="pickDex('${t.address}','${t.chainId}')" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:10px;border-bottom:1px solid var(--bd3);font-size:11px;cursor:pointer;">
       <span style="text-align:center;font-size:10px;color:var(--t3);font-weight:700;">${t.rank}</span>
       <div style="display:flex;align-items:center;gap:7px;min-width:0;">
         ${_dexAvatar(t,30)}
@@ -2148,95 +2266,53 @@ async function loadCoinDetail(binSym){
       el.innerHTML=pairs.length?dexOnchainBlock(pairs):'<div style="font-size:12px;color:#64748b;">DEX 온체인 데이터 없음</div>';
     }).catch(()=>{});
 
-    // 비동기: 캐시 → CoinGecko → CryptoCompare → CoinPaprika → CoinCap → CoinLore
+    // 비동기: CoinGecko 우선 (ID 직접 → 심볼 캐시 → 검색) → 실패 시 다른 소스 폴백
     (async()=>{
       const infoEl=document.getElementById('info-sec');
       let asset=null;
 
-      // 0차: 글로벌 캐시 (페이지 로드 시 미리 받은 상위 2000개)
       await initCgCache();
-      asset=cgCache[sym]||null;
+      const cgId=COINGECKO_IDS[sym];
+      const cpId=CP_IDS[sym];
+      const hasMc=a=>a&&parseFloat(a.marketCapUsd||0)>0;
 
-      // 1차: CoinGecko ID 직접 조회 (캐시 미스 + ID 맵 있을 때)
-      if(!asset){
-        const cgId=COINGECKO_IDS[sym];
-        if(cgId){
+      // 1차: CoinGecko (기본 기준)
+      // 1-A) ID 맵이 있으면 해당 ID로 직접 조회 (심볼 충돌 무시)
+      if(cgId){
+        try{
+          const d=await cgGet(`/coins/markets?vs_currency=usd&ids=${cgId}&sparkline=false`);
+          if(d?.[0]){asset=cgNormalize(d[0]);cgCache[sym]=asset;}
+        }catch{}
+      }else{
+        // 1-B) ID 맵 없으면 심볼 캐시 먼저
+        asset=cgCache[sym]||null;
+        // 1-C) 캐시에도 없으면 CG 검색 → markets 조회
+        if(!hasMc(asset)){
           try{
-            const d=await cgGet(`/coins/markets?vs_currency=usd&ids=${cgId}&sparkline=false`);
-            if(d?.[0]){asset=cgNormalize(d[0]);cgCache[sym]=asset;}
+            const sd=await cgGet(`/search?query=${sym}`);
+            const found=(sd?.coins||[]).find(c=>c.symbol.toUpperCase()===sym);
+            if(found){
+              const md=await cgGet(`/coins/markets?vs_currency=usd&ids=${found.id}&sparkline=false`);
+              if(md?.[0]){asset=cgNormalize(md[0]);cgCache[sym]=asset;}
+            }
           }catch{}
         }
       }
 
-      // 2차: CryptoCompare (CoinGecko 실패 시 가장 빠르고 안정적)
-      if(!asset||!asset.marketCapUsd){
-        try{
-          const d=await ccrGet(`/data/pricemultifull?fsyms=${sym}&tsyms=USD`);
-          const ccr=ccrNormalize(d,sym);
-          if(ccr&&ccr.marketCapUsd>0){
-            asset=asset?{...asset,marketCapUsd:ccr.marketCapUsd,supply:asset.supply||ccr.supply,priceUsd:asset.priceUsd||ccr.priceUsd,volumeUsd24Hr:asset.volumeUsd24Hr||ccr.volumeUsd24Hr,source:asset.source+'+cryptocompare'}:ccr;
-          }
-        }catch{}
-      }
-
-      // 3차: CoinGecko 검색 (잡코 — ID 맵에 없는 코인)
-      if(!asset){
-        try{
-          const sd=await cgGet(`/search?query=${sym}`);
-          const found=(sd?.coins||[]).find(c=>c.symbol.toUpperCase()===sym);
-          if(found){
-            const md=await cgGet(`/coins/markets?vs_currency=usd&ids=${found.id}&sparkline=false`);
-            if(md?.[0]){asset=cgNormalize(md[0]);cgCache[sym]=asset;}
-          }
-        }catch{}
-      }
-
-      // 4차: CoinPaprika (ID 맵)
-      if(!asset){
-        const cpId=CP_IDS[sym];
-        if(cpId){
-          try{
-            const d=await cpGet(cpId);
-            if(d?.quotes?.USD)asset=cpNormalize(d);
-          }catch{}
-        }
-      }
-
-      // 5차: CoinCap 직접 + 검색
-      if(!asset){
-        try{
-          const d1=await ccGet(`/assets/${sym.toLowerCase()}`);
-          if(d1?.data?.symbol?.toUpperCase()===sym)asset={rank:parseInt(d1.data.rank),marketCapUsd:parseFloat(d1.data.marketCapUsd||0),supply:parseFloat(d1.data.supply||0),maxSupply:parseFloat(d1.data.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(d1.data.priceUsd||0),volumeUsd24Hr:parseFloat(d1.data.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};
-        }catch{}
-        if(!asset){
-          try{
-            const d2=await ccGet(`/assets?search=${sym.toLowerCase()}&limit=10`);
-            const found=(d2?.data||[]).find(a=>a.symbol.toUpperCase()===sym);
-            if(found)asset={rank:parseInt(found.rank),marketCapUsd:parseFloat(found.marketCapUsd||0),supply:parseFloat(found.supply||0),maxSupply:parseFloat(found.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(found.priceUsd||0),volumeUsd24Hr:parseFloat(found.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};
-          }catch{}
-        }
-      }
-
-      // 6차: CoinLore (심볼로 검색)
-      if(!asset){
-        try{
-          const d=await clGet(`/api/tickers/?start=0&limit=100`);
-          // CoinLore doesn't have symbol-based endpoint, but tickers list works for top coins
-          const found=(d?.data||[]).find(a=>a.symbol?.toUpperCase()===sym);
-          if(found){
-            asset={
-              rank:parseInt(found.rank)||null,
-              marketCapUsd:parseFloat(found.market_cap_usd)||0,
-              supply:parseFloat(found.csupply)||0,
-              maxSupply:parseFloat(found.msupply)||null,
-              totalSupply:parseFloat(found.tsupply)||null,
-              priceUsd:parseFloat(found.price_usd)||0,
-              volumeUsd24Hr:parseFloat(found.volume24)||0,
-              vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,
-              source:'coinlore'
-            };
-          }
-        }catch{}
+      // 2차: CG 실패 시 다른 코인마켓 병렬 경쟁 (CryptoCompare · CoinPaprika · CoinCap · CoinLore)
+      if(!hasMc(asset)){
+        const fallbacks=[
+          ccrGet(`/data/pricemultifull?fsyms=${sym}&tsyms=USD`).then(d=>ccrNormalize(d,sym)).catch(()=>null),
+          cpId?cpGet(cpId).then(d=>d?.quotes?.USD?cpNormalize(d):null).catch(()=>null):Promise.resolve(null),
+          (async()=>{try{const d=await ccGet(`/assets/${sym.toLowerCase()}`);if(d?.data?.symbol?.toUpperCase()!==sym)return null;return{rank:parseInt(d.data.rank),marketCapUsd:parseFloat(d.data.marketCapUsd||0),supply:parseFloat(d.data.supply||0),maxSupply:parseFloat(d.data.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(d.data.priceUsd||0),volumeUsd24Hr:parseFloat(d.data.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};}catch{return null;}})(),
+          (async()=>{try{const d=await ccGet(`/assets?search=${sym.toLowerCase()}&limit=10`);const found=(d?.data||[]).find(a=>a.symbol.toUpperCase()===sym);if(!found)return null;return{rank:parseInt(found.rank),marketCapUsd:parseFloat(found.marketCapUsd||0),supply:parseFloat(found.supply||0),maxSupply:parseFloat(found.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(found.priceUsd||0),volumeUsd24Hr:parseFloat(found.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};}catch{return null;}})(),
+          (async()=>{try{const d=await clGet(`/api/tickers/?start=0&limit=100`);const found=(d?.data||[]).find(a=>a.symbol?.toUpperCase()===sym);if(!found)return null;return{rank:parseInt(found.rank)||null,marketCapUsd:parseFloat(found.market_cap_usd)||0,supply:parseFloat(found.csupply)||0,maxSupply:parseFloat(found.msupply)||null,totalSupply:parseFloat(found.tsupply)||null,priceUsd:parseFloat(found.price_usd)||0,volumeUsd24Hr:parseFloat(found.volume24)||0,vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coinlore'};}catch{return null;}})(),
+        ];
+        const winner=await new Promise(resolve=>{
+          let remaining=fallbacks.length;let done=false;
+          fallbacks.forEach(p=>p.then(r=>{if(!done&&hasMc(r)){done=true;resolve(r);}}).finally(()=>{remaining--;if(remaining===0&&!done)resolve(null);}));
+        });
+        if(winner)asset=winner;
       }
 
       // 결과 반영
