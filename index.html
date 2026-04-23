@@ -69,53 +69,50 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   #dexchainbar{padding:7px 8px 4px!important}
   #dexchainbar button{padding:6px 10px!important;font-size:11px!important}
 
-  /* ── 코인 리스트 (현물): vol/mc 숨김, 5컬럼 ── */
+  /* ── 코인 리스트 (현물): mc만 숨김, 6컬럼 (★ # 코인 가격 24h% 거래량) ── */
   .lhdr-coin,.ci-coin{
-    grid-template-columns:20px 24px minmax(0,1fr) minmax(70px,auto) 60px!important;
-    gap:6px!important;padding:10px 10px!important
+    grid-template-columns:18px 18px minmax(0,1fr) minmax(60px,auto) 52px 60px!important;
+    gap:5px!important;padding:9px 8px!important
   }
-  .lhdr-coin>:nth-child(6),.lhdr-coin>:nth-child(7),
-  .ci-coin>:nth-child(6),.ci-coin>:nth-child(7){display:none!important}
+  .lhdr-coin>:nth-child(7),.ci-coin>:nth-child(7){display:none!important}
 
-  /* ── 선물: vol 숨김, 5컬럼 ── */
+  /* ── 선물: 전체 6컬럼 유지 ── */
   .lhdr-fut,.ci-fut{
-    grid-template-columns:20px 24px minmax(0,1fr) minmax(70px,auto) 60px!important;
-    gap:6px!important;padding:10px 10px!important
+    grid-template-columns:18px 18px minmax(0,1fr) minmax(60px,auto) 52px 60px!important;
+    gap:5px!important;padding:9px 8px!important
   }
-  .lhdr-fut>:nth-child(6),.ci-fut>:nth-child(6){display:none!important}
 
-  /* ── 주식: vol 숨김 ── */
+  /* ── 주식: 전체 6컬럼 유지 ── */
   .lhdr-stk,.ci-stk{
-    grid-template-columns:20px 24px minmax(0,1fr) minmax(70px,auto) 60px!important;
-    gap:6px!important;padding:10px 10px!important
+    grid-template-columns:18px 18px minmax(0,1fr) minmax(60px,auto) 52px 60px!important;
+    gap:5px!important;padding:9px 8px!important
   }
-  .lhdr-stk>:nth-child(6),.ci-stk>:nth-child(6){display:none!important}
 
-  /* ── 업비트: vol 숨김 ── */
+  /* ── 업비트: 전체 6컬럼 유지 ── */
   .lhdr-upb,.ci-upb{
-    grid-template-columns:20px 24px minmax(0,1fr) minmax(80px,auto) 60px!important;
-    gap:6px!important;padding:10px 10px!important
+    grid-template-columns:18px 18px minmax(0,1fr) minmax(70px,auto) 52px 60px!important;
+    gap:5px!important;padding:9px 8px!important
   }
-  .lhdr-upb>:nth-child(6),.ci-upb>:nth-child(6){display:none!important}
 
-  /* ── 김프: vol 숨김, 6컬럼 (premium 유지) ── */
+  /* ── 김프: # 숨김, 6컬럼 (코인 가격 24h% 김프% 거래량) ── */
   .lhdr-kim,.ci-kim{
-    grid-template-columns:18px 18px minmax(0,1fr) minmax(70px,auto) 50px 56px!important;
-    gap:4px!important;padding:9px 8px!important
+    grid-template-columns:16px minmax(0,1fr) minmax(62px,auto) 44px 50px 52px!important;
+    gap:3px!important;padding:9px 7px!important
   }
-  .lhdr-kim>:nth-child(7),.ci-kim>:nth-child(7){display:none!important}
+  .lhdr-kim>:nth-child(2),.ci-kim>:nth-child(2){display:none!important}
 
-  /* ── DEX: mc/1h/6h 숨김, 5컬럼 ── */
+  /* ── DEX: mc/1h/6h 숨김, 5컬럼 (# 토큰 가격 24h 거래량) ── */
   .lhdr-dex,.ci-dex{
-    grid-template-columns:18px minmax(0,1fr) minmax(60px,auto) 52px 64px!important;
-    gap:5px!important;padding:10px 8px!important
+    grid-template-columns:16px minmax(0,1fr) minmax(56px,auto) 50px 60px!important;
+    gap:4px!important;padding:9px 7px!important
   }
   .lhdr-dex>:nth-child(3),.lhdr-dex>:nth-child(5),.lhdr-dex>:nth-child(6),
   .ci-dex>:nth-child(3),.ci-dex>:nth-child(5),.ci-dex>:nth-child(6){display:none!important}
 
-  /* 행 글자/이미지 살짝 줄임 */
-  .ci{font-size:12px!important}
-  .ci img{width:22px!important;height:22px!important}
+  /* 행 글자/이미지 컴팩트 */
+  .ci{font-size:11px!important}
+  .ci img{width:20px!important;height:20px!important}
+  .lhdr,.ci{letter-spacing:-.2px}
 
   /* ── 상세 뷰 ── */
   #detail-hdr{padding:9px 10px!important;gap:8px!important}
@@ -131,16 +128,27 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   #toast{font-size:12px!important;bottom:14px!important}
 }
 
-/* 더 좁은 화면 (360px 이하) — 추가 압축 */
+/* 더 좁은 화면 (380px 이하) — 추가 압축, 거래량은 유지 */
 @media(max-width:380px){
+  /* # 컬럼 숨겨서 컬럼 폭 확보 — 가격/24h%/거래량 유지 */
   .lhdr-coin,.ci-coin,.lhdr-fut,.ci-fut,.lhdr-stk,.ci-stk,.lhdr-upb,.ci-upb{
-    grid-template-columns:18px 20px minmax(0,1fr) minmax(60px,auto) 56px!important;
-    gap:5px!important;padding:9px 8px!important
+    grid-template-columns:16px minmax(0,1fr) minmax(56px,auto) 46px 56px!important;
+    gap:4px!important;padding:9px 6px!important
   }
+  .lhdr-coin>:nth-child(2),.ci-coin>:nth-child(2),
+  .lhdr-fut>:nth-child(2),.ci-fut>:nth-child(2),
+  .lhdr-stk>:nth-child(2),.ci-stk>:nth-child(2),
+  .lhdr-upb>:nth-child(2),.ci-upb>:nth-child(2){display:none!important}
+
+  /* 김프: 가장 빡빡 — 김프% + 거래량 유지 */
   .lhdr-kim,.ci-kim{
-    grid-template-columns:16px 16px minmax(0,1fr) minmax(58px,auto) 46px 50px!important;
-    gap:3px!important;padding:8px 6px!important
+    grid-template-columns:14px minmax(0,1fr) minmax(56px,auto) 38px 44px 46px!important;
+    gap:2px!important;padding:8px 5px!important
   }
+
+  .ci{font-size:10.5px!important}
+  .ci img{width:18px!important;height:18px!important}
+
   #hdr>div:first-child>div:first-child>div:first-child{font-size:14px!important}
   #cc-container{height:260px!important}
 }
