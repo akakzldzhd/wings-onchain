@@ -310,6 +310,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <span style="font-size:11px;color:var(--t3);">⋮⋮</span>
     <span style="font-size:12px;font-weight:800;color:var(--t1);">💬 실시간 채팅</span>
     <span id="chat-online" style="font-size:10px;font-weight:700;color:#10b981;margin-left:auto;">👥 ··</span>
+    <span id="chat-close-btn" style="cursor:pointer;font-size:16px;color:var(--t3);line-height:1;padding:0 2px;user-select:none;" title="채팅 닫기" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--t3)'">×</span>
   </div>
   <div id="chat-messages" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:200px;max-height:400px;font-size:11px;"></div>
   <div id="chat-input-bar" style="padding:7px 12px;border-top:1px solid var(--bd3);background:var(--bg3);display:flex;align-items:center;gap:5px;">
@@ -319,7 +320,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   </div>
 </div>
 <style>
-@media (max-width:1100px){#chat-panel{display:none!important;}}
+@media (max-width:1100px){#chat-panel,#chat-reopen-btn{display:none!important;}}
 #chat-messages::-webkit-scrollbar{width:4px}#chat-messages::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
 .chat-msg{display:flex;gap:6px;line-height:1.4;}
 .chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;}
@@ -329,11 +330,28 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 .chat-shake{animation:chatShake .3s;border-color:#ef4444!important;}
 @keyframes chatShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 </style>
+<!-- 채팅 다시 열기 버튼 (패널 닫혔을 때만 표시) -->
+<button id="chat-reopen-btn" style="position:fixed;bottom:20px;right:20px;z-index:60;background:#f59e0b;color:#0B0E11;border:none;border-radius:24px;padding:10px 16px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none;align-items:center;gap:6px;">💬 채팅 열기</button>
 <script>
 (function(){
   const panel=document.getElementById('chat-panel');
   const handle=document.getElementById('chat-drag-handle');
+  const closeBtn=document.getElementById('chat-close-btn');
+  const reopenBtn=document.getElementById('chat-reopen-btn');
   if(!panel||!handle)return;
+  // 채팅 패널 열기/닫기 토글 (localStorage 저장)
+  const setChatOpen=(open)=>{
+    panel.style.display=open?'flex':'none';
+    if(reopenBtn)reopenBtn.style.display=open?'none':'inline-flex';
+    try{localStorage.setItem('woc-chat-open',open?'1':'0');}catch{}
+  };
+  // 초기 상태: 저장된 값이 '0'이면 닫힘, 그 외엔 열림
+  try{
+    const saved=localStorage.getItem('woc-chat-open');
+    if(saved==='0')setChatOpen(false);
+  }catch{}
+  closeBtn?.addEventListener('click',e=>{e.stopPropagation();setChatOpen(false);});
+  reopenBtn?.addEventListener('click',()=>setChatOpen(true));
   // 저장된 위치 복원
   try{
     const saved=JSON.parse(localStorage.getItem('woc-chat-pos')||'null');
@@ -416,7 +434,7 @@ function toggleChannels(){
   const opening=m.style.display==='none'||!m.style.display;
   if(opening){
     const list=document.getElementById('ch-list');
-    list.innerHTML=MY_CHANNELS.length
+    const channelsHtml=MY_CHANNELS.length
       ?MY_CHANNELS.map(c=>`<a href="${c.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--bd3);border-radius:10px;text-decoration:none;transition:all .15s;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='var(--b1)'" onmouseout="this.style.borderColor='var(--bd3)';this.style.background='var(--bg3)'">
         <span style="font-size:22px;flex-shrink:0;">${c.emoji||'📢'}</span>
         <div style="flex:1;min-width:0;">
@@ -425,7 +443,17 @@ function toggleChannels(){
         </div>
         <span style="font-size:11px;color:#60a5fa;flex-shrink:0;">열기 →</span>
       </a>`).join('')
-      :'<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;line-height:1.7;">아직 등록된 채널이 없습니다.<br><span style="font-size:10px;color:#475569;">코드 상단 <b>MY_CHANNELS</b> 배열에 추가하세요.</span></div>';
+      :'<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;line-height:1.7;">아직 등록된 채널이 없습니다.</div>';
+    const reportHtml=`<div style="margin-top:14px;padding:11px 13px;background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.25);border-radius:10px;font-size:11px;color:var(--t2);line-height:1.6;">
+      <b style="color:#60a5fa;">📮 신고·문의</b><br>
+      부적절한 채팅·버그·문의는 텔레그램 <a href="https://t.me/akakzldzhd" target="_blank" rel="noopener" style="color:#f59e0b;text-decoration:none;font-weight:700;">@akakzldzhd</a> 로 알려주세요. 신고된 메시지는 확인 후 삭제됩니다.
+    </div>`;
+    const disclaimerHtml=`<div style="margin-top:10px;padding:10px 12px;background:rgba(148,163,184,.06);border:1px solid var(--bd3);border-radius:10px;font-size:10px;color:var(--t3);line-height:1.65;">
+      <b style="color:var(--t2);">⚠ 면책</b><br>
+      본 사이트의 시세·시가총액·온체인 정보는 <b>참고용</b>이며 투자 자문이 아닙니다. 데이터 정확성을 보장하지 않으며, 이용으로 인한 손실에 책임지지 않습니다.<br>
+      <span style="color:#475569;">데이터: CoinGecko · Binance · Upbit · DexScreener</span>
+    </div>`;
+    list.innerHTML=channelsHtml+reportHtml+disclaimerHtml;
     m.style.display='block';b.style.display='block';
   }else{m.style.display='none';b.style.display='none';}
 }
@@ -4829,9 +4857,10 @@ window.addEventListener('popstate',e=>{
     nickInput?.addEventListener('input', syncNick);
     nickInput?.addEventListener('blur', syncNick);
 
-    // 링크/욕설 차단
+    // 링크/욕설/예약 닉 차단
     const LINK_RE = /(https?:\/\/|www\.|t\.me\/|[\w-]+\.(com|net|org|io|co|kr|me|xyz|app|dev|biz|info|gg|tv|fi|ru|cn|jp))/i;
     const PROFANITY = ['시발','씨발','시바','씨바','쉬발','쒸발','ㅅㅂ','ㅆㅂ','개새','새끼','병신','ㅂㅅ','좆','존나','좆같','지랄','꺼져','닥쳐','미친','찐따','등신','년아','놈아','보지','자지','fuck','shit','bitch','asshole','dick'];
+    const RESERVED_NICKS = ['관리자','운영자','운영','공식','어드민','admin','administrator','owner','staff','official','wings','wingsroom','wingschatting','wingsessay'];
     const showChatErr = (msg) => {
       if (!msgsBox) return;
       const err = document.createElement('div');
@@ -4848,6 +4877,15 @@ window.addEventListener('popstate',e=>{
       const t = (msgInput.value || '').trim();
       if (!t) return;
       if (!myNick) {
+        nickInput?.focus();
+        nickInput?.classList.add('chat-shake');
+        setTimeout(()=>nickInput?.classList.remove('chat-shake'),400);
+        return;
+      }
+      // 닉네임 예약어 차단 (사칭 방지)
+      const nickNorm = myNick.toLowerCase().replace(/\s+/g,'');
+      if (RESERVED_NICKS.some(r => nickNorm.includes(r.toLowerCase()))) {
+        showChatErr('해당 닉네임은 사용할 수 없습니다 (예약어)');
         nickInput?.focus();
         nickInput?.classList.add('chat-shake');
         setTimeout(()=>nickInput?.classList.remove('chat-shake'),400);
