@@ -12,11 +12,58 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg0:#06090f;--bg1:#111827;--bg2:#1e293b;--bg2a:#1a2332;--bg3:#0f172a;--bd3:#2a3a52;--b1:#475569;--t1:#f8fafc;--t2:#cbd5e1;--t3:#94a3b8;}
+:root{--bg0:#0B0E11;--bg1:#181A20;--bg2:#1E2329;--bg2a:#2B3139;--bg3:#181A20;--bd3:#2B3139;--b1:#474D57;--t1:#EAECEF;--t2:#B7BDC6;--t3:#848E9C;}
 [data-theme="light"]{--bg0:#e8edf2;--bg1:#ffffff;--bg2:#f1f5f9;--bg2a:#e2e8f0;--bg3:#f8fafc;--bd3:#cbd5e1;--b1:#94a3b8;--t1:#0f172a;--t2:#1e293b;--t3:#475569;}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'Segoe UI','Noto Sans KR','Noto Sans SC','Malgun Gothic','Apple SD Gothic Neo','PingFang SC','Microsoft YaHei','Hiragino Sans GB',system-ui,sans-serif;background:var(--bg0);color:var(--t1);display:flex;justify-content:center;}
 #app{width:100%;max-width:680px;background:var(--bg1);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+/* 김프 비교 전용 화면 — 데스크톱 풀와이드 */
+body.km-compare #app{max-width:100% !important;width:100% !important;background:var(--bg0) !important;}
+/* 김프 보드 — 데스크톱 풀와이드 (김프 탭 리스트) */
+body.km-board #app{max-width:100% !important;width:100% !important;}
+body.km-board .lhdr-kim,body.km-board .ci-kim{grid-template-columns:22px 28px minmax(140px,1.6fr) minmax(120px,1.1fr) minmax(110px,1fr) minmax(110px,1fr) minmax(100px,.9fr) !important;gap:10px !important;padding:11px 18px !important;}
+body.km-board #lw{max-width:1600px;margin:0 auto;}
+.kb-top{padding:18px;background:var(--bg1);border-bottom:1px solid var(--bd3);display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;}
+.kb-title h2{font-size:20px;font-weight:800;color:var(--t1);margin-bottom:4px;}
+.kb-title p{font-size:12px;color:var(--t3);font-weight:500;}
+.kb-quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.kb-qbtn{padding:6px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--bd3);background:var(--bg2);color:var(--t3);transition:all .15s;}
+.kb-qbtn:hover{background:var(--bg3);color:var(--t1);}
+.kb-qbtn.on{background:rgba(16,185,129,.18);color:#10b981;border-color:#10b981;}
+.kb-qbtn.rev.on{background:rgba(239,68,68,.18);color:#ef4444;border-color:#ef4444;}
+.kb-sel{background:var(--bg2);color:var(--t1);border:1px solid var(--bd3);border-radius:7px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;}
+.kb-walletdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:middle;}
+@media(max-width:600px){
+  body.km-board .lhdr-kim,body.km-board .ci-kim{grid-template-columns:22px 20px minmax(88px,1fr) 100px 56px 78px 62px !important;gap:5px !important;padding:8px 12px !important;}
+  .kb-top{padding:12px;gap:10px;}
+  .kb-title h2{font-size:15px;}
+  .kb-title p{font-size:11px;}
+}
+.kc-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.kc-grid-1{display:grid;grid-template-columns:1fr;gap:14px;}
+.kc-pane{background:var(--bg1);border:1px solid var(--bd3);border-radius:12px;}
+.kc-chart-wrap{position:relative;width:100%;height:420px;padding:14px;}
+.kc-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:800;}
+.kc-tab{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--bd3);background:var(--bg2);color:var(--t3);transition:all .15s;}
+.kc-tab:hover{background:var(--bg3);color:var(--t1);}
+.kc-tab.active{background:#10b981;color:#fff;border-color:#10b981;}
+.kc-tab.alt-active{background:rgba(16,185,129,.15);color:#10b981;border-color:#10b981;}
+.kc-quick-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid var(--bd3);background:var(--bg2);color:var(--t3);transition:all .15s;}
+.kc-quick-btn.on{background:rgba(16,185,129,.18);color:#10b981;border-color:#10b981;}
+.kc-select{background:var(--bg2);color:var(--t1);border:1px solid var(--bd3);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;min-width:160px;}
+.kc-table{width:100%;border-collapse:collapse;}
+.kc-table th{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;padding:12px 14px;background:var(--bg2);border-bottom:1px solid var(--bd3);text-align:right;}
+.kc-table th:nth-child(-n+2){text-align:left;}
+.kc-table td{padding:14px;border-bottom:1px solid var(--bd3);}
+@media(max-width:900px){
+  .kc-grid-2{grid-template-columns:1fr !important;}
+  .kc-chart-wrap{height:340px;}
+}
+@media(max-width:600px){
+  .kc-tab,.kc-quick-btn{padding:6px 10px;font-size:11px;}
+  .kc-select{min-width:120px;font-size:12px;padding:6px 10px;}
+  .kc-table th,.kc-table td{padding:8px 10px;font-size:11px;}
+}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
 .ci{border-bottom:1px solid var(--bd3);cursor:pointer;transition:background .1s}
@@ -27,6 +74,8 @@ body{font-family:-apple-system,'Segoe UI','Noto Sans KR','Noto Sans SC','Malgun 
 .dtab{padding:7px 0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;border:none;background:transparent;color:#64748b;flex:1;white-space:nowrap}
 .dtab.on{background:var(--b1);color:#f59e0b}
 @keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin .8s linear infinite}
+@keyframes cellFlash{0%{background:rgba(245,158,11,.35);}100%{background:transparent;}}
+.cell-flash{animation:cellFlash .4s ease-out;border-radius:3px;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}.live-dot{animation:pulse 2s ease-in-out infinite}
 .pos{color:#10b981}.neg{color:#ef4444}
 .back-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg2);color:var(--t2);border:1px solid var(--b1);transition:all .15s}
@@ -64,8 +113,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   #binance-subtabs button{padding:6px 12px!important;font-size:12px!important;flex:1}
 
   /* 정렬바 컴팩트화 */
-  #sortbar,#futsortbar,#kimchisortbar,#dexsortbar{padding:7px 8px!important;gap:4px!important}
-  #sortbar button,#futsortbar button,#kimchisortbar button,#dexsortbar button{font-size:11px!important}
+  #sortbar,#kimchisortbar,#dexsortbar{padding:7px 8px!important;gap:4px!important}
+  #sortbar button,#kimchisortbar button,#dexsortbar button{font-size:11px!important}
   #dexchainbar{padding:7px 8px 4px!important}
   #dexchainbar button{padding:6px 10px!important;font-size:11px!important}
 
@@ -178,6 +227,8 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <span id="fng-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:var(--t3);cursor:help;white-space:nowrap;" title="Crypto Fear & Greed Index">😐 ··</span>
       <span id="dom-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:var(--t3);cursor:help;white-space:nowrap;" title="BTC 도미넌스 / ETH 도미넌스">₿ ··</span>
       <span id="online-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#10b981;cursor:help;white-space:nowrap;" title="지금 이 순간 동시접속자">👥 ··</span>
+      <span id="usdkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#22c55e;cursor:help;white-space:nowrap;" title="달러/원 환율">$ ₩··</span>
+      <span id="usdtkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:help;white-space:nowrap;" title="업비트 USDT/KRW">₮ ₩··</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
       <button id="theme-btn" onclick="toggleTheme()" style="padding:5px 9px;border-radius:8px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
@@ -190,16 +241,16 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   </div>
   <!-- 하단: 메인 탭 -->
   <div style="padding:4px 16px 4px;display:flex;gap:4px;">
-    <button id="tab-binance-main" onclick="pickBinance()" style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;">🪙 바이낸스</button>
-    <button data-tab="upbit"   onclick="setTab('upbit')"   style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🔵 업비트</button>
-    <button data-tab="kimchi"  onclick="setTab('kimchi')"  style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🌶 김프</button>
-    <button data-tab="dex"     onclick="setTab('dex')"     style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🦎 DEX</button>
+    <button id="tab-binance-main" data-i18n="binance" onclick="pickBinance()" style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;">🪙 바이낸스</button>
+    <button data-tab="upbit"  data-i18n="upbit"   onclick="setTab('upbit')"   style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🔵 업비트</button>
+    <button data-tab="kimchi" data-i18n="kimchi"  onclick="setTab('kimchi')"  style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🌶 김프</button>
+    <button data-tab="dex"    data-i18n="dex"     onclick="setTab('dex')"     style="padding:7px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🦎 DEX</button>
   </div>
   <!-- 바이낸스 서브탭 (현물/선물/주식) -->
   <div id="binance-subtabs" style="padding:0 16px 8px;display:flex;gap:4px;">
-    <button data-tab="coins"   onclick="setTab('coins')"   style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid #475569;">💎 현물</button>
-    <button data-tab="futures" onclick="setTab('futures')" style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid var(--bd3);">📈 선물</button>
-    <button data-tab="stocks"  onclick="setTab('stocks')"  style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid var(--bd3);">📊 주식</button>
+    <button data-tab="coins"   data-i18n="spot"    onclick="setTab('coins')"   style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid #475569;">💎 현물</button>
+    <button data-tab="futures" data-i18n="futures" onclick="setTab('futures')" style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid var(--bd3);">📈 선물</button>
+    <button data-tab="stocks"  data-i18n="stocks"  onclick="setTab('stocks')"  style="padding:5px 14px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:1px solid var(--bd3);">📊 주식</button>
   </div>
 </div>
 
@@ -210,25 +261,14 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   <!-- 코인 목록 뷰 -->
 
   <div id="list-view" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
-    <!-- 정렬 바 (현물) -->
-    <div id="sortbar" style="display:none;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;align-items:center;">
-      <button id="sb-vol"  onclick="setSort('vol')"  style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;">📊 거래대금<span id="sb-vol-arr"> ↓</span></button>
-      <button id="sb-gain" onclick="setSort('gain')" style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🚀 상승률</button>
-      <button id="sb-mc"   onclick="setSort('mc')"   style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">💰 시가총액</button>
-      <button id="sb-dir"  onclick="toggleDir()"     style="padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="오름/내림차순">↓</button>
-    </div>
-    <!-- 정렬 바 (선물) -->
-    <div id="futsortbar" style="display:none;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;align-items:center;">
-      <button id="fsb-vol"  onclick="setFutSort('vol')"  style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">📊 거래대금</button>
-      <button id="fsb-gain" onclick="setFutSort('gain')" style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;">🚀 상승률<span id="fsb-gain-arr"> ↓</span></button>
-      <button id="fsb-dir"  onclick="toggleFutDir()"    style="padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="오름/내림차순">↓</button>
-    </div>
-    <!-- 정렬 바 (김프) -->
-    <div id="kimchisortbar" style="display:none;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;align-items:center;">
-      <button id="ksb-vol"     onclick="setKimchiSort('vol')"     style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;">📊 거래대금</button>
-      <button id="ksb-premium" onclick="setKimchiSort('premium')" style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🌶 김프순</button>
-      <button id="ksb-ch"      onclick="setKimchiSort('ch')"      style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🚀 상승률</button>
-      <button id="ksb-dir"     onclick="toggleKimchiDir()"        style="padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">↓</button>
+<!-- 정렬 바 (김프) -->
+    <div id="kimchisortbar" style="display:none;flex-direction:column;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;">
+      <div style="display:flex;gap:5px;align-items:center;">
+        <div id="ksb-ex" style="display:flex;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:2px;flex-shrink:0;">
+          <button id="ksb-ex-upbit"   onclick="setKimEx('upbit')"   style="padding:5px 11px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:#1e3a8a;color:#60a5fa;border:none;">🔵 업비트</button>
+          <button id="ksb-ex-bithumb" onclick="setKimEx('bithumb')" style="padding:5px 11px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#64748b;border:none;">🟧 빗썸</button>
+        </div>
+      </div>
     </div>
     <!-- 체인 필터 바 (DEX) -->
     <div id="dexchainbar" style="display:none;gap:4px;padding:8px 12px 4px;background:var(--bg2);flex-shrink:0;align-items:center;overflow-x:auto;">
@@ -241,10 +281,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <!-- 정렬 바 (DEX) -->
     <div id="dexsortbar" style="display:none;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;align-items:center;">
       <button id="dsb-trend" onclick="setDexSort('trend')" style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🔥 트렌딩</button>
-      <button id="dsb-vol"  onclick="setDexSort('vol')"  style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;">📊 거래량</button>
-      <button id="dsb-gain" onclick="setDexSort('gain')" style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🚀 24h %</button>
-      <button id="dsb-liq"  onclick="setDexSort('liq')"  style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">💧 유동성</button>
-      <button id="dsb-dir"  onclick="toggleDexDir()"     style="padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">↓</button>
+      <button id="dsb-vol"   onclick="setDexSort('vol')"   style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">📊 거래대금</button>
     </div>
     <div id="lw" style="flex:1;overflow:auto;"></div>
   </div>
@@ -256,6 +293,12 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div id="detail-hdr" style="background:var(--bg2);border-bottom:1px solid var(--b1);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;"></div>
     <!-- 상세 내용 -->
     <div id="dp" style="flex:1;overflow-y:auto;padding:16px;"></div>
+  </div>
+
+  <!-- 김프 비교 전용 뷰 -->
+  <div id="kc-view" style="display:none;flex:1;flex-direction:column;overflow:hidden;background:var(--bg0);">
+    <div id="kc-hdr" style="background:var(--bg1);border-bottom:1px solid var(--bd3);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;"></div>
+    <div id="kc-body" style="flex:1;overflow-y:auto;"></div>
   </div>
 
 </div>
@@ -272,7 +315,8 @@ const FD='https://fapi.binance.com/futures/data';
 const DS='https://api.dexscreener.com';
 const CC='https://api.coincap.io/v2';
 const CG='https://api.coingecko.com/api/v3';
-let G={tab:'coins',sort:'vol',asc:false,futSort:'gain',futAsc:false,stkSort:'vol',stkAsc:false,kimSort:'vol',kimAsc:false,upSort:'vol',upAsc:false,dexSort:'vol',dexAsc:false,dexChain:'all',currency:'usd',lang:'en',chart:null,tf:'1d',coins:[],futures:[],stocks:[],kimchi:[],upbit:[],dex:[],curSym:null,detailSource:'binance',mcLoaded:false,coinsShown:100,futShown:100,stkShown:100,upShown:100,dexShown:50,watchlist:new Set(),showWatchOnly:false};
+let G={tab:'coins',sort:'vol',asc:false,futSort:'gain',futAsc:false,stkSort:'vol',stkAsc:false,kimSort:'vol',kimAsc:false,upSort:'vol',upAsc:false,dexSort:'vol',dexAsc:false,dexChain:'all',currency:'usd',lang:'en',chart:null,tf:'1d',coins:[],futures:[],stocks:[],kimchi:[],upbit:[],dex:[],curSym:null,detailSource:'binance',mcLoaded:false,coinsShown:100,futShown:100,stkShown:100,upShown:100,dexShown:50,watchlist:new Set(),showWatchOnly:false,kimReverseOnly:false,kimEx:'upbit'};
+try{const k=localStorage.getItem('woc-kim-ex');if(k==='upbit'||k==='bithumb')G.kimEx=k;}catch{}
 try{const l=localStorage.getItem('woc-lang');if(l==='ko'||l==='en')G.lang=l;}catch{}
 try{const c=localStorage.getItem('woc-currency');if(c==='usd'||c==='krw')G.currency=c;}catch{}
 try{const w=JSON.parse(localStorage.getItem('woc-watchlist')||'[]');if(Array.isArray(w))G.watchlist=new Set(w);}catch{}
@@ -284,11 +328,13 @@ try{G_ALARMS=JSON.parse(localStorage.getItem('woc-alarms')||'{}')||{};}catch{}
 function saveAlarms(){try{localStorage.setItem('woc-alarms',JSON.stringify(G_ALARMS));}catch{}}
 function requestAlarmPermission(){if('Notification'in window&&Notification.permission==='default')Notification.requestPermission();}
 function setAlarm(sym,upper,lower,source='binance'){
-  if(!upper&&!lower){delete G_ALARMS[sym];saveAlarms();toast(`${sym} 알람 해제됨`);return;}
-  G_ALARMS[sym]={upper:upper||null,lower:lower||null,source,triggered:false};
+  const hasU=upper!=null&&!isNaN(upper);
+  const hasL=lower!=null&&!isNaN(lower);
+  if(!hasU&&!hasL){delete G_ALARMS[sym];saveAlarms();toast(`${sym} 알람 해제됨`);return;}
+  G_ALARMS[sym]={upper:hasU?upper:null,lower:hasL?lower:null,source,triggered:false};
   saveAlarms();
   requestAlarmPermission();
-  toast(`${sym} 알람 설정 완료`);
+  toast(`${sym} ${source==='kimp'?'김프 ':''}알람 설정 완료`);
 }
 function notifyAlarm(sym,msg){
   if('Notification'in window&&Notification.permission==='granted'){
@@ -301,8 +347,32 @@ async function checkAlarms(){
   // Binance 가격 (일괄)
   let bnPrices={};
   try{const d=await bnGet('/ticker/price');if(Array.isArray(d))d.forEach(x=>{if(x.symbol.endsWith('USDT'))bnPrices[x.symbol.slice(0,-4)]=parseFloat(x.price);});}catch{}
+  // 김프 알람용: G.kimchi 캐시 활용 + 없으면 업비트 즉석 호출
+  const kimpSyms=syms.filter(s=>G_ALARMS[s]?.source==='kimp'&&!G_ALARMS[s].triggered);
+  let kimpMap={};
+  if(kimpSyms.length){
+    (G.kimchi||[]).forEach(k=>{if(k&&k.premium!=null)kimpMap[k.symbol]=k.premium;});
+    const missing=kimpSyms.filter(s=>kimpMap[s]==null);
+    if(missing.length){
+      try{
+        const codes=missing.map(s=>`KRW-${s}`).join(',');
+        const d=await upbitGet(`/v1/ticker?markets=${codes}`)||[];
+        d.forEach(t=>{
+          const s=t.market.replace('KRW-','');const u=t.trade_price;const b=bnPrices[s];
+          if(u&&b)kimpMap[s]=(u/(b*G_KRW)-1)*100;
+        });
+      }catch{}
+    }
+  }
   syms.forEach(sym=>{
     const a=G_ALARMS[sym];if(!a||a.triggered)return;
+    if(a.source==='kimp'){
+      const k=kimpMap[sym];if(k==null)return;
+      if(a.upper!=null&&k>=a.upper){notifyAlarm(sym,`김프 ${k.toFixed(2)}% — ${a.upper}% 상향 돌파`);a.triggered=true;}
+      else if(a.lower!=null&&k<=a.lower){notifyAlarm(sym,`김프 ${k.toFixed(2)}% — ${a.lower}% 하향 돌파`);a.triggered=true;}
+      if(a.triggered)saveAlarms();
+      return;
+    }
     const p=bnPrices[sym];if(!p)return;
     const priceKrw=p*G_KRW;
     if(a.source==='upbit'){
@@ -320,11 +390,25 @@ setInterval(checkAlarms,30*1000); // 30초마다 체크
 function openAlarmDialog(sym){
   const isUp=G.detailSource==='upbit';
   const existing=G_ALARMS[sym]||{};
-  const cur=prompt(`🔔 ${sym} 알람 설정\n\n${isUp?'업비트(원화)':'바이낸스($)'} 상향 가격을 입력 (취소하면 해제):\n현재 상향값: ${existing.upper||'(없음)'}`, existing.upper||'');
-  if(cur===null){setAlarm(sym,null,null);return;}
-  const upper=parseFloat(cur)||null;
-  const low=prompt(`🔔 ${sym} 하향 가격 (빈 값: 없음):`,existing.lower||'');
-  const lower=parseFloat(low)||null;
+  const mode=prompt(`🔔 ${sym} 알람 종류 선택\n\n1: ${isUp?'업비트(원화)':'바이낸스($)'} 가격 알람\n2: 김프(%) 알람 — 예: 3 입력 시 +3% 상향 돌파\n0: 알람 해제\n\n현재 설정: ${existing.source==='kimp'?`김프 ${existing.upper||'-'}/${existing.lower||'-'}%`:existing.upper?`가격 ${existing.upper}`:'(없음)'}`,existing.source==='kimp'?'2':'1');
+  if(mode===null)return;
+  if(mode==='0'){setAlarm(sym,null,null);return;}
+  if(mode==='2'){
+    const u=prompt(`🌶 ${sym} 김프 상향 임계값 (%, 빈 값=없음):\n예: 3 → 김프가 +3% 이상이면 알람`,existing.source==='kimp'?(existing.upper||''):'');
+    if(u===null)return;
+    const upper=u===''?null:parseFloat(u);
+    const l=prompt(`🌶 ${sym} 김프 하향 임계값 (%, 빈 값=없음):\n예: -2 → 김프가 -2% 이하(역프)이면 알람`,existing.source==='kimp'?(existing.lower||''):'');
+    if(l===null)return;
+    const lower=l===''?null:parseFloat(l);
+    setAlarm(sym,upper,lower,'kimp');
+    return;
+  }
+  const cur=prompt(`🔔 ${sym} 알람 설정\n\n${isUp?'업비트(원화)':'바이낸스($)'} 상향 가격을 입력 (빈 값: 없음):\n현재 상향값: ${existing.source!=='kimp'?(existing.upper||'(없음)'):'(없음)'}`, existing.source!=='kimp'?(existing.upper||''):'');
+  if(cur===null){return;}
+  const upper=cur===''?null:(parseFloat(cur)||null);
+  const low=prompt(`🔔 ${sym} 하향 가격 (빈 값: 없음):`,existing.source!=='kimp'?(existing.lower||''):'');
+  if(low===null)return;
+  const lower=low===''?null:(parseFloat(low)||null);
   setAlarm(sym,upper,lower,isUp?'upbit':'binance');
 }
 
@@ -639,11 +723,21 @@ function coinName(sym){
   return NAMES[sym]||cgCache[sym]?.name||sym;
 }
 
+const TAB_LABELS={
+  ko:{binance:'🪙 바이낸스',upbit:'🔵 업비트',kimchi:'🌶 김프',dex:'🦎 DEX',spot:'💎 현물',futures:'📈 선물',stocks:'📊 주식'},
+  en:{binance:'🪙 Binance',upbit:'🔵 Upbit',kimchi:'🌶 Kimchi',dex:'🦎 DEX',spot:'💎 Spot',futures:'📈 Futures',stocks:'📊 Stocks'},
+};
+function applyTabLabels(){
+  const dict=TAB_LABELS[G.lang]||TAB_LABELS.ko;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(dict[k])el.textContent=dict[k];});
+}
 function toggleLang(){
   G.lang=G.lang==='ko'?'en':'ko';
   try{localStorage.setItem('woc-lang',G.lang);}catch{}
   const btn=document.getElementById('lang-btn');
   if(btn)btn.textContent=G.lang==='ko'?'🇰🇷 한글':'🇺🇸 EN';
+  applyTabLabels();
+  if(typeof renderFxBadges==='function')renderFxBadges();
   // 목록 데이터의 name 필드 재계산 + 재렌더
   G.coins=G.coins.map(c=>({...c,name:coinName(c.symbol)}));
   G.futures=G.futures.map(c=>({...c,name:coinName(c.symbol)}));
@@ -655,6 +749,12 @@ function toggleLang(){
   else if(G.tab==='futures')renderFuturesList(sortFutures(G.futures));
   else if(G.tab==='kimchi')renderKimchiList(sortKimchi(G.kimchi));
 }
+// 아이콘 매핑 보정 — 키는 Binance 선물/현물 심볼, 값은 CG/CDN에서 잡히는 심볼
+const IMG_ALIAS={
+  LUNA2:'LUNA',NEIROETH:'NEIRO',RAYSOL:'RAY',JUPSOL:'JUP',PEPECOIN:'PEPE',
+  HARRYPOTTERSAUDISKS:'HARRY',XBT:'BTC',MIOTA:'IOTA',
+};
+
 const NAMES={BTC:'Bitcoin',ETH:'Ethereum',BNB:'BNB',XRP:'XRP',SOL:'Solana',ADA:'Cardano',DOGE:'Dogecoin',TRX:'TRON',AVAX:'Avalanche',SHIB:'Shiba Inu',DOT:'Polkadot',LINK:'Chainlink',MATIC:'Polygon',LTC:'Litecoin',TON:'Toncoin',UNI:'Uniswap',ATOM:'Cosmos',XLM:'Stellar',ETC:'Ethereum Classic',NEAR:'NEAR Protocol',APT:'Aptos',ARB:'Arbitrum',OP:'Optimism',SUI:'Sui',INJ:'Injective',PEPE:'Pepe',WIF:'dogwifhat',BONK:'Bonk',FLOKI:'Floki',HBAR:'Hedera',ICP:'Internet Computer',FIL:'Filecoin',VET:'VeChain',LDO:'Lido DAO',AAVE:'Aave',MKR:'Maker',CRV:'Curve DAO',COMP:'Compound',ALGO:'Algorand',FTM:'Fantom',SAND:'The Sandbox',MANA:'Decentraland',AXS:'Axie Infinity',RUNE:'THORChain',JUP:'Jupiter',TIA:'Celestia',NOT:'Notcoin',PYTH:'Pyth',BLUR:'Blur',DYDX:'dYdX',GMX:'GMX',STX:'Stacks',ORDI:'ORDI',RNDR:'Render',GRT:'The Graph',WLD:'Worldcoin',SEI:'SEI',PENDLE:'Pendle',ENA:'Ethena',OM:'MANTRA',TRUMP:'Official Trump',PNUT:'Peanut',IO:'io.net',MOVE:'Movement',ZK:'ZKsync'};
 
 // ── API ────────────────────────────────────────────
@@ -728,11 +828,26 @@ async function upbitGet(path){
   const r=await upbitFetch(url);
   return r?r.json().catch(()=>null):null;
 }
+// 업비트 KRW 마켓 목록 캐시 (10분) — 자주 바뀌지 않으므로 탭 전환 지연을 줄임
+let _upbitMarketsCache=null,_upbitMarketsAt=0;
+async function getUpbitMarkets(){
+  const now=Date.now();
+  if(_upbitMarketsCache&&(now-_upbitMarketsAt)<10*60*1000)return _upbitMarketsCache;
+  const r=await upbitGet('/v1/market/all')||[];
+  if(r.length){_upbitMarketsCache=r;_upbitMarketsAt=now;}
+  return r;
+}
 
 async function ccGet(path){return await corsJson(CC+path);}
 
 // CryptoCompare (무료, 안정적 — CoinGecko 실패 시 주요 폴백). CORS 프록시 체인 경유
 async function ccrGet(path){return await corsJson(`https://min-api.cryptocompare.com${path}`);}
+
+// 빗썸 공개 API
+async function bithumbGet(path){try{const r=await fetch(`https://api.bithumb.com${path}`,{signal:AbortSignal.timeout(7000)});if(!r.ok)return null;return await r.json();}catch{return null;}}
+// Bybit / OKX 펀딩비
+async function bybitGet(path){try{const r=await fetch(`https://api.bybit.com${path}`,{signal:AbortSignal.timeout(5000)});if(!r.ok)return null;return await r.json();}catch{return null;}}
+async function okxGet(path){try{const r=await fetch(`https://www.okx.com${path}`,{signal:AbortSignal.timeout(5000)});if(!r.ok)return null;return await r.json();}catch{return null;}}
 function ccrNormalize(d,sym){
   const raw=d?.RAW?.[sym]?.USD;const disp=d?.DISPLAY?.[sym]?.USD;
   if(!raw)return null;
@@ -755,8 +870,31 @@ function ccrNormalize(d,sym){
 async function clGet(path){return await corsJson(`https://api.coinlore.net${path}`);}
 async function cgGet(path){
   const d=await corsJson(CG+path,{headers:{'Accept':'application/json'}});
-  if(d&&(Array.isArray(d)||d?.id||d?.data||d?.coins||d?.market_caps))return d;
+  if(d&&(Array.isArray(d)||d?.id||d?.data||d?.coins||d?.market_caps||d?.market_data))return d;
   return null;
+}
+// 자산 정보 로컬 캐시 (24h TTL, 최대 200개)
+const _ASSET_CACHE_KEY='woc-asset-cache-v1';
+const _ASSET_TTL=24*60*60*1000;
+function getCachedAsset(sym){
+  try{
+    const c=JSON.parse(localStorage.getItem(_ASSET_CACHE_KEY)||'{}');
+    const e=c[sym];
+    if(e&&Date.now()-e.t<_ASSET_TTL&&e.a&&parseFloat(e.a.marketCapUsd||0)>0)return e.a;
+  }catch{}
+  return null;
+}
+function setCachedAsset(sym,a){
+  if(!a||!parseFloat(a.marketCapUsd||0))return;
+  try{
+    const c=JSON.parse(localStorage.getItem(_ASSET_CACHE_KEY)||'{}');
+    c[sym]={t:Date.now(),a};
+    const keys=Object.keys(c);
+    if(keys.length>200){
+      keys.sort((x,y)=>c[x].t-c[y].t).slice(0,keys.length-200).forEach(k=>delete c[k]);
+    }
+    localStorage.setItem(_ASSET_CACHE_KEY,JSON.stringify(c));
+  }catch{}
 }
 function cgNormalize(cg){return{cgId:cg.id,name:cg.name,image:cg.image,rank:cg.market_cap_rank,marketCapUsd:cg.market_cap,supply:cg.circulating_supply,maxSupply:cg.max_supply,totalSupply:cg.total_supply,priceUsd:cg.current_price,volumeUsd24Hr:cg.total_volume,vwap24Hr:null,ath:cg.ath,athDate:cg.ath_date,atl:cg.atl,atlDate:cg.atl_date,ch1h:cg.price_change_percentage_1h_in_currency,ch24h:cg.price_change_percentage_24h_in_currency,ch7d:cg.price_change_percentage_7d_in_currency,source:'coingecko'};}
 
@@ -826,19 +964,47 @@ const F={
   krwMil(n){if(!n||isNaN(n))return'—';n=parseFloat(n);const mil=Math.round(n/1e6);return`${mil.toLocaleString('ko')} 백만`;},
   chain(c){const m={ethereum:'⟠',bsc:'🔶',solana:'◎',polygon:'🟣',avalanche:'🔺',arbitrum:'🔵',base:'🔷',optimism:'🔴',sui:'💧',ton:'💎',tron:'🔴'};return m[(c||'').toLowerCase()]||'🔗';},
   img(sym,sz=28){
-    const s=sym.toLowerCase();
-    const cgImg=cgCache[sym]?.image;
-    const cdnUrl=`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/32/color/${s}.png`;
-    const fallback=`<div style=\\'width:${sz}px;height:${sz}px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,var(--bg3));display:flex;align-items:center;justify-content:center;font-size:${Math.ceil(sz*.38)}px;font-weight:800;color:#93c5fd;flex-shrink:0;\\'>${sym.slice(0,2)}</div>`;
-    // CoinGecko 이미지가 있으면 우선 사용 → CDN 폴백 → 텍스트 폴백
-    const primary=cgImg||cdnUrl;
-    const secondary=cgImg?cdnUrl:'';
-    const onErr=secondary
-      ?`this.onerror=null;this.src='${secondary}';this.onerror=function(){this.outerHTML='${fallback}'};`
-      :`this.outerHTML='${fallback}'`;
-    return`<img src="${primary}" width="${sz}" height="${sz}" style="border-radius:50%;flex-shrink:0;background:var(--bg3);" onerror="${onErr}">`;
+    // 정규화: cgCache 원본 우선 → IMG_ALIAS → 1000/1M strip
+    const norm=(()=>{
+      if(cgCache[sym]?.image)return sym;
+      if(IMG_ALIAS[sym])return IMG_ALIAS[sym];
+      const m=sym.match(/^1000(.+)$/);if(m)return m[1];
+      const m2=sym.match(/^1M(.+)$/);if(m2)return m2[1];
+      return sym;
+    })();
+    const lo=norm.toLowerCase();const loSym=sym.toLowerCase();
+    const cgImg=cgCache[norm]?.image||cgCache[sym]?.image;
+    // 폴백 체인 (순서대로 시도) — 가장 커버리지 높은 소스부터
+    const sources=[];
+    if(cgImg)sources.push(cgImg);                                                                   // CoinGecko (top 2000)
+    sources.push(`https://assets.coincap.io/assets/icons/${lo}@2x.png`);                            // CoinCap (top 2400+)
+    if(norm!==sym)sources.push(`https://assets.coincap.io/assets/icons/${loSym}@2x.png`);
+    sources.push(`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/32/color/${lo}.png`);    // CDN (top 200)
+    if(norm!==sym)sources.push(`https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/32/color/${loSym}.png`);
+    const rest=JSON.stringify(sources.slice(1)).replace(/"/g,'&quot;');
+    const fbText=norm.slice(0,Math.min(3,norm.length));
+    return`<img src="${sources[0]}" data-srcs="${rest}" data-fb="${fbText}" data-sz="${sz}" width="${sz}" height="${sz}" loading="lazy" decoding="async" style="border-radius:50%;flex-shrink:0;background:var(--bg3);" onerror="_imgFb(this)">`;
   }
 };
+
+// ── 아이콘 폴백 체인 헬퍼 (F.img용) ──
+function _imgFb(el){
+  try{
+    const srcs=JSON.parse(el.getAttribute('data-srcs')||'[]');
+    if(srcs.length){
+      const next=srcs.shift();
+      el.setAttribute('data-srcs',JSON.stringify(srcs));
+      el.src=next;
+    }else{
+      const sz=parseInt(el.getAttribute('data-sz'))||28;
+      const fb=el.getAttribute('data-fb')||'?';
+      const span=document.createElement('span');
+      span.style.cssText=`width:${sz}px;height:${sz}px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,var(--bg3));display:inline-flex;align-items:center;justify-content:center;font-size:${Math.ceil(sz*.34)}px;font-weight:800;color:#93c5fd;flex-shrink:0;`;
+      span.textContent=fb;
+      el.replaceWith(span);
+    }
+  }catch{el.onerror=null;}
+}
 
 // ── 탭 ────────────────────────────────────────────
 function _doSetTab(tab){
@@ -852,12 +1018,14 @@ function _doSetTab(tab){
   if(binMain){binMain.style.background=isBin?'var(--b1)':'transparent';binMain.style.color=isBin?'#f59e0b':'#64748b';binMain.style.border=isBin?'1px solid #475569':'1px solid transparent';}
   // 서브탭 바 표시/숨김
   const subs=document.getElementById('binance-subtabs');if(subs)subs.style.display=isBin?'flex':'none';
-  document.getElementById('sortbar').style.display='none';
-  document.getElementById('futsortbar').style.display='none';
-  document.getElementById('kimchisortbar').style.display='none';
+  const sb=document.getElementById('sortbar');if(sb)sb.style.display=tab==='coins'?'flex':'none';
+  document.getElementById('kimchisortbar').style.display=tab==='kimchi'?'flex':'none';
   const dxb=document.getElementById('dexsortbar');if(dxb)dxb.style.display=tab==='dex'?'flex':'none';
   const dcb=document.getElementById('dexchainbar');if(dcb)dcb.style.display=tab==='dex'?'flex':'none';
   document.getElementById('si').value='';
+  document.body.classList.remove('km-board');
+  // 김프 탭 진입 시 업비트 wallet status 미리 prefetch
+  if(tab==='kimchi'&&typeof getUpbitWalletStatus==='function')getUpbitWalletStatus().catch(()=>{});
   _showListViewNoHistory();loadList();
 }
 function setTab(tab){
@@ -872,7 +1040,7 @@ function pickBinance(){
 }
 function setSort(s){
   const sortChanged=G.sort!==s;
-  if(G.sort===s){G.asc=!G.asc;}else{G.sort=s;G.asc=false;}
+  if(s==='mc'){G.sort=s;G.asc=false;}else if(G.sort===s){G.asc=!G.asc;}else{G.sort=s;G.asc=false;}
   G.coinsShown=100;
   updateSortUI();
   // 시가총액 ↔ 거래대금/상승률 전환 시 데이터 소스가 달라짐 (mc = 현물+선물, 그 외 = 현물만)
@@ -887,19 +1055,13 @@ function setSort(s){
   }
 }
 function toggleDir(){G.asc=!G.asc;updateSortUI();if(G.coins.length)renderCoinList(sortCoins(G.coins));}
-function updateSortUI(){
-  const on='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;';
-  const off='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;';
-  const arr=G.asc?'↑':'↓';
-  document.getElementById('sb-vol').style.cssText=G.sort==='vol'?on:off;
-  document.getElementById('sb-gain').style.cssText=G.sort==='gain'?on:off;
-  document.getElementById('sb-mc').style.cssText=G.sort==='mc'?on:off;
-  const volArr=document.getElementById('sb-vol-arr');if(volArr)volArr.textContent=G.sort==='vol'?` ${arr}`:'';
-  const dirBtn=document.getElementById('sb-dir');if(dirBtn)dirBtn.textContent=arr;
-}
+function updateSortUI(){/* sortbar 제거됨 — 컬럼 헤더 클릭으로 정렬 */}
 function sortCoins(coins){
   const d=G.asc?1:-1;
-  return coins.map(c=>c).sort(G.sort==='vol'?(a,b)=>d*(a.vol24-b.vol24):G.sort==='mc'?(a,b)=>d*((a.mcUsd||0)-(b.mcUsd||0)):(a,b)=>d*(a.ch24-b.ch24)).map((c,i)=>({...c,rank:i+1}));
+  const sorted=coins.map(c=>c).sort(G.sort==='vol'?(a,b)=>d*(a.vol24-b.vol24):G.sort==='mc'?(a,b)=>d*((a.mcUsd||0)-(b.mcUsd||0)):(a,b)=>d*(a.ch24-b.ch24));
+  // 시총 정렬: CoinGecko의 글로벌 market_cap_rank 사용 (CMC/CG 사이트 순위와 일치)
+  if(G.sort==='mc')return sorted.map((c,i)=>({...c,rank:cgCache[c.symbol]?.rank||(i+1)}));
+  return sorted.map((c,i)=>({...c,rank:i+1}));
 }
 async function loadMktcapData(silent=false){
   if(G.mcLoaded&&!silent)return;
@@ -920,7 +1082,7 @@ async function loadMktcapData(silent=false){
   ]);
   // CryptoCompare 상위 100개 즉시 인덱스화
   const ccrMcMap={};
-  if(ccrTop?.Data){
+  if(Array.isArray(ccrTop?.Data)){
     ccrTop.Data.forEach(coin=>{
       const sym=coin.CoinInfo?.Name?.toUpperCase();
       const raw=coin.RAW?.USD;
@@ -935,13 +1097,25 @@ async function loadMktcapData(silent=false){
   (Array.isArray(futData)?futData:[]).filter(t=>t.symbol.endsWith('USDT')&&(futTrading.size===0||futTrading.has(t.symbol))&&!ex.some(x=>t.symbol.includes(x))&&!blk(t.symbol.replace('USDT',''))&&parseFloat(t.lastPrice)>0&&parseFloat(t.quoteVolume)>100000)
     .forEach(t=>{const s=t.symbol.replace('USDT','');if(!coinMap[s])coinMap[s]={symbol:s,name:coinName(s),priceUsd:parseFloat(t.lastPrice),ch24:parseFloat(t.priceChangePercent),vol24:parseFloat(t.quoteVolume),high24:parseFloat(t.highPrice),low24:parseFloat(t.lowPrice),binSym:t.symbol,mcUsd:0,futOnly:true};});
   const mergeCg=c=>{const cg=cgCache[c.symbol];const ccrMc=ccrMcMap[c.symbol]||0;const mc=c.mcUsd||cg?.marketCapUsd||ccrMc||0;return{...c,mcUsd:mc,ch1h:cg?.ch1h??c.ch1h,ch7d:cg?.ch7d??c.ch7d};};
-  G.coins=Object.values(coinMap).map(mergeCg);
+  // CoinGecko 시총 페이지와 동일하게 — CG cache 전체 보강 (Binance 미상장 코인 모두 포함)
+  const addCgOnlyCoins=arr=>{
+    const have=new Set(arr.map(c=>c.symbol));
+    const extras=[];
+    for(const sym in cgCache){
+      if(have.has(sym))continue;
+      const cg=cgCache[sym];
+      if(!cg||!cg.marketCapUsd||!cg.priceUsd)continue;
+      extras.push({symbol:sym,name:cg.name||coinName(sym),priceUsd:cg.priceUsd,ch24:cg.ch24h??0,ch1h:cg.ch1h,ch7d:cg.ch7d,mcUsd:cg.marketCapUsd,vol24:cg.volumeUsd24Hr||0,high24:0,low24:0,trades:0,binSym:null,noBinance:true,cgImage:cg.image});
+    }
+    return arr.concat(extras);
+  };
+  G.coins=addCgOnlyCoins(Object.values(coinMap).map(mergeCg));
   G.mcLoaded=true;
   // 1차 렌더 (CG 캐시에 이미 있는 데이터 기준)
   renderCoinList(sortCoins(G.coins));
   // CG 1차 (상위 1000) 완료 후 재렌더
   cgPromise.then(()=>{
-    G.coins=G.coins.map(mergeCg);
+    G.coins=addCgOnlyCoins(G.coins.filter(c=>!c.noBinance).map(mergeCg));
     if(G.tab==='coins'&&G.sort==='mc')renderCoinList(sortCoins(G.coins));
     // CoinCap 폴백은 백그라운드 (여전히 mcUsd 없는 코인 존재 시)
     if(G.coins.some(c=>!c.mcUsd)){
@@ -955,7 +1129,7 @@ async function loadMktcapData(silent=false){
   });
   // CG 2차 (1001~2000) 완료 후 재렌더
   if(cgCacheFullPromise)cgCacheFullPromise.then(()=>{
-    G.coins=G.coins.map(mergeCg);
+    G.coins=addCgOnlyCoins(G.coins.filter(c=>!c.noBinance).map(mergeCg));
     if(G.tab==='coins'&&G.sort==='mc')renderCoinList(sortCoins(G.coins));
   });
 }
@@ -1005,8 +1179,10 @@ async function silentRefreshList(){
       }else{
         const [data,spotTrading]=await Promise.all([bnGet('/ticker/24hr'),getSpotTradingSet()]);
         const ex=['UP','DOWN','BULL','BEAR','3L','3S','5L','5S'];const blk=s=>BLACKLIST.has(s.replace('USDT',''));
+        // 이전 mcUsd 보존 — CryptoCompare/CoinCap 폴백 값을 자동 새로고침이 지우지 않게
+        const prevMc={};G.coins.forEach(c=>{if(c.mcUsd)prevMc[c.symbol]=c.mcUsd;});
         const fresh=data.filter(t=>t.symbol.endsWith('USDT')&&(spotTrading.size===0||spotTrading.has(t.symbol))&&!ex.some(x=>t.symbol.includes(x))&&!blk(t.symbol)&&parseFloat(t.lastPrice)>0&&parseFloat(t.quoteVolume)>0&&parseFloat(t.bidPrice)>0&&parseFloat(t.askPrice)>0)
-          .map(t=>{const s=t.symbol.replace('USDT','');const cg=cgCache[s];return{symbol:s,name:coinName(s),priceUsd:parseFloat(t.lastPrice),ch24:parseFloat(t.priceChangePercent),ch1h:cg?.ch1h??null,ch7d:cg?.ch7d??null,mcUsd:cg?.marketCapUsd||0,vol24:parseFloat(t.quoteVolume),high24:parseFloat(t.highPrice),low24:parseFloat(t.lowPrice),trades:parseInt(t.count),binSym:t.symbol};})
+          .map(t=>{const s=t.symbol.replace('USDT','');const cg=cgCache[s];return{symbol:s,name:coinName(s),priceUsd:parseFloat(t.lastPrice),ch24:parseFloat(t.priceChangePercent),ch1h:cg?.ch1h??null,ch7d:cg?.ch7d??null,mcUsd:cg?.marketCapUsd||prevMc[s]||0,vol24:parseFloat(t.quoteVolume),high24:parseFloat(t.highPrice),low24:parseFloat(t.lowPrice),trades:parseInt(t.count),binSym:t.symbol};})
           .sort((a,b)=>b.vol24-a.vol24);
         G.coins=fresh.map((c,i)=>({...c,rank:i+1}));
         G.mcLoaded=false;
@@ -1056,6 +1232,8 @@ function stopDetailRefresh(){
 function _showListViewNoHistory(){
   document.getElementById('list-view').style.display='flex';
   document.getElementById('detail-view').style.display='none';
+  const kv=document.getElementById('kc-view');if(kv)kv.style.display='none';
+  if(document.body.classList.contains('km-compare')){document.body.classList.remove('km-compare');try{destroyCompareCharts();}catch{}}
   if(G.chart){G.chart.destroy();G.chart=null;}
   if(lwChart){lwChart.remove();lwChart=null;}
   if(simChart){simChart.destroy();simChart=null;}
@@ -1095,7 +1273,9 @@ function showDetailView(sym,name,price,ch24){
 function spin(){document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">로딩 중...</span></div>`;}
 
 async function loadList(){
-  spin();
+  // 캐시된 데이터가 있는 탭은 스피너 대신 즉시 노출 후 백그라운드 갱신
+  const hasCached=(G.tab==='kimchi'&&G.kimchi.length)||(G.tab==='upbit'&&G.upbit.length)||(G.tab==='coins'&&G.coins.length&&G.sort!=='mc')||(G.tab==='futures'&&G.futures.length)||(G.tab==='stocks'&&G.stocks.length)||(G.tab==='dex'&&G.dex.length);
+  if(!hasCached)spin();
   try{
     if(G.tab==='coins'){
       if(G.sort==='mc'){
@@ -1103,12 +1283,30 @@ async function loadList(){
       }else{
         const [data,spotTrading]=await Promise.all([bnGet('/ticker/24hr'),getSpotTradingSet()]);
         const ex=['UP','DOWN','BULL','BEAR','3L','3S','5L','5S'];const blk=s=>BLACKLIST.has(s.replace('USDT',''));
+        const prevMc={};G.coins.forEach(c=>{if(c.mcUsd)prevMc[c.symbol]=c.mcUsd;});
         const coins=data.filter(t=>t.symbol.endsWith('USDT')&&(spotTrading.size===0||spotTrading.has(t.symbol))&&!ex.some(x=>t.symbol.includes(x))&&!blk(t.symbol)&&parseFloat(t.lastPrice)>0&&parseFloat(t.quoteVolume)>0&&parseFloat(t.bidPrice)>0&&parseFloat(t.askPrice)>0)
-          .map(t=>{const s=t.symbol.replace('USDT','');const cg=cgCache[s];return{symbol:s,name:coinName(s),priceUsd:parseFloat(t.lastPrice),ch24:parseFloat(t.priceChangePercent),ch1h:cg?.ch1h??null,ch7d:cg?.ch7d??null,mcUsd:cg?.marketCapUsd||0,vol24:parseFloat(t.quoteVolume),high24:parseFloat(t.highPrice),low24:parseFloat(t.lowPrice),trades:parseInt(t.count),binSym:t.symbol};})
+          .map(t=>{const s=t.symbol.replace('USDT','');const cg=cgCache[s];return{symbol:s,name:coinName(s),priceUsd:parseFloat(t.lastPrice),ch24:parseFloat(t.priceChangePercent),ch1h:cg?.ch1h??null,ch7d:cg?.ch7d??null,mcUsd:cg?.marketCapUsd||prevMc[s]||0,vol24:parseFloat(t.quoteVolume),high24:parseFloat(t.highPrice),low24:parseFloat(t.lowPrice),trades:parseInt(t.count),binSym:t.symbol};})
           .sort((a,b)=>b.vol24-a.vol24).map((c,i)=>({...c,rank:i+1}));
         G.coins=coins;renderCoinList(sortCoins(coins));
-        // CG 캐시가 아직 로드 중이면 완료 후 재렌더로 1h/7d/MC 채우기
-        if(!Object.keys(cgCache).length){initCgCache().then(()=>{if(G.tab==='coins'&&G.sort!=='mc'){G.coins=G.coins.map(c=>{const cg=cgCache[c.symbol];return{...c,ch1h:cg?.ch1h??c.ch1h,ch7d:cg?.ch7d??c.ch7d,mcUsd:c.mcUsd||cg?.marketCapUsd||0};});renderCoinList(sortCoins(G.coins));}});}
+        // CG 캐시가 아직 로드 중이면 완료 후 재렌더로 1h/7d/MC 채우기 + CryptoCompare 폴백
+        const mergeFromCaches=()=>{
+          G.coins=G.coins.map(c=>{const cg=cgCache[c.symbol];return{...c,ch1h:c.ch1h??cg?.ch1h,ch7d:c.ch7d??cg?.ch7d,mcUsd:c.mcUsd||cg?.marketCapUsd||0};});
+          if(G.tab==='coins'&&G.sort!=='mc')renderCoinList(sortCoins(G.coins));
+        };
+        if(!Object.keys(cgCache).length){initCgCache().then(mergeFromCaches);}
+        // CG 2차(1001~2000)도 완료 시 재머지 — 이전엔 mc-sort 외엔 트리거 안 됐던 누락
+        if(typeof cgCacheFullPromise!=='undefined'&&cgCacheFullPromise)cgCacheFullPromise.then(mergeFromCaches);
+        // 추가: 여전히 mcUsd 없는 코인 있으면 CryptoCompare 상위 200 폴백
+        setTimeout(()=>{
+          const missing=G.coins.filter(c=>!c.mcUsd).slice(0,1);
+          if(!missing.length||G.tab!=='coins')return;
+          ccrGet('/data/top/mktcapfull?limit=100&tsym=USD').then(d=>{
+            if(!d?.Data)return;
+            const m={};d.Data.forEach(coin=>{const sym=coin.CoinInfo?.Name?.toUpperCase();const raw=coin.RAW?.USD;if(sym&&raw)m[sym]=parseFloat(raw.MKTCAP)||0;});
+            G.coins=G.coins.map(c=>({...c,mcUsd:c.mcUsd||m[c.symbol]||0}));
+            if(G.tab==='coins'&&G.sort!=='mc')renderCoinList(sortCoins(G.coins));
+          }).catch(()=>{});
+        },1500);
       }
     }else if(G.tab==='futures'){
       await loadFuturesList();
@@ -1240,19 +1438,13 @@ async function getTradfiSet(){
       const d=await r.json();
       // TRADING 상태 + USDT 쿼트만 (contractType 제한 완화 — TradFi는 PERPETUAL 외 타입일 수 있음)
       const trading=(d.symbols||[]).filter(s=>s.status==='TRADING'&&s.quoteAsset==='USDT');
-      // 1차: underlyingSubType 또는 tags 에 tradfi/stock/equity 등 — RWA는 크립토 포함이라 제외
+      // Binance Futures TradFi 탭에 공식 태깅된 심볼만 (심볼 매칭 폴백 제거 — 사용자 요청)
       const tagged=trading.filter(s=>{
         const subs=[...(s.underlyingSubType||[]),...(s.tags||[])];
         return subs.some(t=>{const x=String(t).toLowerCase();return x.includes('tradfi')||x.includes('stock')||x.includes('equity')||x.includes('commodity')||(x.includes('index')&&!x.includes('crypto'))||x.includes('etf');});
       }).map(s=>s.symbol);
-      // 2차: 심볼 매칭 (CLUSDT, CRCLUSDT, XAUUSDT 등) — 'X' 접미사 버전(TSLAXUSDT) 포함
-      const matched=trading.filter(s=>{
-        const base=(s.baseAsset||s.symbol.replace(/USDT$/,'')).toUpperCase();
-        const baseNoX=base.endsWith('X')?base.slice(0,-1):base;
-        return STOCK_SYMBOLS.has(base)||STOCK_SYMBOLS.has(baseNoX);
-      }).map(s=>s.symbol);
       // 크립토 프로젝트 제외 (Mantra/ONDO 같은 RWA 토큰 등)
-      const all=[...tagged,...matched].filter(sym=>{
+      const all=tagged.filter(sym=>{
         const base=sym.replace(/USDT$/,'').toUpperCase();
         return !STOCK_EXCLUDE.has(base);
       });
@@ -1359,18 +1551,7 @@ function renderStocksList(list){
 function setFutSort(s){
   if(G.futSort===s){G.futAsc=!G.futAsc;}else{G.futSort=s;G.futAsc=false;}
   G.futShown=100;
-  updateFutSortUI();
   if(G.futures.length)renderFuturesList(sortFutures(G.futures));
-}
-function toggleFutDir(){G.futAsc=!G.futAsc;updateFutSortUI();if(G.futures.length)renderFuturesList(sortFutures(G.futures));}
-function updateFutSortUI(){
-  const on='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;';
-  const off='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;';
-  const arr=G.futAsc?'↑':'↓';
-  document.getElementById('fsb-gain').style.cssText=G.futSort==='gain'?on:off;
-  document.getElementById('fsb-vol').style.cssText=G.futSort==='vol'?on:off;
-  const gainArr=document.getElementById('fsb-gain-arr');if(gainArr)gainArr.textContent=G.futSort==='gain'?` ${arr}`:'';
-  const dirBtn=document.getElementById('fsb-dir');if(dirBtn)dirBtn.textContent=arr;
 }
 function sortFutures(futures){
   const d=G.futAsc?1:-1;
@@ -1413,7 +1594,7 @@ function renderFuturesList(futures){
         ${F.img(f.symbol,24)}
         <div style="min-width:0;overflow:hidden;">
           <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t1);">${f.name}</div>
-          <div style="font-size:10px;color:var(--t3);white-space:nowrap;display:flex;gap:4px;align-items:center;font-weight:600;"><span>${f.symbol}</span><span style="font-size:8px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 4px;border-radius:3px;border:1px solid rgba(245,158,11,.35);font-weight:700;">PERP</span></div>
+          <div style="font-size:10px;color:var(--t3);white-space:nowrap;display:flex;gap:4px;align-items:center;font-weight:600;"><span>${f.symbol}</span></div>
         </div>
       </div>
       ${priceCell}
@@ -1427,9 +1608,9 @@ function renderFuturesList(futures){
   let fundWidget='';
   if(_fundingExtremes){
     const pill=(x,positive)=>{const c=x.rate>=0?'#ef4444':'#10b981';return`<span onclick="pickCoin('${x.binSym}')" style="cursor:pointer;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px;background:${x.rate>=0?'rgba(239,68,68,.12)':'rgba(16,185,129,.12)'};border:1px solid ${x.rate>=0?'rgba(239,68,68,.25)':'rgba(16,185,129,.25)'};color:${c};white-space:nowrap;">${x.symbol} ${x.rate>=0?'+':''}${x.rate.toFixed(3)}%</span>`;};
-    fundWidget=`<div style="margin:0 14px 8px;padding:8px 10px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;">
-      <div style="font-size:9px;color:var(--t3);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">⚡ 펀딩비 극단값 (롱→숏 = 빨강 / 숏→롱 = 초록)</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;">${_fundingExtremes.top.map(x=>pill(x,true)).join('')}<span style="color:var(--t3);align-self:center;margin:0 2px;">·</span>${_fundingExtremes.bottom.map(x=>pill(x,false)).join('')}</div>
+    fundWidget=`<div style="margin:0 14px 8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;text-align:center;">
+      <div style="font-size:12px;color:#f59e0b;font-weight:800;margin-bottom:8px;letter-spacing:.04em;">⚡ 펀딩비 극단값</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">${_fundingExtremes.top.map(x=>pill(x,true)).join('')}<span style="color:var(--t3);align-self:center;margin:0 2px;">·</span>${_fundingExtremes.bottom.map(x=>pill(x,false)).join('')}</div>
     </div>`;
   }
   document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${fundWidget}${hdr}${rows}${moreBtn}</div>`;
@@ -1461,14 +1642,17 @@ function renderCoinList(coins){
     const volCell=dual(F.money(c.vol24),F.krwAbbr(c.vol24*G_KRW));
     const mcUsd=c.mcUsd||cgCache[c.symbol]?.marketCapUsd||0; // 캐시 폴백
     const mcCell=mcUsd?dual(F.money(mcUsd),F.krwAbbr(mcUsd*G_KRW)):'<span style="color:#475569;">—</span>';
-    return`<div class="ci ci-coin" onclick="pickCoin('${c.binSym}')" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;">
+    const imgCell=c.noBinance&&c.cgImage?`<img src="${c.cgImage}" width="24" height="24" style="border-radius:50%;" onerror="this.style.display='none'">`:F.img(c.symbol,24);
+    const rowStyle=`display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--bd3);font-size:12px;${c.noBinance?'cursor:default;opacity:.92;':''}`;
+    const rowClick=c.noBinance?'':` onclick="pickCoin('${c.binSym}')"`;
+    return`<div class="ci ci-coin"${rowClick} style="${rowStyle}">
       <span style="text-align:center;">${starCell(c.symbol)}</span>
-      <span style="text-align:center;font-size:11px;color:var(--t3);font-weight:700;">${c.rank}</span>
+      <span style="text-align:center;font-size:11px;color:var(--t3);font-weight:700;">${c.rank||'—'}</span>
       <div style="display:flex;align-items:center;gap:8px;min-width:0;">
-        ${F.img(c.symbol,24)}
+        ${imgCell}
         <div style="min-width:0;overflow:hidden;">
           <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--t1);">${c.name}</div>
-          <div style="font-size:10px;color:var(--t3);white-space:nowrap;display:flex;gap:4px;align-items:center;font-weight:600;"><span>${c.symbol}</span>${c.futOnly?`<span style="font-size:8px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 4px;border-radius:3px;border:1px solid rgba(245,158,11,.35);font-weight:700;">PERP</span>`:''}</div>
+          <div style="font-size:10px;color:var(--t3);white-space:nowrap;display:flex;gap:4px;align-items:center;font-weight:600;"><span>${c.symbol}</span>${c.futOnly?`<span style="font-size:8px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 4px;border-radius:3px;border:1px solid rgba(245,158,11,.35);font-weight:700;">PERP</span>`:''}${c.noBinance?`<span style="font-size:8px;background:rgba(132,142,156,.15);color:#848E9C;padding:1px 4px;border-radius:3px;border:1px solid rgba(132,142,156,.35);font-weight:700;" title="Binance USDT 미상장 — CoinGecko 데이터">CG</span>`:''}</div>
         </div>
       </div>
       ${priceCell}
@@ -1516,25 +1700,40 @@ function toggleCurrency(){
 // ── 김프 (Kimchi Premium) ──────────────────────────
 async function loadKimchiList(){
   updateKimchiSortUI();
-  document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">업비트 · 바이낸스 시세 비교 중…</span></div>`;
+  // 이전 결과가 있으면 즉시 보여주고 백그라운드 갱신 (지연 체감 ↓)
+  if(G.kimchi&&G.kimchi.length){renderKimchiList(sortKimchi(G.kimchi));}
+  else{document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">업비트 · 바이낸스 시세 비교 중…</span></div>`;}
   try{
-    // 업비트 전체 KRW 마켓 목록 + 이름
-    const mkts=await upbitGet('/v1/market/all')||[];
-    const krwMkts=mkts.filter(m=>m.market.startsWith('KRW-'));
+    // 업비트·바이낸스 시세를 모두 병렬 — 마켓 목록은 캐시 사용
+    const [mkts,bnTickerData,spotTrading,bithumbResp]=await Promise.all([
+      getUpbitMarkets(),
+      bnGet('/ticker/24hr'),
+      getSpotTradingSet(),
+      bithumbGet('/public/ticker/ALL_KRW').catch(()=>null),
+    ]);
+    const krwMkts=(mkts||[]).filter(m=>m.market.startsWith('KRW-'));
     const upbitNameMap={};krwMkts.forEach(m=>{upbitNameMap[m.market.replace('KRW-','')]=m.korean_name||m.english_name||'';});
     const krwCodes=krwMkts.map(m=>m.market);
-    // 업비트 시세 (100개씩 분할)
+    // 업비트 ticker — 100개 청크를 병렬로
     const chunks=[];for(let i=0;i<krwCodes.length;i+=100)chunks.push(krwCodes.slice(i,i+100));
-    const upbitRows=[];
-    for(const chunk of chunks){
-      const d=await upbitGet(`/v1/ticker?markets=${chunk.join(',')}`)||[];
-      upbitRows.push(...d);
-    }
+    const tickerResponses=await Promise.all(chunks.map(c=>upbitGet(`/v1/ticker?markets=${c.join(',')}`).catch(()=>[])));
+    const upbitRows=tickerResponses.flat().filter(Boolean);
     const upbitMap={};
     upbitRows.filter(t=>t.trade_price>0&&t.acc_trade_price_24h>0&&t.market_state!=='DELISTED'&&t.market_state!=='PREVIEW')
       .forEach(t=>{upbitMap[t.market.replace('KRW-','')]={krw:t.trade_price,ch24:t.change_rate*100,vol:t.acc_trade_price_24h};});
-    // 바이낸스 현물: TRADING 상태이거나 거래량 충분한 페어만
-    const [binData,spotTrading]=await Promise.all([bnGet('/ticker/24hr'),getSpotTradingSet()]);
+    // 빗썸 시세 — 위에서 미리 받은 응답 사용
+    const bithumbMap={};
+    if(bithumbResp?.status==='0000'&&bithumbResp.data){
+      Object.entries(bithumbResp.data).forEach(([s,t])=>{
+        if(s==='date'||!t||typeof t!=='object')return;
+        const p=parseFloat(t.closing_price);
+        const v=parseFloat(t.acc_trade_value_24H);
+        const ch=parseFloat(t.fluctate_rate_24H);
+        if(p>0)bithumbMap[s]={krw:p,vol:v||0,ch24:isNaN(ch)?0:ch};
+      });
+    }
+    // 바이낸스 현물: TRADING 상태이거나 거래량 충분한 페어만 (위에서 받은 데이터 재사용)
+    const binData=bnTickerData;
     const binMap={};
     const valid=t=>{
       if(parseFloat(t.lastPrice)<=0)return false;
@@ -1575,23 +1774,30 @@ async function loadKimchiList(){
       if(up.vol<500000)return;
       const name=G.lang==='ko'?(NAMES_KO[sym]||upbitNameMap[sym]||NAMES[sym]||cgCache[sym]?.name||sym):(NAMES[sym]||cgCache[sym]?.name||upbitNameMap[sym]||sym);
       const bin=binMap[sym];
+      const bb=bithumbMap[sym]||null;
       if(!bin||bin.usd<=0){
-        upbitOnly.push({symbol:sym,name,upbitKrw:up.krw,binUsd:null,binKrw:null,premium:null,ch24:up.ch24,binCh24:null,upVol:up.vol,upbitOnly:true});
+        upbitOnly.push({symbol:sym,name,upbitKrw:up.krw,binUsd:null,binKrw:null,premium:null,bbKrw:bb?.krw||null,bbPremium:null,bbVol:bb?.vol||0,bbCh24:bb?.ch24??null,ch24:up.ch24,binCh24:null,upVol:up.vol,upbitOnly:true});
         return;
       }
       const binKrw=bin.usd*G_KRW;
       const premium=(up.krw/binKrw-1)*100;
       if(Math.abs(premium)>30){
         // 가격 불일치 (심볼 충돌 or 델리스팅 잔여 데이터) → 미상장 처리
-        upbitOnly.push({symbol:sym,name,upbitKrw:up.krw,binUsd:null,binKrw:null,premium:null,ch24:up.ch24,binCh24:null,upVol:up.vol,upbitOnly:true});
+        upbitOnly.push({symbol:sym,name,upbitKrw:up.krw,binUsd:null,binKrw:null,premium:null,bbKrw:bb?.krw||null,bbPremium:null,bbVol:bb?.vol||0,bbCh24:bb?.ch24??null,ch24:up.ch24,binCh24:null,upVol:up.vol,upbitOnly:true});
         return;
       }
-      result.push({symbol:sym,name,upbitKrw:up.krw,binUsd:bin.usd,binKrw,premium,ch24:up.ch24,binCh24:bin.ch24,upVol:up.vol,upbitOnly:false});
+      let bbPremium=null;
+      if(bb&&bb.krw>0){
+        const bp=(bb.krw/binKrw-1)*100;
+        if(Math.abs(bp)<=30)bbPremium=bp;
+      }
+      result.push({symbol:sym,name,upbitKrw:up.krw,binUsd:bin.usd,binKrw,premium,bbKrw:bb?.krw||null,bbPremium,bbVol:bb?.vol||0,bbCh24:bb?.ch24??null,ch24:up.ch24,binCh24:bin.ch24,upVol:up.vol,upbitOnly:false});
     });
     result.sort((a,b)=>b.premium-a.premium);
     upbitOnly.sort((a,b)=>b.upVol-a.upVol); // 업비트 단독 코인은 거래대금순
     G.kimchi=[...result,...upbitOnly];
     renderKimchiList(sortKimchi(G.kimchi));
+    if(typeof startKimchiRealtime==='function')startKimchiRealtime();
   }catch(e){
     document.getElementById('lw').innerHTML=`<div style="padding:24px;text-align:center;font-size:13px;color:#ef4444;">⚠ ${e.message}<br><br><button onclick="loadKimchiList()" style="background:var(--b1);color:#f59e0b;border:1px solid #475569;border-radius:8px;padding:7px 16px;cursor:pointer;font-size:12px;font-weight:600;">재시도</button></div>`;
   }
@@ -1600,14 +1806,19 @@ async function loadKimchiList(){
 function sortKimchi(list){
   const d=G.kimAsc?1:-1;
   const s=G.kimSort;
+  const isB=G.kimEx==='bithumb';
+  const getVol=k=>isB?(k.bbVol||0):(k.upVol||0);
+  const getCh=k=>isB?(k.bbCh24??0):(k.ch24||0);
+  const getP=k=>isB?(k.bbPremium??null):(k.premium??null);
+  const isOnly=k=>isB?(k.bbKrw==null):(k.upbitOnly);
   return list.slice().sort((a,b)=>{
-    // 업비트 단독은 항상 아래로 (김프순 정렬 시)
     if(s==='premium'){
-      if(a.upbitOnly&&!b.upbitOnly)return 1;
-      if(!a.upbitOnly&&b.upbitOnly)return -1;
-      if(a.upbitOnly&&b.upbitOnly)return d*(b.upVol-a.upVol);
+      const ao=isOnly(a),bo=isOnly(b);
+      if(ao&&!bo)return 1;
+      if(!ao&&bo)return -1;
+      if(ao&&bo)return d*(getVol(b)-getVol(a));
     }
-    return d*(s==='vol'?(a.upVol-b.upVol):s==='ch'?(a.ch24-b.ch24):(a.premium??-999)-(b.premium??-999));
+    return d*(s==='vol'?(getVol(a)-getVol(b)):s==='ch'?(getCh(a)-getCh(b)):((getP(a)??-999)-(getP(b)??-999)));
   });
 }
 
@@ -1618,31 +1829,93 @@ function setKimchiSort(s){
 }
 
 function toggleKimchiDir(){G.kimAsc=!G.kimAsc;updateKimchiSortUI();if(G.kimchi.length)renderKimchiList(sortKimchi(G.kimchi));}
-
-function updateKimchiSortUI(){
-  const on='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:var(--b1);color:#f59e0b;border:1px solid #475569;';
-  const off='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;';
-  const arr=G.kimAsc?'↑':'↓';
-  const ks=G.kimSort;
-  document.getElementById('ksb-premium').style.cssText=ks==='premium'?on:off;
-  document.getElementById('ksb-vol').style.cssText=ks==='vol'?on:off;
-  document.getElementById('ksb-ch').style.cssText=ks==='ch'?on:off;
-  const dirBtn=document.getElementById('ksb-dir');if(dirBtn)dirBtn.textContent=arr;
+function setKimEx(ex){
+  if(ex!=='upbit'&&ex!=='bithumb')return;
+  G.kimEx=ex;try{localStorage.setItem('woc-kim-ex',ex);}catch{}
+  const u=document.getElementById('ksb-ex-upbit'),b=document.getElementById('ksb-ex-bithumb');
+  if(u){u.style.background=ex==='upbit'?'#1e3a8a':'transparent';u.style.color=ex==='upbit'?'#60a5fa':'#64748b';}
+  if(b){b.style.background=ex==='bithumb'?'#7c2d12':'transparent';b.style.color=ex==='bithumb'?'#fb923c':'#64748b';}
+  if(G.kimchi.length)renderKimchiList(sortKimchi(G.kimchi));
 }
 
+function updateKimchiSortUI(){
+  // 거래소 토글 버튼 동기화 (정렬 버튼은 컬럼 헤더 클릭으로 대체됨)
+  const u=document.getElementById('ksb-ex-upbit'),b=document.getElementById('ksb-ex-bithumb');
+  if(u){u.style.background=G.kimEx==='upbit'?'#1e3a8a':'transparent';u.style.color=G.kimEx==='upbit'?'#60a5fa':'#64748b';}
+  if(b){b.style.background=G.kimEx==='bithumb'?'#7c2d12':'transparent';b.style.color=G.kimEx==='bithumb'?'#fb923c':'#64748b';}
+}
+
+function renderKimchiTopControls(){
+  const isB=G.kimEx==='bithumb';
+  return`<div class="kb-top">
+    <div style="display:flex;flex-direction:column;gap:14px;flex:1;min-width:280px;">
+      <div class="kb-title">
+        <h2>🌶 김치 프리미엄</h2>
+        <p>국내와 해외 거래소의 가격차이를 확인하세요.</p>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:9px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:.05em;">🇰🇷 국내</span>
+          <select class="kb-sel" onchange="setKimEx(this.value)">
+            <option value="upbit"${G.kimEx==='upbit'?' selected':''}>🔵 업비트 KRW</option>
+            <option value="bithumb"${G.kimEx==='bithumb'?' selected':''}>🟧 빗썸 KRW</option>
+          </select>
+        </div>
+        <span style="font-size:18px;color:var(--t3);padding-bottom:6px;">⇄</span>
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:9px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:.05em;">🌏 해외</span>
+          <select class="kb-sel" disabled>
+            <option value="binance" selected>🟡 바이낸스 USDT</option>
+            <option value="bybit" disabled>🟧 Bybit (예정)</option>
+            <option value="okx" disabled>⬛ OKX (예정)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="kb-quick">
+      <button class="kb-qbtn${G.kimEx==='upbit'?' on':''}" onclick="setKimEx('upbit')">🔵 업비트</button>
+      <button class="kb-qbtn${G.kimEx==='bithumb'?' on':''}" onclick="setKimEx('bithumb')">🟧 빗썸</button>
+      <button class="kb-qbtn on" disabled style="cursor:default;">🟡 바이낸스</button>
+      <span style="width:1px;height:22px;background:var(--bd3);margin:0 4px;"></span>
+      <button class="kb-qbtn rev${G.kimReverseOnly?' on':''}" onclick="toggleKimReverseOnly()">📉 역프만</button>
+      <button class="kb-qbtn${G.kimSort==='premium'?' on':''}" onclick="setKimchiSort('premium')">🌶 김프순</button>
+      <button class="kb-qbtn${G.kimSort==='vol'?' on':''}" onclick="setKimchiSort('vol')">📊 거래대금순</button>
+      <button class="kb-qbtn${G.kimSort==='ch'?' on':''}" onclick="setKimchiSort('ch')">🚀 상승률순</button>
+    </div>
+  </div>`;
+}
+function toggleKimReverseOnly(){
+  G.kimReverseOnly=!G.kimReverseOnly;
+  if(G.kimchi&&G.kimchi.length)renderKimchiList(sortKimchi(G.kimchi));
+}
 function renderKimchiList(list){
-  const filtered=G.showWatchOnly?list.filter(k=>G.watchlist.has(k.symbol)):list;
-  if(!filtered.length){document.getElementById('lw').innerHTML=`<div style="padding:24px;text-align:center;color:#475569;font-size:13px;">${G.showWatchOnly?'관심종목 없음':'공통 상장 종목 없음'}</div>`;return;}
+  const isB=G.kimEx==='bithumb';
+  const exLabel=isB?'빗썸':'업비트';
+  const exColor=isB?'#fb923c':'#60a5fa';
+  // 빗썸 모드: 빗썸 미상장(bbKrw==null) 제외
+  list=isB?list.filter(k=>k.bbKrw!=null):list;
+  // 역프만 필터
+  if(G.kimReverseOnly){const getP=k=>isB?k.bbPremium:k.premium;list=list.filter(k=>{const p=getP(k);return p!=null&&p<0;});}
+  // helper들 (선택 거래소 기준)
+  const getKrw=k=>isB?k.bbKrw:k.upbitKrw;
+  const getCh=k=>isB?(k.bbCh24??0):k.ch24;
+  const getPrem=k=>isB?k.bbPremium:k.premium;
+  const getVol=k=>isB?(k.bbVol||0):(k.upVol||0);
+  const isExOnly=k=>isB?(k.binKrw==null):(!!k.upbitOnly); // 빗썸 모드에서 binKrw 없으면 단독 상장
+  const tradeUrl=k=>isB?`https://www.bithumb.com/trade/order/${k.symbol}_KRW`:`https://upbit.com/exchange?code=CRIX.UPBIT.KRW-${k.symbol}`;
+
+  let filtered=G.showWatchOnly?list.filter(k=>G.watchlist.has(k.symbol)):list;
+  if(!filtered.length){document.getElementById('lw').innerHTML=`<div><div style="padding:24px;text-align:center;color:#475569;font-size:13px;">${G.showWatchOnly?'관심종목 없음':G.kimReverseOnly?'역프 종목 없음':`${exLabel} 상장 종목 없음`}</div></div>`;return;}
   list=filtered;
 
-  // 상단 통계 요약 — 공통 상장 코인 기준
-  const withPrem=list.filter(k=>!k.upbitOnly&&k.premium!=null&&!isNaN(k.premium));
-  const upbitOnlyCnt=list.filter(k=>k.upbitOnly).length;
+  // 상단 통계 요약 — 선택 거래소 공통 상장 기준
+  const withPrem=list.filter(k=>!isExOnly(k)&&getPrem(k)!=null&&!isNaN(getPrem(k)));
+  const exOnlyCnt=list.filter(k=>isExOnly(k)).length;
   let statsBar='';
   if(withPrem.length){
-    const avg=withPrem.reduce((s,k)=>s+k.premium,0)/withPrem.length;
-    const mx=withPrem.reduce((m,k)=>k.premium>m.premium?k:m,withPrem[0]);
-    const mn=withPrem.reduce((m,k)=>k.premium<m.premium?k:m,withPrem[0]);
+    const avg=withPrem.reduce((s,k)=>s+getPrem(k),0)/withPrem.length;
+    const mx=withPrem.reduce((m,k)=>getPrem(k)>getPrem(m)?k:m,withPrem[0]);
+    const mn=withPrem.reduce((m,k)=>getPrem(k)<getPrem(m)?k:m,withPrem[0]);
     const avgC=avg>=0?'#10b981':'#ef4444';
     const stat=(label,val,col,sub)=>`<div style="flex:1;min-width:0;text-align:center;padding:7px 6px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;">
       <div style="font-size:9px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;">${label}</div>
@@ -1651,14 +1924,14 @@ function renderKimchiList(list){
     </div>`;
     statsBar=`<div style="padding:10px 12px 8px;border-bottom:1px solid var(--bd3);background:var(--bg2);">
       <div style="display:flex;gap:6px;margin-bottom:6px;">
-        ${stat('평균 김프',`${avg>=0?'+':''}${avg.toFixed(2)}%`,avgC,`${withPrem.length}개 공통`)}
-        ${stat('최고',`+${mx.premium.toFixed(2)}%`,'#10b981',mx.symbol)}
-        ${stat('최저',`${mn.premium.toFixed(2)}%`,'#ef4444',mn.symbol)}
+        ${stat(`평균 김프 (${exLabel})`,`${avg>=0?'+':''}${avg.toFixed(2)}%`,avgC,`${withPrem.length}개 공통`)}
+        ${stat('최고',`+${getPrem(mx).toFixed(2)}%`,'#10b981',mx.symbol)}
+        ${stat('최저',`${getPrem(mn).toFixed(2)}%`,'#ef4444',mn.symbol)}
       </div>
       <div style="font-size:9px;color:var(--t3);text-align:center;line-height:1.4;">
         총 <b style="color:var(--t2);">${list.length}개</b>
         · 공통 <b style="color:#10b981;">${withPrem.length}</b>
-        · 업비트 단독 <b style="color:#64748b;">${upbitOnlyCnt}</b>
+        · ${exLabel} 단독 <b style="color:#64748b;">${exOnlyCnt}</b>
       </div>
     </div>`;
   }
@@ -1670,20 +1943,22 @@ function renderKimchiList(list){
     ${watchHdr()}
     <span style="font-size:10px;color:#475569;font-weight:600;text-align:center;">#</span>
     <span style="font-size:10px;color:#64748b;font-weight:700;padding-left:32px;">코인</span>
-    <span style="font-size:10px;color:#64748b;font-weight:700;text-align:right;line-height:1.3;">업비트<br><span style="color:#475569;font-weight:600;font-size:9px;">바이낸스(환산)</span></span>
-    <span style="font-size:10px;color:#64748b;font-weight:700;text-align:right;line-height:1.3;">전일대비<br><span style="color:#475569;font-weight:600;font-size:9px;">(24h%)</span></span>
+    <span style="font-size:10px;color:var(--t1);font-weight:800;text-align:right;line-height:1.3;">${exLabel}<br><span style="color:var(--t3);font-weight:500;font-size:9px;">바이낸스(환산)</span></span>
     ${sh('김프%','premium')}
+    <span onclick="setKimchiSort('ch')" style="font-size:10px;color:${G.kimSort==='ch'?'#f59e0b':'#64748b'};font-weight:700;text-align:right;line-height:1.3;cursor:pointer;user-select:none;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${G.kimSort==='ch'?'#f59e0b':'#64748b'}'" title="전일대비 기준 정렬">전일대비${G.kimSort==='ch'?(G.kimAsc?' ↑':' ↓'):''}<br><span style="color:#475569;font-weight:600;font-size:9px;">(24h%)</span></span>
     ${sh('거래대금','vol')}
   </div>`;
   // 설명 배너
   const tipBar=`<div style="padding:7px 12px;background:rgba(245,158,11,.06);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--t3);line-height:1.4;text-align:center;">
-    📊 <b style="color:#f59e0b;">업비트와 바이낸스 가격차이</b> · 회색 숫자는 바이낸스 환산 원화
+    📊 <b style="color:${exColor};">${exLabel}</b>와 <b style="color:#f59e0b;">바이낸스</b> 가격차이 · 회색 숫자는 바이낸스 환산 원화
   </div>`;
   const rows=list.map((k,i)=>{
-    const uc=k.ch24>=0?'#10b981':'#ef4444';
-    const volStr=F.krwAbbr(k.upVol);
-    if(k.upbitOnly){
-      return`<div class="ci ci-kim" onclick="window.open('https://upbit.com/exchange?code=CRIX.UPBIT.KRW-${k.symbol}','_blank')" style="display:grid;grid-template-columns:${cols};gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);opacity:.8;cursor:pointer;">
+    const ch=getCh(k);
+    const uc=ch>=0?'#10b981':'#ef4444';
+    const krw=getKrw(k);
+    const volStr=F.krwAbbr(getVol(k));
+    if(isExOnly(k)){
+      return`<div class="ci ci-kim" data-sym="${k.symbol}" style="display:grid;grid-template-columns:${cols};gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);opacity:.8;cursor:default;">
         <span style="text-align:center;">${starCell(k.symbol)}</span>
         <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
         <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
@@ -1694,21 +1969,22 @@ function renderKimchiList(list){
           </div>
         </div>
         <div style="text-align:right;line-height:1.25;">
-          <div style="font-size:12px;font-weight:700;color:var(--t1);">${F.krwPrice(k.upbitKrw)}</div>
-          <div style="font-size:10px;color:#475569;font-weight:500;margin-top:1px;">바낸 미상장</div>
-        </div>
-        <div style="text-align:right;line-height:1.25;">
-          <div style="font-size:11px;font-weight:700;color:${uc};">${k.ch24>=0?'+':''}${k.ch24.toFixed(2)}%</div>
+          <div data-cell="exPrice" style="font-size:13px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
+          <div data-cell="binPrice" style="font-size:10px;color:#475569;font-weight:500;margin-top:2px;">바낸 미상장</div>
         </div>
         <div style="text-align:right;">
-          <span style="font-size:9px;background:rgba(100,116,139,.15);color:#64748b;padding:2px 6px;border-radius:4px;border:1px solid var(--bd3);font-weight:700;">—</span>
+          <span data-cell="prem" style="font-size:9px;background:rgba(100,116,139,.15);color:#64748b;padding:2px 6px;border-radius:4px;border:1px solid var(--bd3);font-weight:700;">—</span>
         </div>
-        <div style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
+        <div style="text-align:right;line-height:1.25;">
+          <div data-cell="ch" style="font-size:11px;font-weight:700;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
+        </div>
+        <div data-cell="vol" style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
       </div>`;
     }
-    const pc=k.premium>=0?'#10b981':'#ef4444';
+    const prem=getPrem(k);
+    const pc=prem>=0?'#10b981':'#ef4444';
     const bc=k.binCh24>=0?'#10b981':'#ef4444';
-    return`<div class="ci ci-kim" onclick="pickCoin('${k.symbol}USDT')" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);">
+    return`<div class="ci ci-kim" data-sym="${k.symbol}" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);cursor:default;">
       <span style="text-align:center;">${starCell(k.symbol)}</span>
       <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
       <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
@@ -1719,37 +1995,37 @@ function renderKimchiList(list){
         </div>
       </div>
       <div style="text-align:right;line-height:1.3;">
-        <div style="font-size:12px;font-weight:700;color:var(--t1);">${F.krwPrice(k.upbitKrw)}</div>
-        <div style="font-size:10px;color:#64748b;font-weight:500;margin-top:1px;">${F.krwPrice(k.binKrw)}</div>
-      </div>
-      <div style="text-align:right;line-height:1.3;">
-        <div style="font-size:11px;font-weight:700;color:${uc};">${k.ch24>=0?'+':''}${k.ch24.toFixed(2)}%</div>
-        <div style="font-size:10px;color:${bc};opacity:.65;font-weight:600;margin-top:1px;">${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%</div>
+        <div data-cell="exPrice" style="font-size:13px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
+        <div data-cell="binPrice" style="font-size:10px;color:#475569;font-weight:500;margin-top:2px;">${F.krwPrice(k.binKrw)}</div>
       </div>
       <div style="text-align:right;line-height:1.15;">
-        <div style="font-size:13px;font-weight:800;color:${pc};">${k.premium>=0?'+':''}${k.premium.toFixed(2)}%</div>
-        ${(()=>{const d=k.upbitKrw-k.binKrw;const ad=Math.abs(d);if(ad<0.5)return'';const s=d>=0?'+':'-';return`<div style="font-size:9px;font-weight:700;color:${pc};opacity:.75;margin-top:2px;white-space:nowrap;">${s}${F.krwAbbrRaw(ad).replace('₩','₩')}</div>`;})()}
+        <div data-cell="prem" style="font-size:13px;font-weight:800;color:${pc};" title="${exLabel} 김프">${prem>=0?'+':''}${prem.toFixed(2)}%</div>
       </div>
-      <div style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
+      <div style="text-align:right;line-height:1.3;">
+        <div data-cell="ch" style="font-size:11px;font-weight:700;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
+        <div data-cell="binCh" style="font-size:10px;color:${bc};opacity:.65;font-weight:600;margin-top:1px;">${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%</div>
+      </div>
+      <div data-cell="vol" style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
     </div>`;
   }).join('');
   document.getElementById('lw').innerHTML=`<div>${statsBar}${tipBar}${hdr}${rows}</div>`;
+  // 김프 클릭 비활성화 — 패널 재부착 로직 제거
+  _kimWalletActive=null;
 }
 
 // ── 업비트 탭 (업비트 KRW 상장 전체) ────────────────
 async function loadUpbitList(){
-  document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">업비트 KRW 조회 중…</span></div>`;
+  // 이전 결과 즉시 노출 → 백그라운드 갱신 (지연 체감 ↓)
+  if(G.upbit&&G.upbit.length){renderUpbitList(sortUpbit(G.upbit));}
+  else{document.getElementById('lw').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px;gap:14px;color:#475569;"><div style="width:28px;height:28px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">업비트 KRW 조회 중…</span></div>`;}
   try{
-    const mkts=await upbitGet('/v1/market/all')||[];
-    const krwMkts=mkts.filter(m=>m.market.startsWith('KRW-'));
+    const mkts=await getUpbitMarkets();
+    const krwMkts=(mkts||[]).filter(m=>m.market.startsWith('KRW-'));
     const upbitNameMap={};krwMkts.forEach(m=>{upbitNameMap[m.market.replace('KRW-','')]=m.korean_name||m.english_name||'';upbitKoNames[m.market.replace('KRW-','')]=m.korean_name;});
     const krwCodes=krwMkts.map(m=>m.market);
     const chunks=[];for(let i=0;i<krwCodes.length;i+=100)chunks.push(krwCodes.slice(i,i+100));
-    const upbitRows=[];
-    for(const chunk of chunks){
-      const d=await upbitGet(`/v1/ticker?markets=${chunk.join(',')}`)||[];
-      upbitRows.push(...d);
-    }
+    const tickerResponses=await Promise.all(chunks.map(c=>upbitGet(`/v1/ticker?markets=${c.join(',')}`).catch(()=>[])));
+    const upbitRows=tickerResponses.flat().filter(Boolean);
     const list=upbitRows
       .filter(t=>t.trade_price>0&&t.acc_trade_price_24h>0&&t.market_state!=='DELISTED'&&t.market_state!=='PREVIEW')
       .map(t=>{
@@ -1928,6 +2204,10 @@ function sortDex(list){
   return list.slice().sort(
     s==='trend'?(a,b)=>-d*((a.trendRank||999)-(b.trendRank||999)):
     s==='gain' ?(a,b)=>d*(ch(a.ch24)-ch(b.ch24)):
+    s==='ch1h' ?(a,b)=>d*(ch(a.ch1h)-ch(b.ch1h)):
+    s==='ch6h' ?(a,b)=>d*(ch(a.ch6h)-ch(b.ch6h)):
+    s==='mc'   ?(a,b)=>d*((a.mcUsd||a.fdv||0)-(b.mcUsd||b.fdv||0)):
+    s==='price'?(a,b)=>d*(ch(a.priceUsd)-ch(b.priceUsd)):
     s==='liq'  ?(a,b)=>d*(a.liq-b.liq):
     s==='boost'?(a,b)=>d*(a.boost-b.boost):
                 (a,b)=>d*(a.vol24-b.vol24)
@@ -1954,10 +2234,7 @@ function updateDexSortUI(){
   const off='flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;';
   const ds=G.dexSort;
   const tBtn=document.getElementById('dsb-trend');if(tBtn)tBtn.style.cssText=ds==='trend'?on:off;
-  document.getElementById('dsb-vol').style.cssText=ds==='vol'?on:off;
-  document.getElementById('dsb-gain').style.cssText=ds==='gain'?on:off;
-  document.getElementById('dsb-liq').style.cssText=ds==='liq'?on:off;
-  const dir=document.getElementById('dsb-dir');if(dir)dir.textContent=G.dexAsc?'↑':'↓';
+  const vBtn=document.getElementById('dsb-vol');if(vBtn)vBtn.style.cssText=ds==='vol'?on:off;
 }
 function loadMoreDex(){G.dexShown+=50;renderDexList(sortDex(G.dex));}
 const CHAIN_META={ethereum:{c:'#627eea',n:'ETH',icon:'ethereum'},bsc:{c:'#f0b90b',n:'BSC',icon:'binance'},solana:{c:'#9945ff',n:'SOL',icon:'solana'},base:{c:'#0052ff',n:'Base',icon:'base'},arbitrum:{c:'#28a0f0',n:'ARB',icon:'arbitrum'},polygon:{c:'#8247e5',n:'MATIC',icon:'polygon'},polygon_pos:{c:'#8247e5',n:'MATIC',icon:'polygon'},avalanche:{c:'#e84142',n:'AVAX',icon:'avalanche'},optimism:{c:'#ff0420',n:'OP',icon:'optimism'},sui:{c:'#4da2ff',n:'SUI',icon:'sui'},ton:{c:'#0098ea',n:'TON',icon:'ton'},tron:{c:'#ef4444',n:'TRX',icon:'tron'},blast:{c:'#fcfc03',n:'Blast',icon:'blast'},linea:{c:'#61dfff',n:'Linea',icon:'linea'},scroll:{c:'#ffc76b',n:'Scroll',icon:'scroll'},mantle:{c:'#10b981',n:'Mantle',icon:'mantle'},celo:{c:'#35d07f',n:'Celo',icon:'celo'},fantom:{c:'#13b5ec',n:'FTM',icon:'fantom'},cronos:{c:'#103f68',n:'CRO',icon:'cronos'}};
@@ -2056,15 +2333,16 @@ function renderDexList(list){
   // DexScreener 스타일 테이블 (5M 제거 → 컬럼 더 여유)
   const cols='22px minmax(110px,1fr) 68px 78px 56px 56px 56px 64px';
   const hdrCell=(txt,align='right')=>`<span style="text-align:${align};color:var(--t3);">${txt}</span>`;
+  const sh=(label,key,align='right')=>{const a=G.dexSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="event.stopPropagation();setDexSort('${key}')" style="text-align:${align};cursor:pointer;user-select:none;color:${col};transition:color .1s;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'">${label}</span>`;};
   const hdr=`<div class="lhdr lhdr-dex" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:9px 10px;background:var(--bg3);border-bottom:1px solid var(--bd3);font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;position:sticky;top:0;z-index:3;">
     ${hdrCell('#','center')}
     ${hdrCell('토큰','left')}
-    ${hdrCell('시총')}
-    ${hdrCell('가격')}
-    ${hdrCell('1H')}
-    ${hdrCell('6H')}
-    ${hdrCell('24H')}
-    ${hdrCell('거래량')}
+    ${sh('시총','mc')}
+    ${sh('가격','price')}
+    ${sh('1H','ch1h')}
+    ${sh('6H','ch6h')}
+    ${sh('24H','gain')}
+    ${sh('거래량','vol')}
   </div>`;
 
   const rows=visible.map(t=>{
@@ -2128,6 +2406,407 @@ function pickUpbit(sym){
   if(location.hash!==`#/coin/${binSym}?src=upbit`)history.pushState({view:'detail',sym:binSym,tab:G.tab,source:'upbit'},'',`#/coin/${binSym}?src=upbit`);
   _doPickCoin(binSym);
 }
+
+// ────────────────────────────────────────────────
+// ── 김프 비교 상세 화면 (Kimchi Compare View) ──
+// ────────────────────────────────────────────────
+let _kc={sym:null,domEx:'upbit',forEx:'binance',tf:'1h',chartTab:'split'}; // chartTab: 'split'|'kimp'
+let _kcLeftChart=null,_kcRightChart=null,_kcKimpChart=null;
+function destroyCompareCharts(){
+  [_kcLeftChart,_kcRightChart,_kcKimpChart].forEach(c=>{if(c){try{c.destroy();}catch{}}});
+  _kcLeftChart=_kcRightChart=_kcKimpChart=null;
+}
+// 김프 row 클릭 → 같은 자리에서 입출금 여부 패널 토글 (페이지 이동 없음)
+let _kimWalletActive=null;
+function pickKimchi(sym){
+  // 같은 row 다시 클릭 시 닫기
+  if(_kimWalletActive===sym){
+    _kimWalletActive=null;
+    document.querySelectorAll('.kim-wallet-panel').forEach(el=>el.remove());
+    return;
+  }
+  _kimWalletActive=sym;
+  document.querySelectorAll('.kim-wallet-panel').forEach(el=>el.remove());
+  const row=document.querySelector(`.ci-kim[data-sym="${sym}"]`);if(!row)return;
+  const panel=document.createElement('div');
+  panel.className='kim-wallet-panel';
+  panel.style.cssText='background:var(--bg2);border-bottom:1px solid var(--bd3);border-left:3px solid #10b981;padding:10px 14px;';
+  panel.innerHTML=`<div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--t3);"><div style="width:12px;height:12px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>입출금 상태 조회 중…</div>`;
+  row.insertAdjacentElement('afterend',panel);
+  loadKimWalletInline(sym,panel);
+}
+function _renderKimWalletPanel(sym,panel,upbitWalletList){
+  const isB=G.kimEx==='bithumb';
+  const items=[];
+  const k=G.kimchi.find(x=>x.symbol===sym);
+  // 1) 국내 거래소
+  if(isB){
+    const active=!!(k&&k.bbKrw);
+    items.push(_walletPillRow('🟧 빗썸',active,active,`KRW 시세 ${active?'정상':'미상장'}`));
+  }else{
+    const upActive=!!(k&&k.upbitKrw);
+    const rows=(upbitWalletList||[]).filter(x=>x.currency===sym);
+    if(rows.length){
+      rows.forEach(r=>{
+        const ws=r.wallet_state;
+        let dep=null,wd=null;
+        if(ws==='working'){dep=true;wd=true;}
+        else if(ws==='withdraw_only'){dep=false;wd=true;}
+        else if(ws==='deposit_only'){dep=true;wd=false;}
+        else if(ws==='paused'){dep=false;wd=false;}
+        const note=r.net_type?`네트워크 <b style="color:var(--t2);">${r.net_type}</b>`:(ws||'상태 미확인');
+        items.push(_walletPillRow('🔵 업비트',dep,wd,note));
+      });
+    }else if(_upbitWalletAuth){
+      items.push(_walletPillRow('🔵 업비트',null,null,`${upActive?'KRW 거래 중':'미상장'} · 공식 API 인증 필요`));
+    }else if(_upbitWalletErr){
+      items.push(_walletPillRow('🔵 업비트',null,null,`${upActive?'KRW 거래 중':'미상장'} · API 미확인`));
+    }else if(upActive){
+      items.push(_walletPillRow('🔵 업비트',true,true,'KRW 거래 정상'));
+    }else{
+      items.push(_walletPillRow('🔵 업비트',null,null,'미상장'));
+    }
+  }
+  // 2) 바이낸스 — public API 입출금 status 없음 → 상장 + 시세로 추정
+  const listed=!!(G.coins.find(c=>c.symbol===sym)||G.futures.find(c=>c.symbol===sym));
+  const binActive=listed||!!(k&&k.binUsd);
+  items.push(_walletPillRow('🟡 바이낸스',binActive?true:null,binActive?true:null,binActive?'현물 상장':'미상장'));
+  panel.innerHTML=`<div style="display:flex;flex-direction:column;gap:6px;">${items.join('')}</div>`;
+}
+function loadKimWalletInline(sym,panel){
+  // 1차: 캐시/시세 기반으로 즉시 렌더 (렉 방지)
+  _renderKimWalletPanel(sym,panel,_upbitWalletCache);
+  // 2차: 캐시 없을 때만 백그라운드 조회 후 재렌더
+  if(G.kimEx!=='bithumb'&&!_upbitWalletCache){
+    getUpbitWalletStatus().then(list=>{
+      if(_kimWalletActive!==sym||!panel.isConnected)return;
+      _renderKimWalletPanel(sym,panel,list);
+    }).catch(()=>{});
+  }
+}
+function _walletPillRow(label,dep,wd,note){
+  const pill=(t,ok)=>{
+    if(ok===null)return`<span style="background:rgba(100,116,139,.15);color:#94a3b8;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">${t} ?</span>`;
+    const c=ok?'#10b981':'#ef4444';const bg=ok?'rgba(16,185,129,.15)':'rgba(239,68,68,.12)';
+    return`<span style="background:${bg};color:${c};padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;">${t} ${ok?'가능':'중단'}</span>`;
+  };
+  return`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;">
+    <span style="font-size:12px;font-weight:800;color:var(--t1);min-width:88px;">${label}</span>
+    ${pill('입금',dep)}${pill('출금',wd)}
+    <span style="margin-left:auto;color:var(--t3);">${note}</span>
+  </div>`;
+}
+function showKimchiCompareView(sym){
+  _kc.sym=sym;G.curSym=sym;
+  document.body.classList.add('km-compare');
+  // list-view + detail-view 숨김, kc-view만 표시
+  document.getElementById('list-view').style.display='none';
+  document.getElementById('detail-view').style.display='none';
+  const kv=document.getElementById('kc-view');
+  kv.style.display='flex';
+  // sticky 헤더
+  document.getElementById('kc-hdr').innerHTML=`
+    <button class="back-btn" onclick="exitKimchiCompareView()">← 김프 목록</button>
+    <span style="font-size:15px;font-weight:800;color:var(--t1);">🌶 김프 비교</span>
+    <span style="font-size:13px;color:var(--t3);">·</span>
+    <span style="font-size:14px;font-weight:800;color:#10b981;">${sym}</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--t3);">실시간 업데이트</span>`;
+  // 본문 → renderKimchiCompareLayout 가 채움
+  document.getElementById('kc-body').innerHTML=`<div id="kc-root" style="padding:18px;max-width:1600px;margin:0 auto;display:flex;flex-direction:column;gap:14px;"></div>`;
+  renderKimchiCompareLayout(sym);
+  loadKimchiCompareData(sym);
+  renderKimchiExchangeStatus(sym);
+}
+function exitKimchiCompareView(){
+  destroyCompareCharts();
+  document.body.classList.remove('km-compare');
+  G.curSym=null;_kc.sym=null;
+  if(location.hash!=='#/kimchi')history.pushState({view:'list',tab:'kimchi'},'','#/kimchi');
+  document.getElementById('kc-view').style.display='none';
+  document.getElementById('detail-view').style.display='none';
+  document.getElementById('list-view').style.display='flex';
+  if(G.kimchi&&G.kimchi.length)renderKimchiList(sortKimchi(G.kimchi));
+  else loadList();
+}
+function renderKimchiCompareLayout(sym){
+  const root=document.getElementById('kc-root');if(!root)return;
+  const exDomLabel=_kc.domEx==='bithumb'?'빗썸':'업비트';
+  // 1) 거래소 선택 카드 (드롭다운 + 빠른 버튼)
+  const exSelector=`<div class="kc-pane" style="padding:16px 18px;display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;">
+    <div style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <span style="font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:.06em;">🇰🇷 국내 거래소</span>
+        <select class="kc-select" onchange="setKcDomEx(this.value)">
+          <option value="upbit"${_kc.domEx==='upbit'?' selected':''}>🔵 업비트 KRW</option>
+          <option value="bithumb"${_kc.domEx==='bithumb'?' selected':''}>🟧 빗썸 KRW</option>
+        </select>
+      </div>
+      <div style="font-size:22px;color:var(--t3);padding-bottom:6px;">⇄</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <span style="font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:.06em;">🌏 해외 거래소</span>
+        <select class="kc-select" onchange="setKcForEx(this.value)">
+          <option value="binance"${_kc.forEx==='binance'?' selected':''}>🟡 바이낸스 USDT</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;">
+      <span style="font-size:10px;color:var(--t3);font-weight:800;text-transform:uppercase;letter-spacing:.06em;">⚡ 빠른 선택</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${[{k:'upbit',l:'🔵 업비트'},{k:'bithumb',l:'🟧 빗썸'},{k:'binance',l:'🟡 바이낸스'}].map(b=>{
+          const active=(b.k==='binance'&&_kc.forEx==='binance')||(b.k!=='binance'&&b.k===_kc.domEx);
+          return`<button class="kc-quick-btn${active?' on':''}" onclick="kcQuickSelectEx('${b.k}')">${b.l}</button>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+  // 2) 김프 요약 테이블
+  const summary=`<div id="kc-summary" class="kc-pane" style="overflow:hidden;"></div>`;
+  // 3) 입출금 상태
+  const wallet=`<div id="kc-wallet" class="kc-pane" style="padding:16px 18px;">
+    <div style="font-size:11px;color:var(--t3);font-weight:800;margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;">🏦 거래소 입출금 상태</div>
+    <div id="kc-wallet-body" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="font-size:12px;color:var(--t3);">로딩 중…</div>
+    </div>
+  </div>`;
+  // 4) 타임프레임 + 차트 탭
+  const tfs=[['1m','1분'],['5m','5분'],['30m','30분'],['1h','1시간'],['1d','1일']];
+  const tabs=[['split','📊 양쪽 동시'],['upbit',`KRW ${exDomLabel}`],['binance','USDT 바이낸스'],['kimp',`${sym} 김프`]];
+  const controls=`<div class="kc-pane" style="padding:14px 18px;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;align-items:center;">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:11px;color:var(--t3);font-weight:800;margin-right:6px;">⏱</span>
+      ${tfs.map(([k,l])=>`<button class="kc-tab${_kc.tf===k?' active':''}" onclick="setKcTf('${k}')">${l}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:11px;color:var(--t3);font-weight:800;margin-right:6px;">📈</span>
+      ${tabs.map(([k,l])=>`<button class="kc-tab${_kc.chartTab===k?' alt-active':''}" onclick="setKcChartTab('${k}')">${l}</button>`).join('')}
+    </div>
+  </div>`;
+  // 5) 차트 영역 (split = 좌우 2분할, 그 외 = 단일)
+  const charts=`<div id="kc-charts-body" class="${_kc.chartTab==='split'?'kc-grid-2':'kc-grid-1'}"></div>`;
+  root.innerHTML=exSelector+summary+wallet+controls+charts;
+  renderKimchiCompareSummary(sym);
+  renderKcChartsContainer(sym);
+}
+function renderKimchiCompareSummary(sym){
+  const el=document.getElementById('kc-summary');if(!el)return;
+  const k=G.kimchi.find(x=>x.symbol===sym);
+  const isB=_kc.domEx==='bithumb';
+  const krw=k?(isB?(k.bbKrw||0):(k.upbitKrw||0)):0;
+  const ch=k?(isB?(k.bbCh24??0):(k.ch24??0)):0;
+  const prem=k?(isB?k.bbPremium:k.premium):null;
+  const vol=k?(isB?(k.bbVol||0):(k.upVol||0)):0;
+  const binUsd=k?.binUsd||0;
+  const binKrw=binUsd*G_KRW;
+  const uc=ch>=0?'#10b981':'#ef4444';
+  const pc=prem!=null?(prem>=0?'#10b981':'#ef4444'):'#64748b';
+  const fmtVol=v=>{if(!v)return'—';if(v>=1e12)return`${(v/1e12).toFixed(1)}조`;if(v>=1e8)return`${(v/1e8).toFixed(0)}억`;if(v>=1e4)return`${(v/1e4).toFixed(0)}만`;return Math.round(v).toLocaleString('ko');};
+  el.innerHTML=`
+    <table class="kc-table">
+      <thead>
+        <tr>
+          <th style="width:60px;"></th>
+          <th>이름</th>
+          <th>현재가</th>
+          <th>김프</th>
+          <th>전일대비</th>
+          <th>거래대금</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="text-align:center;">${F.img(sym,40)}</td>
+          <td>
+            <div style="font-size:16px;font-weight:800;color:var(--t1);">${k?.name||sym}</div>
+            <div style="font-size:12px;color:var(--t3);font-weight:600;margin-top:2px;">${sym}</div>
+          </td>
+          <td style="text-align:right;">
+            <div style="font-size:16px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
+            <div style="font-size:12px;color:var(--t3);font-weight:500;margin-top:2px;">${binUsd?'$'+binUsd.toLocaleString('en',{maximumFractionDigits:binUsd>=1?2:binUsd>=0.01?4:6}):'—'}</div>
+          </td>
+          <td style="text-align:right;">
+            <div style="font-size:16px;font-weight:800;color:${pc};">${prem!=null?(prem>=0?'+':'')+prem.toFixed(2)+'%':'—'}</div>
+            <div style="font-size:12px;color:var(--t3);font-weight:500;margin-top:2px;">${binKrw?F.krwPrice(binKrw):'—'}</div>
+          </td>
+          <td style="text-align:right;">
+            <div style="font-size:16px;font-weight:800;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
+            <div style="font-size:12px;color:var(--t3);font-weight:500;margin-top:2px;">${k?.binCh24!=null?(k.binCh24>=0?'+':'')+k.binCh24.toFixed(2)+'% (해외)':'—'}</div>
+          </td>
+          <td style="text-align:right;">
+            <div style="font-size:16px;font-weight:800;color:var(--t1);">${fmtVol(vol)}</div>
+            <div style="font-size:12px;color:var(--t3);font-weight:500;margin-top:2px;">${isB?'빗썸':'업비트'} 24h</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+function getKimpStatusText(k,upbitDep,upbitWd){
+  const prem=G.kimEx==='bithumb'?k?.bbPremium:k?.premium;
+  if(prem==null)return{text:'데이터 없음',color:'var(--t3)',bg:'transparent'};
+  // 역프
+  if(prem<-0.3)return{text:'📉 역프 상태 — 국내 매수세 약함 또는 해외 가격 우위',color:'#10b981',bg:'rgba(16,185,129,.1)'};
+  // 김프 +2% 이상 + 입금 중단 → 입금제한 프리미엄
+  if(prem>=2&&upbitDep===false)return{text:'⚠ 입금 제한으로 인한 프리미엄 가능성 — 정상 수요가 아닐 수 있음',color:'#ef4444',bg:'rgba(239,68,68,.1)'};
+  // 출금 중단 + 양의 김프
+  if(prem>0&&upbitWd===false)return{text:'⚠ 출금 중단 상태 — 차익거래 어려움',color:'#f59e0b',bg:'rgba(245,158,11,.1)'};
+  // 정상
+  if(prem>=2)return{text:'🔥 강한 프리미엄 — 국내 매수세 강함',color:'#10b981',bg:'rgba(16,185,129,.1)'};
+  return{text:'✓ 정상 거래 가능',color:'var(--t2)',bg:'var(--bg3)'};
+}
+async function renderKimchiExchangeStatus(sym){
+  const el=document.getElementById('kc-wallet-body');if(!el)return;
+  const items=[];
+  let upbitDep=null,upbitWd=null;
+  // 업비트
+  try{
+    const list=await getUpbitWalletStatus();
+    const rows=(list||[]).filter(x=>x.currency===sym);
+    if(rows.length){
+      rows.forEach(r=>{
+        const dep=r.wallet_state==='working'||r.wallet_state==='deposit_only';
+        const wd=r.wallet_state==='working'||r.wallet_state==='withdraw_only';
+        const paused=r.wallet_state==='paused';
+        if(upbitDep===null){upbitDep=dep&&!paused;upbitWd=wd&&!paused;}
+        items.push(`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;">
+          <span style="font-size:13px;font-weight:800;color:var(--t1);">🔵 업비트</span>
+          ${_kcStatusPill('입금',dep,paused)}
+          ${_kcStatusPill('출금',wd,paused)}
+          <span style="margin-left:auto;font-size:11px;color:var(--t3);">네트워크 <b style="color:var(--t2);">${r.net_type||'—'}</b></span>
+        </div>`);
+      });
+    }else items.push(`<div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;font-size:12px;color:var(--t3);">🔵 업비트 — 미상장</div>`);
+  }catch{items.push(`<div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;font-size:12px;color:var(--t3);">🔵 업비트 — 상태 미확인</div>`);}
+  // 빗썸 (간이 상태: kimchi 데이터에 bbKrw 있으면 거래 중)
+  const k=G.kimchi.find(x=>x.symbol===sym);
+  const bbActive=!!(k&&k.bbKrw);
+  items.push(`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;">
+    <span style="font-size:13px;font-weight:800;color:var(--t1);">🟧 빗썸</span>
+    ${_kcStatusPill('거래',bbActive,false)}
+    <span style="margin-left:auto;font-size:11px;color:var(--t3);">${bbActive?'시세 확인됨':'미상장 또는 거래 중단'}</span>
+  </div>`);
+  // 바이낸스 (Public API에 입출금 status 없음 → 상장 여부로 대체)
+  const listed=!!(G.coins.find(c=>c.symbol===sym)||G.futures.find(c=>c.symbol===sym));
+  items.push(`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;">
+    <span style="font-size:13px;font-weight:800;color:var(--t1);">🟡 바이낸스</span>
+    ${_kcStatusPill('입금',listed,false)}
+    ${_kcStatusPill('출금',listed,false)}
+    <span style="margin-left:auto;font-size:11px;color:var(--t3);">${listed?'현물 상장':'미상장'}</span>
+  </div>`);
+  // 김프 해석 문구 (입출금 상태 + 김프 결합)
+  const status=getKimpStatusText(k,upbitDep,upbitWd);
+  items.push(`<div style="margin-top:6px;padding:12px 14px;background:${status.bg};border:1px solid ${status.color};border-radius:8px;font-size:12px;font-weight:700;color:${status.color};">${status.text}</div>`);
+  el.innerHTML=items.join('');
+}
+function _kcStatusPill(label,ok,paused){
+  let bg,col;
+  if(paused){bg='rgba(239,68,68,.18)';col='#ef4444';}
+  else if(ok){bg='rgba(16,185,129,.18)';col='#10b981';}
+  else{bg='rgba(100,116,139,.18)';col='#94a3b8';}
+  return`<span style="background:${bg};color:${col};padding:3px 10px;border-radius:5px;font-size:11px;font-weight:800;">${label} ${paused?'중단':ok?'가능':'불가'}</span>`;
+}
+function renderKcChartsContainer(){
+  const body=document.getElementById('kc-charts-body');if(!body)return;
+  destroyCompareCharts();
+  // 클래스 토글 — split 시 2분할, 그 외는 1열
+  body.className=_kc.chartTab==='split'?'kc-grid-2':'kc-grid-1';
+  if(_kc.chartTab==='split'){
+    body.innerHTML=`
+      <div class="kc-pane" style="display:flex;flex-direction:column;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--bd3);font-size:12px;font-weight:800;color:#60a5fa;">🔵 ${_kc.domEx==='bithumb'?'빗썸':'업비트'} <span style="color:var(--t3);font-weight:600;">KRW</span></div>
+        <div class="kc-chart-wrap"><canvas id="kc-canvas-left"></canvas></div>
+      </div>
+      <div class="kc-pane" style="display:flex;flex-direction:column;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--bd3);font-size:12px;font-weight:800;color:#f59e0b;">🟡 바이낸스 <span style="color:var(--t3);font-weight:600;">USDT</span></div>
+        <div class="kc-chart-wrap"><canvas id="kc-canvas-right"></canvas></div>
+      </div>`;
+  }else{
+    const title=_kc.chartTab==='kimp'?`🌶 ${_kc.sym} 김프`:_kc.chartTab==='upbit'?`🔵 ${_kc.domEx==='bithumb'?'빗썸':'업비트'}`:`🟡 바이낸스`;
+    const sub=_kc.chartTab==='kimp'?'프리미엄 %':_kc.chartTab==='upbit'?'KRW':'USDT';
+    const color=_kc.chartTab==='kimp'?'#10b981':_kc.chartTab==='upbit'?'#60a5fa':'#f59e0b';
+    body.innerHTML=`
+      <div class="kc-pane" style="display:flex;flex-direction:column;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--bd3);font-size:12px;font-weight:800;color:${color};">${title} <span style="color:var(--t3);font-weight:600;">${sub}</span></div>
+        <div class="kc-chart-wrap" style="height:480px;"><canvas id="kc-canvas-single"></canvas></div>
+      </div>`;
+  }
+}
+async function loadKimchiCompareData(sym){
+  renderKcChartsContainer();
+  try{
+    const tf=_kc.tf;
+    const [upData,bnData]=await Promise.all([
+      loadUpbitCandles(sym,tf).catch(()=>null),
+      loadBinanceCandles(sym,tf).catch(()=>null),
+    ]);
+    if(_kc.chartTab==='split'){
+      drawCompareCharts(sym,upData,bnData);
+    }else if(_kc.chartTab==='kimp'){
+      drawKimchiPremiumChart(sym,upData,bnData);
+    }else if(_kc.chartTab==='upbit'){
+      _drawSingleCandleLine('kc-canvas-single',upData,'#60a5fa','₩');
+    }else{
+      _drawSingleCandleLine('kc-canvas-single',bnData,'#f59e0b','$');
+    }
+  }catch(e){
+    const body=document.getElementById('kc-charts-body');
+    if(body)body.innerHTML=`<div style="padding:40px;text-align:center;color:#ef4444;font-size:12px;">차트 로딩 실패: ${e.message||e}</div>`;
+  }
+}
+async function loadUpbitCandles(sym,tf){
+  const unit={'1m':1,'5m':5,'30m':30,'1h':60,'1d':'days'}[tf];
+  const path=tf==='1d'?`/v1/candles/days?market=KRW-${sym}&count=200`:`/v1/candles/minutes/${unit}?market=KRW-${sym}&count=200`;
+  const d=await upbitGet(path);
+  if(!Array.isArray(d))return null;
+  return d.reverse().map(c=>({t:new Date(c.candle_date_time_utc+'Z').getTime(),v:c.trade_price}));
+}
+async function loadBinanceCandles(sym,tf){
+  const interval={'1m':'1m','5m':'5m','30m':'30m','1h':'1h','1d':'1d'}[tf];
+  const d=await spotOrFutKlines(`${sym}USDT`,interval,200);
+  if(!Array.isArray(d))return null;
+  return d.map(c=>({t:c[0],v:parseFloat(c[4])}));
+}
+function drawCompareCharts(sym,upData,bnData){
+  if(upData&&upData.length){_kcLeftChart=_kcMakeLineChart('kc-canvas-left',upData,'#60a5fa','₩');}
+  else{const c=document.getElementById('kc-canvas-left');if(c)c.parentElement.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px;">국내 데이터 없음</div>';}
+  if(bnData&&bnData.length){_kcRightChart=_kcMakeLineChart('kc-canvas-right',bnData,'#f59e0b','$');}
+  else{const c=document.getElementById('kc-canvas-right');if(c)c.parentElement.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px;">해외 데이터 없음</div>';}
+}
+function drawKimchiPremiumChart(sym,upData,bnData){
+  if(!upData||!bnData||!upData.length||!bnData.length){
+    const c=document.getElementById('kc-canvas-single');if(c)c.parentElement.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px;">김프 차트 데이터 부족</div>';return;
+  }
+  const upMap={};upData.forEach(p=>{upMap[Math.floor(p.t/60000)]=p.v;});
+  const series=[];
+  bnData.forEach(p=>{const k=Math.floor(p.t/60000);const upPrice=upMap[k];if(!upPrice||!(p.v>0))return;series.push({t:p.t,v:(upPrice/(p.v*G_KRW)-1)*100});});
+  if(series.length<2){const c=document.getElementById('kc-canvas-single');if(c)c.parentElement.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px;">시간 동기화 데이터 부족</div>';return;}
+  _kcKimpChart=_kcMakeLineChart('kc-canvas-single',series,'#10b981','%');
+}
+function _drawSingleCandleLine(canvasId,data,color,unit){
+  if(!data||!data.length){const c=document.getElementById(canvasId);if(c)c.parentElement.innerHTML='<div style="text-align:center;padding:40px;color:var(--t3);font-size:12px;">데이터 없음</div>';return;}
+  if(canvasId==='kc-canvas-single')_kcKimpChart=_kcMakeLineChart(canvasId,data,color,unit);
+}
+function _kcMakeLineChart(canvasId,data,color,unit){
+  const cv=document.getElementById(canvasId);if(!cv)return null;
+  return new Chart(cv.getContext('2d'),{
+    type:'line',
+    data:{
+      labels:data.map(x=>{const d=new Date(x.t);return `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}),
+      datasets:[{data:data.map(x=>x.v),borderColor:color,backgroundColor:color+'22',borderWidth:2,fill:true,tension:.2,pointRadius:0}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const v=c.parsed.y;if(unit==='%')return `${v>=0?'+':''}${v.toFixed(2)}%`;if(unit==='₩')return `₩${v.toLocaleString('ko')}`;return `$${v.toFixed(v<1?6:2)}`;}}}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:9},maxTicksLimit:8},grid:{display:false}},y:{ticks:{color:'#64748b',font:{size:10},callback:v=>unit==='%'?`${v.toFixed(1)}%`:unit==='₩'?(v>=1000?`₩${(v/1000).toFixed(0)}K`:`₩${v.toFixed(0)}`):`$${v.toFixed(v<1?4:2)}`},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+}
+function setKcDomEx(v){_kc.domEx=v;G.kimEx=v;renderKimchiCompareLayout(_kc.sym);loadKimchiCompareData(_kc.sym);renderKimchiExchangeStatus(_kc.sym);}
+function setKcForEx(v){_kc.forEx=v;renderKimchiCompareLayout(_kc.sym);loadKimchiCompareData(_kc.sym);}
+function kcQuickSelectEx(k){
+  if(k==='binance')_kc.forEx='binance';
+  else _kc.domEx=k;
+  if(k==='upbit'||k==='bithumb')G.kimEx=k;
+  renderKimchiCompareLayout(_kc.sym);loadKimchiCompareData(_kc.sym);renderKimchiExchangeStatus(_kc.sym);
+}
+function setKcTf(tf){_kc.tf=tf;renderKimchiCompareLayout(_kc.sym);loadKimchiCompareData(_kc.sym);}
+function setKcChartTab(tab){_kc.chartTab=tab;renderKimchiCompareLayout(_kc.sym);loadKimchiCompareData(_kc.sym);}
 
 async function upbitTickerRaw(sym){
   // KRW 그대로 반환 (환산 없음)
@@ -2262,79 +2941,93 @@ async function loadCoinDetail(binSym){
       el.innerHTML=(oi||fund)?futuresBlock(oi,fund,lsAcc?.[0],lsTaker?.[0],hours):'<div style="font-size:12px;color:#64748b;padding:4px;">선물 미상장 또는 데이터 없음</div>';
     });
 
+    // 비동기: 추가 위젯 (누적펀딩/롱숏차트/청산/입출금/김프차트)
+    if(typeof populateDetailExtras==='function')populateDetailExtras(sym,binSym);
+
     // 비동기: 김프 (업비트 소스일 때만)
     if(G.detailSource==='upbit'){
       loadKimpForDetail(sym,parseFloat(ticker.lastPrice));
     }
 
-    // 비동기: DEX
-    dsGet(`/latest/dex/search?q=${sym}`).then(d=>{
-      const pairs=(d?.pairs||[]).filter(p=>p.baseToken?.symbol?.toUpperCase()===sym).slice(0,3);
-      const el=document.getElementById('dex-sec');if(!el)return;
-      el.innerHTML=pairs.length?dexOnchainBlock(pairs):'<div style="font-size:12px;color:#64748b;">DEX 온체인 데이터 없음</div>';
-    }).catch(()=>{});
-
-    // 비동기: CoinGecko 우선 (ID 직접 → 심볼 캐시 → 검색) → 실패 시 다른 소스 폴백
+    // 비동기: 자산 정보 — 캐시 → 메모리 → 모든 소스 병렬 경쟁
     (async()=>{
       const infoEl=document.getElementById('info-sec');
-      let asset=null;
-
-      await initCgCache();
+      const hasMc=a=>a&&parseFloat(a.marketCapUsd||0)>0;
       const cgId=COINGECKO_IDS[sym];
       const cpId=CP_IDS[sym];
-      const hasMc=a=>a&&parseFloat(a.marketCapUsd||0)>0;
+      let asset=null;
 
-      // 1차: CoinGecko (기본 기준)
-      // 1-A) ID 맵이 있으면 해당 ID로 직접 조회 (심볼 충돌 무시)
+      // 0) 로컬 캐시 (24h)
+      asset=getCachedAsset(sym);
+      // 1) 메모리 캐시 (initCgCache 결과)
+      if(!hasMc(asset)&&cgCache[sym]&&hasMc(cgCache[sym]))asset=cgCache[sym];
+
+      // 즉시 1차 렌더 (캐시 데이터로)
+      const renderOnce=()=>{
+        if(infoEl)infoEl.innerHTML=asset?infoBlock(asset,sym):'<div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>여러 소스에서 조회 중…</div>';
+        const cgLinkEl=document.getElementById('cg-link');
+        if(cgLinkEl){const id=asset?.cgId||COINGECKO_IDS[sym];cgLinkEl.href=id?`https://www.coingecko.com/en/coins/${id}`:`https://www.coingecko.com/en/search?query=${encodeURIComponent(sym)}`;}
+        renderMktcap(asset,sym,ch24);
+        updateCalc(sym,cur);
+        loadWalletData(sym,asset?parseFloat(asset.supply||0):0);
+      };
+      renderOnce();
+
+      // 2) 모든 소스 병렬 경쟁 — 가장 먼저 mc 있는 결과 채택, 다 끝나면 fallback merge
+      const sources=[];
+      // CoinGecko: ID → markets → 단일코인 → 검색 4가지 모두 시도 (각각 별도 promise)
       if(cgId){
-        try{
-          const d=await cgGet(`/coins/markets?vs_currency=usd&ids=${cgId}&sparkline=false`);
-          if(d?.[0]){asset=cgNormalize(d[0]);cgCache[sym]=asset;}
-        }catch{}
-      }else{
-        // 1-B) ID 맵 없으면 심볼 캐시 먼저
-        asset=cgCache[sym]||null;
-        // 1-C) 캐시에도 없으면 CG 검색 → markets 조회
-        if(!hasMc(asset)){
-          try{
-            const sd=await cgGet(`/search?query=${sym}`);
-            const found=(sd?.coins||[]).find(c=>c.symbol.toUpperCase()===sym);
-            if(found){
-              const md=await cgGet(`/coins/markets?vs_currency=usd&ids=${found.id}&sparkline=false`);
-              if(md?.[0]){asset=cgNormalize(md[0]);cgCache[sym]=asset;}
-            }
-          }catch{}
-        }
+        sources.push((async()=>{try{const d=await cgGet(`/coins/markets?vs_currency=usd&ids=${cgId}&sparkline=false&price_change_percentage=1h,24h,7d`);return d?.[0]?cgNormalize(d[0]):null;}catch{return null;}})());
+        sources.push((async()=>{try{
+          const d=await cgGet(`/coins/${cgId}?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false`);
+          if(!d?.market_data)return null;
+          return{cgId:d.id,name:d.name,image:d.image?.large||d.image?.small,rank:d.market_cap_rank,marketCapUsd:d.market_data.market_cap?.usd||0,supply:d.market_data.circulating_supply,maxSupply:d.market_data.max_supply,totalSupply:d.market_data.total_supply,priceUsd:d.market_data.current_price?.usd,volumeUsd24Hr:d.market_data.total_volume?.usd,vwap24Hr:null,ath:d.market_data.ath?.usd,athDate:d.market_data.ath_date?.usd,atl:d.market_data.atl?.usd,atlDate:d.market_data.atl_date?.usd,ch1h:d.market_data.price_change_percentage_1h_in_currency?.usd,ch24h:d.market_data.price_change_percentage_24h_in_currency?.usd,ch7d:d.market_data.price_change_percentage_7d_in_currency?.usd,source:'coingecko'};
+        }catch{return null;}})());
+      }
+      // CG 검색 — ID 모르거나 매핑 안 된 경우 핵심 폴백
+      sources.push((async()=>{try{
+        const sd=await cgGet(`/search?query=${sym}`);
+        const found=(sd?.coins||[]).find(c=>c.symbol.toUpperCase()===sym);
+        if(!found)return null;
+        const md=await cgGet(`/coins/markets?vs_currency=usd&ids=${found.id}&sparkline=false&price_change_percentage=1h,24h,7d`);
+        return md?.[0]?cgNormalize(md[0]):null;
+      }catch{return null;}})());
+      // 다른 4 소스
+      sources.push(ccrGet(`/data/pricemultifull?fsyms=${sym}&tsyms=USD`).then(d=>ccrNormalize(d,sym)).catch(()=>null));
+      if(cpId)sources.push(cpGet(cpId).then(d=>d?.quotes?.USD?cpNormalize(d):null).catch(()=>null));
+      sources.push((async()=>{try{const d=await ccGet(`/assets/${sym.toLowerCase()}`);if(d?.data?.symbol?.toUpperCase()!==sym)return null;return{rank:parseInt(d.data.rank),marketCapUsd:parseFloat(d.data.marketCapUsd||0),supply:parseFloat(d.data.supply||0),maxSupply:parseFloat(d.data.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(d.data.priceUsd||0),volumeUsd24Hr:parseFloat(d.data.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};}catch{return null;}})());
+      sources.push((async()=>{try{const d=await ccGet(`/assets?search=${sym.toLowerCase()}&limit=10`);const found=(d?.data||[]).find(a=>a.symbol.toUpperCase()===sym);if(!found)return null;return{rank:parseInt(found.rank),marketCapUsd:parseFloat(found.marketCapUsd||0),supply:parseFloat(found.supply||0),maxSupply:parseFloat(found.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(found.priceUsd||0),volumeUsd24Hr:parseFloat(found.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};}catch{return null;}})());
+      sources.push((async()=>{try{const d=await clGet(`/api/tickers/?start=0&limit=100`);const found=(d?.data||[]).find(a=>a.symbol?.toUpperCase()===sym);if(!found)return null;return{rank:parseInt(found.rank)||null,marketCapUsd:parseFloat(found.market_cap_usd)||0,supply:parseFloat(found.csupply)||0,maxSupply:parseFloat(found.msupply)||null,totalSupply:parseFloat(found.tsupply)||null,priceUsd:parseFloat(found.price_usd)||0,volumeUsd24Hr:parseFloat(found.volume24)||0,vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coinlore'};}catch{return null;}})());
+
+      // 가장 빠른 mc 있는 결과로 즉시 갱신, 그 후 모든 결과 끝나면 가장 신뢰 높은(우선순위) 데이터로 최종 병합
+      let earlyResolved=false;
+      const earlyWinner=new Promise(resolve=>{
+        let remaining=sources.length;let done=false;
+        sources.forEach(p=>p.then(r=>{if(!done&&hasMc(r)){done=true;earlyResolved=true;resolve(r);}}).finally(()=>{remaining--;if(remaining===0&&!done)resolve(null);}));
+      });
+      const all=Promise.all(sources.map(p=>p.catch(()=>null)));
+
+      const ew=await earlyWinner;
+      if(hasMc(ew)){
+        // 캐시에 mc 더 큰 게 있으면 그걸 유지, 그렇지 않으면 ew로 갱신
+        if(!hasMc(asset)||parseFloat(ew.marketCapUsd)>parseFloat(asset.marketCapUsd||0))asset=ew;
+        renderOnce();
       }
 
-      // 2차: CG 실패 시 다른 코인마켓 병렬 경쟁 (CryptoCompare · CoinPaprika · CoinCap · CoinLore)
-      if(!hasMc(asset)){
-        const fallbacks=[
-          ccrGet(`/data/pricemultifull?fsyms=${sym}&tsyms=USD`).then(d=>ccrNormalize(d,sym)).catch(()=>null),
-          cpId?cpGet(cpId).then(d=>d?.quotes?.USD?cpNormalize(d):null).catch(()=>null):Promise.resolve(null),
-          (async()=>{try{const d=await ccGet(`/assets/${sym.toLowerCase()}`);if(d?.data?.symbol?.toUpperCase()!==sym)return null;return{rank:parseInt(d.data.rank),marketCapUsd:parseFloat(d.data.marketCapUsd||0),supply:parseFloat(d.data.supply||0),maxSupply:parseFloat(d.data.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(d.data.priceUsd||0),volumeUsd24Hr:parseFloat(d.data.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};}catch{return null;}})(),
-          (async()=>{try{const d=await ccGet(`/assets?search=${sym.toLowerCase()}&limit=10`);const found=(d?.data||[]).find(a=>a.symbol.toUpperCase()===sym);if(!found)return null;return{rank:parseInt(found.rank),marketCapUsd:parseFloat(found.marketCapUsd||0),supply:parseFloat(found.supply||0),maxSupply:parseFloat(found.maxSupply||0)||null,totalSupply:null,priceUsd:parseFloat(found.priceUsd||0),volumeUsd24Hr:parseFloat(found.volumeUsd24Hr||0),vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coincap'};}catch{return null;}})(),
-          (async()=>{try{const d=await clGet(`/api/tickers/?start=0&limit=100`);const found=(d?.data||[]).find(a=>a.symbol?.toUpperCase()===sym);if(!found)return null;return{rank:parseInt(found.rank)||null,marketCapUsd:parseFloat(found.market_cap_usd)||0,supply:parseFloat(found.csupply)||0,maxSupply:parseFloat(found.msupply)||null,totalSupply:parseFloat(found.tsupply)||null,priceUsd:parseFloat(found.price_usd)||0,volumeUsd24Hr:parseFloat(found.volume24)||0,vwap24Hr:null,ath:null,athDate:null,atl:null,atlDate:null,source:'coinlore'};}catch{return null;}})(),
-        ];
-        const winner=await new Promise(resolve=>{
-          let remaining=fallbacks.length;let done=false;
-          fallbacks.forEach(p=>p.then(r=>{if(!done&&hasMc(r)){done=true;resolve(r);}}).finally(()=>{remaining--;if(remaining===0&&!done)resolve(null);}));
-        });
-        if(winner)asset=winner;
+      // 모든 결과 합쳐 가장 좋은 것(소스 우선순위 + supply/maxSupply 채워진 정도) 채택
+      const allResults=(await all).filter(r=>hasMc(r));
+      if(allResults.length){
+        const score=r=>{const s=r.source||'';const base=s.includes('coingecko')?100:s.includes('cryptocompare')?60:s.includes('coinpaprika')?80:s.includes('coinlore')?40:50;const bonus=(r.supply?5:0)+(r.maxSupply?5:0)+(r.ath?3:0);return base+bonus;};
+        const best=allResults.sort((a,b)=>score(b)-score(a))[0];
+        if(!hasMc(asset)||score(best)>score(asset))asset=best;
+        cgCache[sym]=asset;
+        setCachedAsset(sym,asset);
+        renderOnce();
+      }else if(!hasMc(asset)){
+        // 모든 소스 실패
+        if(infoEl)infoEl.innerHTML='<div style="font-size:12px;color:#64748b;">기본 정보 일시 조회 실패</div>';
+        renderMktcap(null,sym,ch24,true);
       }
-
-      // 결과 반영
-      if(infoEl)infoEl.innerHTML=asset?infoBlock(asset,sym):'<div style="font-size:12px;color:#64748b;">기본 정보 없음</div>';
-      // 외부 링크 정확도 개선: CoinGecko ID / CMC 슬러그가 있으면 갱신
-      const cgLinkEl=document.getElementById('cg-link');
-      if(cgLinkEl){
-        const cgId=asset?.cgId||COINGECKO_IDS[sym];
-        cgLinkEl.href=cgId?`https://www.coingecko.com/en/coins/${cgId}`:`https://www.coingecko.com/en/search?query=${encodeURIComponent(sym)}`;
-      }
-      renderMktcap(asset,sym,ch24);
-      updateCalc(sym,cur);
-      const circSupply=asset?parseFloat(asset.supply||0):0;
-      loadWalletData(sym,circSupply);
     })();
 
   }catch(e){
@@ -2385,6 +3078,7 @@ async function loadKimpForDetail(sym,upbitKrw){
 function renderDetailContent(sym,binSym,t,klines,tf,price,ch24,cur){
   const isFutOnly=G.tab==='futures'||!!(G.coins.find(c=>c.symbol===sym)?.futOnly);
   const isUpbitSrc=G.detailSource==='upbit';
+  const isStock=G.tab==='stocks'||!!(G.stocks||[]).find(s=>s.binSym===binSym);
   const tradeUrl=isUpbitSrc?`https://upbit.com/exchange?code=CRIX.UPBIT.KRW-${sym}`:(isFutOnly?`https://www.binance.com/ko/futures/${binSym}`:`https://www.binance.com/ko/trade/${sym}_USDT`);
   const tradeLabel=isUpbitSrc?'업비트에서 거래하기 →':(isFutOnly?'바이낸스 선물에서 거래하기 →':'바이낸스에서 거래하기 →');
   document.getElementById('dp').innerHTML=`
@@ -2433,11 +3127,13 @@ function renderDetailContent(sym,binSym,t,klines,tf,price,ch24,cur){
         <div style="font-size:12px;color:var(--t3);display:flex;align-items:center;gap:8px;"><div style="width:12px;height:12px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>바이낸스 시세 조회 중…</div>
       </div>`:''}
 
-      <!-- 시가총액·유통량 -->
-      <div class="card" style="margin-bottom:12px;">
+      ${isStock?'':`<!-- 시가총액·유통량 -->
+      <div class="card" style="margin-bottom:8px;">
         <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">💹 시가총액 · 유통량</div>
         <div id="mktcap-sec"><div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>CoinGecko 조회 중…</div></div>
-      </div>
+      </div>`}
+
+${(()=>{G._lastTf=tf;G._lastTfRank=cgCache[sym]?.rank;return'';})()}
 
       <!-- 고저/거래량 요약 -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
@@ -2455,32 +3151,42 @@ function renderDetailContent(sym,binSym,t,klines,tf,price,ch24,cur){
         <div id="fut-sec"><div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>로딩 중…</div></div>
       </div>
 
-      <!-- 멀티타임프레임 (선물 데이터 아래) -->
-      ${(()=>{const rank=cgCache[sym]?.rank;const top10=rank&&rank<=10;const items=top10?[['1시간',tf.h1],['4시간',tf.h4],['24시간',tf.h24],['1주',tf.w1],['1달',tf.M1],['3달',tf.M3],['6달',tf.M6],['1년',tf.y1]]:[['1시간',tf.h1],['4시간',tf.h4],['24시간',tf.h24],['1주',tf.w1],['1달',tf.M1],['3달',tf.M3]];return`
+      <!-- 펀딩비 비교 + 누적 -->
       <div class="card" style="margin-bottom:12px;">
-        <div style="font-size:11px;color:var(--t3);margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;gap:6px;">
-          <span>⏱ 멀티타임프레임 변동률</span>
-          ${top10?'<span style="font-size:9px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 6px;border-radius:4px;border:1px solid rgba(245,158,11,.3);font-weight:700;">TOP 10</span>':''}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(${items.length},1fr);gap:6px;">
-          ${items.map(([l,v])=>{
-            if(v==null||isNaN(v))return`<div style="background:rgba(100,116,139,.08);border:1px solid var(--bd3);border-radius:8px;padding:10px 4px;text-align:center;">
-              <div style="font-size:10px;color:var(--t3);margin-bottom:4px;font-weight:700;">${l}</div>
-              <div style="font-size:13px;font-weight:800;color:var(--t3);">—</div>
-            </div>`;
-            const c=v>=0?'#10b981':'#ef4444';const bg=v>=0?'rgba(16,185,129,.12)':'rgba(239,68,68,.12)';const brd=v>=0?'rgba(16,185,129,.25)':'rgba(239,68,68,.25)';
-            return`<div style="background:${bg};border:1px solid ${brd};border-radius:8px;padding:10px 4px;text-align:center;">
-              <div style="font-size:10px;color:var(--t2);margin-bottom:4px;font-weight:700;">${l}</div>
-              <div style="font-size:13px;font-weight:800;color:${c};">${v>=0?'+':''}${v.toFixed(2)}%</div>
-            </div>`;}).join('')}
-        </div>
-      </div>`;})()}
-
-      <!-- DEX 온체인 -->
-      <div class="card" style="margin-bottom:12px;">
-        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">⛓ DEX 온체인 데이터</div>
-        <div id="dex-sec"><div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>로딩 중…</div></div>
+        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">💸 펀딩비 (거래소 비교 · 누적)</div>
+        <div id="fund-cross-sec"><div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>로딩 중…</div></div>
       </div>
+
+      <!-- 롱/숏 비율 추이 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">⚖️ 롱/숏 비율 (1h × 24)</div>
+        <div id="ls-chart-sec"><div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>로딩 중…</div></div>
+      </div>
+
+      <!-- 실시간 청산 피드 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:space-between;"><span>💥 실시간 청산 피드</span><span style="font-size:9px;color:#475569;font-weight:600;">최근 누적</span></div>
+        <div id="liq-feed-sec"><div style="font-size:12px;color:#64748b;">대기 중…</div></div>
+      </div>
+
+      <!-- 가격대별 청산 집계 (히트맵) -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:space-between;"><span>🎯 가격대별 청산 집계</span><span style="font-size:9px;color:#475569;font-weight:600;">현재가 ±10 bin</span></div>
+        <div id="liq-bucket-sec"><div style="font-size:11px;color:#64748b;">청산 이벤트 누적 시 표시됩니다</div></div>
+      </div>
+
+      ${isUpbitSrc?`<!-- 업비트 입출금 상태 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">🏦 업비트 입출금 상태</div>
+        <div id="wallet-status-sec"><div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>로딩 중…</div></div>
+      </div>
+
+      <!-- 김프 갭차트 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">📈 김프 추이 (이번 세션)</div>
+        <div id="kimp-history-sec" style="position:relative;height:180px;"><canvas id="kimp-history-chart"></canvas></div>
+        <div id="kimp-history-empty" style="display:none;font-size:11px;color:#64748b;text-align:center;padding:20px;">데이터 누적 중… 1분마다 갱신됩니다</div>
+      </div>`:''}
 
       <!-- 거래소 핫월렛 조사 -->
       <div class="card" style="margin-bottom:12px;">
@@ -2683,15 +3389,16 @@ function renderSimChart(sym,curPrice){
 
 // ── 기본 정보 블록 ────────────────────────────────
 function infoBlock(a,sym){
-  const supply=parseFloat(a.supply)||0,maxSup=parseFloat(a.maxSupply)||0;
-  const circ=maxSup>0?`${(supply/maxSup*100).toFixed(1)}%`:'N/A';
+  const supply=parseFloat(a.supply)||0,maxSup=parseFloat(a.maxSupply)||0,totalSup=parseFloat(a.totalSupply)||0;
+  const capSup=maxSup>0?maxSup:totalSup;
+  const circ=capSup>0?`${(supply/capSup*100).toFixed(1)}%`:'N/A';
   const net=NETWORKS[sym];
   const sec=SECTORS[sym];
   const narr=NARRATIVES[sym];
   const rows=[
     ['프로젝트',`${coinName(sym)}${sec?` <span style="font-size:10px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 6px;border-radius:4px;margin-left:4px;">${sec.sector}</span>`:''}`],
     ['네트워크',net?`${net.name} <a href="${net.explorer}" target="_blank" style="font-size:10px;color:#60a5fa;margin-left:4px;text-decoration:none;">탐색기 →</a>`:'—'],
-    ['유통량',`${F.num(supply)} ${sym}${maxSup>0?` <span style="font-size:10px;color:#64748b;">/ ${F.num(maxSup)} (${circ})</span>`:' <span style="font-size:10px;color:#64748b;">/ 무제한</span>'}`],
+    ['유통량',`${F.num(supply)} ${sym}${maxSup>0?` <span style="font-size:10px;color:#64748b;">/ ${F.num(maxSup)} (${circ})</span>`:totalSup>0?` <span style="font-size:10px;color:#64748b;">/ 총 ${F.num(totalSup)} (${circ})</span>`:' <span style="font-size:10px;color:#64748b;">/ 무제한</span>'}`],
     ['시총',`${F.money(a.marketCapUsd)} <span style="font-size:10px;color:#64748b;">${F.krw(parseFloat(a.marketCapUsd||0)*G_KRW)}</span> <span style="font-size:10px;color:#64748b;">#${a.rank||'?'}</span>`],
     ['24h 거래량',`${F.money(a.volumeUsd24Hr)} <span style="font-size:10px;color:#64748b;">${F.krw(parseFloat(a.volumeUsd24Hr||0)*G_KRW)}</span>`],
     ['현재가',`${F.price(a.priceUsd)} <span style="font-size:10px;color:#64748b;">${F.krw(parseFloat(a.priceUsd||0)*G_KRW)}</span>`],
@@ -2715,7 +3422,7 @@ function infoBlock(a,sym){
       <div style="font-size:11px;color:var(--t2);margin-bottom:4px;font-weight:600;">프로젝트 요약</div>
       <div style="font-size:12px;color:var(--t2);line-height:1.6;">${sec.theme}</div>
     </div>`:''}
-    ${maxSup>0?`<div style="margin-top:12px;padding:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:10px;">
+    ${capSup>0?`<div style="margin-top:12px;padding:12px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:10px;">
       <div style="font-size:11px;color:#f59e0b;font-weight:700;margin-bottom:5px;">💡 공급량 분석</div>
       <div style="font-size:12px;color:var(--t2);line-height:1.7;">유통률 <b style="color:var(--t1)">${circ}</b> — ${parseFloat(circ)>80?'유통량 대부분 풀림, 추가 공급 리스크 낮음':'미유통 물량 존재, 향후 공급 증가 가능성 있음'}</div>
     </div>`:''}
@@ -2994,15 +3701,21 @@ function copy(text){navigator.clipboard.writeText(text).then(()=>toast('주소 �
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.transform='translateX(-50%) translateY(0)';clearTimeout(t._t);t._t=setTimeout(()=>t.style.transform='translateX(-50%) translateY(60px)',2500);}
 
 // ── 시가총액·유통량 렌더 ──────────────────────────
-function renderMktcap(asset,sym,ch24){
+function renderMktcap(asset,sym,ch24,finalFail){
   const el=document.getElementById('mktcap-sec');if(!el)return;
   if(!asset){
-    el.innerHTML=`<div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">⚠ 데이터 조회 실패<button onclick="location.reload()" style="font-size:11px;background:var(--b1);color:#f59e0b;border:1px solid #475569;border-radius:6px;padding:3px 10px;cursor:pointer;">새로고침</button></div>`;
+    if(finalFail){
+      el.innerHTML=`<div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">⚠ 시가총액 일시 조회 실패 — 잠시 후 다시 시도<button onclick="loadCoinDetail(G.curSym)" style="font-size:11px;background:var(--b1);color:#f59e0b;border:1px solid #475569;border-radius:6px;padding:3px 10px;cursor:pointer;">재시도</button></div>`;
+    }else{
+      el.innerHTML=`<div style="font-size:12px;color:#64748b;display:flex;align-items:center;gap:8px;"><div style="width:14px;height:14px;border:2px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div>여러 소스에서 조회 중…</div>`;
+    }
     return;
   }
   const supply=parseFloat(asset.supply||0);
   const maxSup=parseFloat(asset.maxSupply||0);
-  const circ=maxSup>0?(supply/maxSup*100).toFixed(1):null;
+  const totalSup=parseFloat(asset.totalSupply||0);
+  const capSup=maxSup>0?maxSup:totalSup; // 최대공급량 없으면 총공급량으로 대체
+  const circ=capSup>0?(supply/capSup*100).toFixed(1):null;
   const mcUsd=parseFloat(asset.marketCapUsd||0);
   const volUsd=parseFloat(asset.volumeUsd24Hr||0);
   const srcLabel=(()=>{
@@ -3015,29 +3728,51 @@ function renderMktcap(asset,sym,ch24){
   })();
   const src=`<span style="font-size:9px;background:rgba(148,163,184,.15);color:${srcLabel.c};padding:1px 6px;border-radius:4px;border:1px solid var(--bd3);font-weight:700;margin-left:4px;">${srcLabel.t}</span>`;
   el.innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:10px;padding:12px 14px;">
-        <div style="font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;display:flex;align-items:center;gap:4px;">시가총액${asset.rank?`<span style="color:#f59e0b;">#${asset.rank}</span>`:''}${src}</div>
-        <div style="font-size:18px;font-weight:800;color:var(--t1);">${F.money(mcUsd)}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:2px;">${F.krwFullPlus(mcUsd*G_KRW)}</div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:10px;padding:12px 14px;">
-        <div style="font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;">유통량${circ?` <span style="color:#f59e0b;">${circ}%</span>`:''}</div>
-        <div style="font-size:16px;font-weight:800;color:var(--t1);">${F.num(supply)}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:2px;">${maxSup>0?`최대 ${F.num(maxSup)}`:'무제한 발행'}</div>
-      </div>
-    </div>
-    <div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:10px;padding:10px 14px;">
-      <div style="font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-        <span>24h 거래량</span>
-        ${ch24!=null&&!isNaN(ch24)?`<span style="font-size:11px;font-weight:800;background:${ch24>=0?'rgba(16,185,129,.15)':'rgba(239,68,68,.15)'};color:${ch24>=0?'#10b981':'#ef4444'};padding:2px 8px;border-radius:4px;border:1px solid ${ch24>=0?'rgba(16,185,129,.25)':'rgba(239,68,68,.25)'};">24h ${ch24>=0?'+':''}${ch24.toFixed(2)}%</span>`:''}
-      </div>
-      <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;">
-        <span style="font-size:15px;font-weight:800;color:#f59e0b;">${F.money(volUsd)}</span>
-        <span style="font-size:11px;color:#64748b;">${F.krwFullPlus(volUsd*G_KRW)}</span>
-      </div>
-      ${mcUsd>0&&volUsd>0?`<div style="font-size:10px;color:#64748b;margin-top:2px;">시총 대비 <b style="color:var(--t2);">${(volUsd/mcUsd*100).toFixed(1)}%</b> 거래됨</div>`:''}
-    </div>`;
+    ${(()=>{
+      const cardCss='background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;min-height:78px;';
+      const lblCss='font-size:10px;color:#64748b;margin-bottom:4px;font-weight:700;display:flex;align-items:center;gap:4px;';
+      const valCss='font-size:14px;font-weight:800;color:var(--t1);line-height:1.15;';
+      const subCss='font-size:10px;color:#64748b;margin-top:2px;';
+      const mcCard=`<div style="${cardCss}">
+        <div style="${lblCss}">시가총액${asset.rank?`<span style="color:#f59e0b;">#${asset.rank}</span>`:''}${src}</div>
+        <div style="${valCss}">${F.money(mcUsd)}</div>
+        <div style="${subCss}">${F.krwFullPlus(mcUsd*G_KRW)}</div>
+      </div>`;
+      const supCard=`<div style="${cardCss}">
+        <div style="${lblCss}">유통량${circ?` <span style="color:#f59e0b;">${circ}%</span>`:''}</div>
+        <div style="${valCss}">${F.num(supply)}</div>
+        <div style="${subCss}">${maxSup>0?`최대 ${F.num(maxSup)}`:totalSup>0?`총 발행 ${F.num(totalSup)}`:'무제한 발행'}</div>
+      </div>`;
+      const volCard=`<div style="${cardCss}">
+        <div style="${lblCss}justify-content:space-between;">
+          <span>24h 거래량</span>
+          ${ch24!=null&&!isNaN(ch24)?`<span style="font-size:10px;font-weight:800;background:${ch24>=0?'rgba(16,185,129,.15)':'rgba(239,68,68,.15)'};color:${ch24>=0?'#10b981':'#ef4444'};padding:1px 6px;border-radius:4px;border:1px solid ${ch24>=0?'rgba(16,185,129,.25)':'rgba(239,68,68,.25)'};">${ch24>=0?'+':''}${ch24.toFixed(2)}%</span>`:''}
+        </div>
+        <div style="${valCss}color:#f59e0b;">${F.money(volUsd)}</div>
+        <div style="${subCss}">${F.krwFullPlus(volUsd*G_KRW)}${mcUsd>0&&volUsd>0?` · <b style="color:var(--t2);">${(volUsd/mcUsd*100).toFixed(1)}%</b>`:''}</div>
+      </div>`;
+      let tfCard=`<div style="${cardCss}"></div>`;
+      const tf=G._lastTf;
+      if(tf){
+        const top10=G._lastTfRank&&G._lastTfRank<=10;
+        const items=top10?[['1h',tf.h1],['4h',tf.h4],['24h',tf.h24],['1w',tf.w1],['1M',tf.M1],['3M',tf.M3],['6M',tf.M6],['1y',tf.y1]]:[['1h',tf.h1],['4h',tf.h4],['24h',tf.h24],['1w',tf.w1],['1M',tf.M1],['3M',tf.M3]];
+        const cells=items.map(([l,v])=>{
+          if(v==null||isNaN(v))return`<div style="background:rgba(100,116,139,.08);border:1px solid var(--bd3);border-radius:4px;padding:3px 2px;text-align:center;">
+            <div style="font-size:9px;color:var(--t3);font-weight:700;">${l}</div>
+            <div style="font-size:10px;font-weight:800;color:var(--t3);">—</div>
+          </div>`;
+          const c=v>=0?'#10b981':'#ef4444';const bg=v>=0?'rgba(16,185,129,.10)':'rgba(239,68,68,.10)';const brd=v>=0?'rgba(16,185,129,.22)':'rgba(239,68,68,.22)';
+          return`<div style="background:${bg};border:1px solid ${brd};border-radius:4px;padding:3px 2px;text-align:center;">
+            <div style="font-size:9px;color:var(--t2);font-weight:700;">${l}</div>
+            <div style="font-size:10px;font-weight:800;color:${c};">${v>=0?'+':''}${v.toFixed(1)}%</div>
+          </div>`;}).join('');
+        tfCard=`<div style="${cardCss}padding:8px 10px;">
+          <div style="${lblCss}">⏱ 멀티타임프레임${top10?` <span style="font-size:9px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 5px;border-radius:3px;border:1px solid rgba(245,158,11,.3);font-weight:700;">TOP 10</span>`:''}</div>
+          <div style="display:grid;grid-template-columns:repeat(${Math.ceil(items.length/2)},1fr);gap:3px;">${cells}</div>
+        </div>`;
+      }
+      return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${mcCard}${supCard}${volCard}${tfCard}</div>`;
+    })()}`;
 }
 
 // ── 거래소 핫월렛 조회 ───────────────────────────
@@ -3204,15 +3939,57 @@ function renderDepositChart(results,sym,circSupply){
   });
 }
 
-// USD→KRW 환율 자동 갱신
+// USD→KRW 환율 + USDT→KRW(업비트) 자동 갱신
+let _fxState={usdToday:null,usdY:null,usdtPrice:null,usdtCh:null};
+function renderFxBadges(){
+  const usdLabel=G.lang==='ko'?'달러':'USD';
+  const usdtLabel=G.lang==='ko'?'테더':'USDT';
+  const elUsd=document.getElementById('usdkrw-badge');
+  if(elUsd&&_fxState.usdToday){
+    let chHtml='';
+    if(_fxState.usdY){
+      const ch=(_fxState.usdToday-_fxState.usdY)/_fxState.usdY*100;
+      const c=ch>=0?'#10b981':'#ef4444';
+      const s=ch>=0?'+':'';
+      chHtml=` <span style="color:${c};">${s}${ch.toFixed(2)}%</span>`;
+    }
+    elUsd.innerHTML=`${usdLabel} ₩${Math.round(_fxState.usdToday).toLocaleString()}${chHtml}`;
+    elUsd.title=`${usdLabel}/원 환율: ₩${_fxState.usdToday.toFixed(2)}${_fxState.usdY?` (전일 ₩${_fxState.usdY.toFixed(2)})`:''}`;
+  }
+  const elUsdt=document.getElementById('usdtkrw-badge');
+  if(elUsdt&&_fxState.usdtPrice){
+    const ch=_fxState.usdtCh||0;
+    const c=ch>=0?'#10b981':'#ef4444';
+    const s=ch>=0?'+':'';
+    elUsdt.innerHTML=`${usdtLabel} ₩${_fxState.usdtPrice.toLocaleString()} <span style="color:${c};">${s}${ch.toFixed(2)}%</span>`;
+    elUsdt.title=`업비트 ${usdtLabel}/KRW: ₩${_fxState.usdtPrice.toLocaleString()} (24h ${s}${ch.toFixed(2)}%)`;
+  }
+}
 async function fetchKRW(){
   try{
     const r=await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',{signal:AbortSignal.timeout(5000)});
     const d=await r.json();
-    if(d?.usd?.krw)G_KRW=Math.round(d.usd.krw);
+    if(d?.usd?.krw){_fxState.usdToday=d.usd.krw;G_KRW=Math.round(d.usd.krw);}
   }catch{}
+  try{
+    const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    const r=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${y}/v1/currencies/usd.json`,{signal:AbortSignal.timeout(5000)});
+    const d=await r.json();
+    if(d?.usd?.krw)_fxState.usdY=d.usd.krw;
+  }catch{}
+  try{
+    const r=await fetch('https://api.upbit.com/v1/ticker?markets=KRW-USDT',{signal:AbortSignal.timeout(5000)});
+    const d=await r.json();
+    const t=Array.isArray(d)?d[0]:null;
+    if(t?.trade_price){
+      _fxState.usdtPrice=t.trade_price;
+      _fxState.usdtCh=(t.signed_change_rate||0)*100;
+    }
+  }catch{}
+  renderFxBadges();
 }
 fetchKRW();
+setInterval(fetchKRW,60*1000);
 
 // ── 공포·탐욕 지수 + BTC/ETH 도미넌스 ──
 async function loadMarketSentiment(){
@@ -3250,7 +4027,7 @@ async function loadMarketSentiment(){
 loadMarketSentiment();
 setInterval(loadMarketSentiment,5*60*1000); // 5분마다 갱신
 (function(){try{const t=localStorage.getItem('woc-theme');const b=document.getElementById('theme-btn');if(b)b.textContent=t==='light'?'☀️':'🌙';}catch{}})();
-(function(){const b=document.getElementById('lang-btn');if(b)b.textContent=G.lang==='ko'?'🇰🇷 한글':'🇺🇸 EN';})();
+(function(){const b=document.getElementById('lang-btn');if(b)b.textContent=G.lang==='ko'?'🇰🇷 한글':'🇺🇸 EN';if(typeof applyTabLabels==='function')applyTabLabels();})();
 (function(){const b=document.getElementById('cur-btn');if(b){b.textContent=G.currency==='usd'?'$ USD':'₩ KRW';b.style.color=G.currency==='usd'?'#f59e0b':'#10b981';}})();
 loadUpbitKoNames();
 
@@ -3291,10 +4068,495 @@ function applyRoute(){
 }
 window.addEventListener('popstate',applyRoute);
 
+// ════════════════════════════════════════════════════════════
+// 더따리 스타일 확장: 누적펀딩 / 롱숏차트 / 청산 / 입출금 / 김프이력
+// ════════════════════════════════════════════════════════════
+
+// ── 김프 이력(세션 메모리, 코인별 최근 24h) ──
+const _kimpHistory={}; // {sym:[{t,p}]}
+const KIMP_HIST_MAX=24*60; // 1분 간격 24h
+function snapshotKimpHistory(){
+  const now=Date.now();
+  (G.kimchi||[]).forEach(k=>{
+    if(!k||k.upbitOnly||k.premium==null)return;
+    const arr=_kimpHistory[k.symbol]||(_kimpHistory[k.symbol]=[]);
+    arr.push({t:now,p:k.premium});
+    if(arr.length>KIMP_HIST_MAX)arr.splice(0,arr.length-KIMP_HIST_MAX);
+  });
+  // 디테일 열려있으면 즉시 갱신
+  if(G.curSym&&document.getElementById('kimp-history-chart'))drawKimpHistoryChart(G.curSym);
+}
+setInterval(snapshotKimpHistory,60*1000);
+let _kimpHistoryChart=null;
+function drawKimpHistoryChart(sym){
+  const arr=_kimpHistory[sym]||[];
+  const cv=document.getElementById('kimp-history-chart');
+  const empty=document.getElementById('kimp-history-empty');
+  const wrap=document.getElementById('kimp-history-sec');
+  if(!cv||!wrap)return;
+  if(arr.length<2){if(empty)empty.style.display='block';wrap.style.display='none';return;}
+  if(empty)empty.style.display='none';wrap.style.display='block';
+  const labels=arr.map(x=>{const d=new Date(x.t);return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;});
+  const data=arr.map(x=>x.p);
+  if(_kimpHistoryChart){try{_kimpHistoryChart.destroy();}catch{}}
+  _kimpHistoryChart=new Chart(cv.getContext('2d'),{
+    type:'line',
+    data:{labels,datasets:[{data,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.12)',borderWidth:2,fill:true,tension:.25,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`김프 ${c.parsed.y>=0?'+':''}${c.parsed.y.toFixed(2)}%`}}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:9},maxTicksLimit:6},grid:{display:false}},
+              y:{ticks:{color:'#64748b',font:{size:10},callback:v=>`${v>=0?'+':''}${v.toFixed(1)}%`},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+}
+
+// ── 청산 피드 (Binance WS — 전체 수신 후 현재 sym만 노출) ──
+const _liqEvents=[]; // [{t, sym, side, price, qty, usd}]
+const LIQ_MAX=500;
+let _liqWs=null;let _liqWsRetry=0;
+function startLiquidationWs(){
+  if(_liqWs||typeof WebSocket==='undefined')return;
+  try{
+    _liqWs=new WebSocket('wss://fstream.binance.com/ws/!forceOrder@arr');
+    _liqWs.onmessage=ev=>{
+      try{
+        const d=JSON.parse(ev.data);
+        const o=d?.o;if(!o||!o.s||!o.s.endsWith('USDT'))return;
+        const sym=o.s.slice(0,-4);
+        const price=parseFloat(o.ap||o.p);
+        const qty=parseFloat(o.q);
+        const usd=price*qty;
+        if(!usd||usd<1000)return;
+        _liqEvents.push({t:Date.now(),sym,side:o.S,price,qty,usd});
+        if(_liqEvents.length>LIQ_MAX)_liqEvents.splice(0,_liqEvents.length-LIQ_MAX);
+        if(G.curSym===sym){renderLiqFeed(sym);renderLiqBucket(sym);}
+      }catch{}
+    };
+    _liqWs.onerror=()=>{try{_liqWs.close();}catch{}};
+    _liqWs.onclose=()=>{
+      _liqWs=null;
+      const delay=Math.min(30000,1000*Math.pow(2,Math.min(5,_liqWsRetry++)));
+      setTimeout(startLiquidationWs,delay);
+    };
+  }catch{_liqWs=null;}
+}
+startLiquidationWs();
+function renderLiqFeed(sym){
+  const el=document.getElementById('liq-feed-sec');if(!el)return;
+  const evs=_liqEvents.filter(e=>e.sym===sym).slice(-30).reverse();
+  if(!evs.length){el.innerHTML='<div style="font-size:11px;color:#64748b;">청산 이벤트 대기 중… (실시간)</div>';return;}
+  // 누적
+  const longs=evs.filter(e=>e.side==='SELL'); // SELL = long liquidation
+  const shorts=evs.filter(e=>e.side==='BUY');
+  const sum=arr=>arr.reduce((s,e)=>s+e.usd,0);
+  const lUsd=sum(longs),sUsd=sum(shorts);
+  const tot=lUsd+sUsd||1;
+  const summary=`<div style="display:flex;gap:6px;margin-bottom:8px;">
+    <div style="flex:1;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);border-radius:6px;padding:6px 8px;text-align:center;">
+      <div style="font-size:9px;color:#64748b;font-weight:700;">롱 청산 (${longs.length})</div>
+      <div style="font-size:12px;font-weight:800;color:#ef4444;">$${F.numRaw?F.numRaw(lUsd):lUsd.toLocaleString()}</div>
+    </div>
+    <div style="flex:1;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:6px;padding:6px 8px;text-align:center;">
+      <div style="font-size:9px;color:#64748b;font-weight:700;">숏 청산 (${shorts.length})</div>
+      <div style="font-size:12px;font-weight:800;color:#10b981;">$${F.numRaw?F.numRaw(sUsd):sUsd.toLocaleString()}</div>
+    </div>
+  </div>
+  <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;display:flex;margin-bottom:10px;">
+    <div style="width:${(lUsd/tot*100).toFixed(1)}%;background:#ef4444;"></div>
+    <div style="width:${(sUsd/tot*100).toFixed(1)}%;background:#10b981;"></div>
+  </div>`;
+  const rows=evs.slice(0,12).map(e=>{
+    const isLong=e.side==='SELL';
+    const c=isLong?'#ef4444':'#10b981';
+    const lbl=isLong?'롱':'숏';
+    const tm=new Date(e.t);
+    const ts=`${String(tm.getHours()).padStart(2,'0')}:${String(tm.getMinutes()).padStart(2,'0')}:${String(tm.getSeconds()).padStart(2,'0')}`;
+    return`<div style="display:grid;grid-template-columns:60px 40px 1fr 1fr;gap:6px;font-size:10px;padding:3px 4px;border-bottom:1px solid var(--bg2a);">
+      <span style="color:#64748b;">${ts}</span>
+      <span style="color:${c};font-weight:800;">${lbl}청산</span>
+      <span style="text-align:right;color:var(--t2);">${e.price.toPrecision(5)}</span>
+      <span style="text-align:right;color:${c};font-weight:700;">$${e.usd>=10000?(e.usd/1000).toFixed(1)+'K':e.usd.toFixed(0)}</span>
+    </div>`;
+  }).join('');
+  el.innerHTML=summary+`<div style="max-height:230px;overflow:auto;">${rows}</div>`;
+}
+
+// ── 가격대별 청산 집계 ──
+// 현재가 기준으로 bin size를 자동 산출 → 가격구간별 롱/숏 청산 달러 집계
+function liqBinSize(price){
+  if(!price||isNaN(price))return 1;
+  if(price>=10000)return 100;        // BTC
+  if(price>=1000)return 10;          // ETH
+  if(price>=100)return 1;
+  if(price>=10)return 0.1;
+  if(price>=1)return 0.01;
+  if(price>=0.1)return 0.001;
+  if(price>=0.01)return 0.0001;
+  return Math.pow(10,Math.floor(Math.log10(price))-2);
+}
+function renderLiqBucket(sym){
+  const el=document.getElementById('liq-bucket-sec');if(!el)return;
+  const evs=_liqEvents.filter(e=>e.sym===sym);
+  if(!evs.length){el.innerHTML='<div style="font-size:11px;color:#64748b;">청산 이벤트 누적 시 표시됩니다</div>';return;}
+  // 현재가는 가장 최근 청산 가격 기준 (디테일 헤더 가격이 더 정확하지만 lookup 비용 회피)
+  const curPrice=evs[evs.length-1].price;
+  const bin=liqBinSize(curPrice);
+  // 현재가 ±10 bin 범위만 표시 → 너무 멀리 떨어진 청산은 노이즈
+  const minP=Math.floor(curPrice/bin)*bin-10*bin;
+  const maxP=Math.floor(curPrice/bin)*bin+10*bin;
+  const buckets=new Map(); // key=binStart, value={l,s}
+  evs.forEach(e=>{
+    if(e.price<minP||e.price>maxP)return;
+    const key=Math.floor(e.price/bin)*bin;
+    let b=buckets.get(key);if(!b){b={l:0,s:0};buckets.set(key,b);}
+    if(e.side==='SELL')b.l+=e.usd;else b.s+=e.usd;
+  });
+  if(!buckets.size){el.innerHTML='<div style="font-size:11px;color:#64748b;">현재가 근처 청산 없음</div>';return;}
+  const keys=[...buckets.keys()].sort((a,b)=>b-a); // 가격 내림차순
+  const maxV=Math.max(...keys.map(k=>{const b=buckets.get(k);return b.l+b.s;}));
+  const fmtUsd=v=>v>=1e6?`$${(v/1e6).toFixed(2)}M`:v>=1e3?`$${(v/1e3).toFixed(1)}K`:`$${v.toFixed(0)}`;
+  const fmtPrice=p=>p>=1000?p.toLocaleString('en',{maximumFractionDigits:0}):p>=1?p.toFixed(2):p.toPrecision(4);
+  const rows=keys.map(k=>{
+    const b=buckets.get(k);const tot=b.l+b.s;
+    const isCur=Math.abs(k-Math.floor(curPrice/bin)*bin)<bin/2;
+    const lPct=(b.l/maxV*100).toFixed(1);
+    const sPct=(b.s/maxV*100).toFixed(1);
+    return`<div style="display:grid;grid-template-columns:80px 1fr 80px;gap:6px;align-items:center;font-size:10px;padding:3px 4px;${isCur?'background:rgba(245,158,11,.08);border-left:2px solid #f59e0b;':''}">
+      <span style="color:${isCur?'#f59e0b':'var(--t2)'};font-weight:${isCur?'800':'600'};">${fmtPrice(k)}${isCur?' ◀':''}</span>
+      <div style="display:flex;align-items:center;gap:1px;height:14px;">
+        <div style="width:${lPct}%;height:100%;background:#ef4444;border-radius:2px 0 0 2px;"></div>
+        <div style="width:${sPct}%;height:100%;background:#10b981;border-radius:0 2px 2px 0;"></div>
+      </div>
+      <span style="text-align:right;color:var(--t2);font-weight:700;">${fmtUsd(tot)}</span>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div style="display:flex;gap:8px;font-size:9px;color:#64748b;margin-bottom:6px;font-weight:700;">
+    <span>가격</span><span style="margin-left:auto;"><span style="color:#ef4444;">■</span> 롱청산</span><span><span style="color:#10b981;">■</span> 숏청산</span><span>합계</span>
+  </div>${rows}`;
+}
+
+// ── 누적 펀딩비 + 거래소 비교 ──
+let _fundIntervalCache=null;
+async function loadFundCross(sym,binSym){
+  const el=document.getElementById('fund-cross-sec');if(!el)return;
+  const okxInst=`${sym}-USDT-SWAP`;
+  const [bnHist,bybit,okx]=await Promise.all([
+    safeFetch(`${FN}/fundingRate?symbol=${binSym}&limit=63`),
+    bybitGet(`/v5/market/tickers?category=linear&symbol=${binSym}`),
+    okxGet(`/api/v5/public/funding-rate?instId=${okxInst}`),
+  ]);
+  const arr=Array.isArray(bnHist)?bnHist.map(x=>parseFloat(x.fundingRate)*100).filter(x=>!isNaN(x)):[];
+  const sum=n=>arr.slice(-n).reduce((s,x)=>s+x,0);
+  const cum24=arr.length?sum(3):null;   // 8h 펀딩 × 3 ≈ 24h
+  const cum7d=arr.length?sum(21):null;  // 8h × 21 ≈ 7d
+  const cumAll=arr.length?arr.reduce((s,x)=>s+x,0):null; // ~21d
+  const bbRate=bybit?.result?.list?.[0]?.fundingRate?parseFloat(bybit.result.list[0].fundingRate)*100:null;
+  const okxRate=okx?.data?.[0]?.fundingRate?parseFloat(okx.data[0].fundingRate)*100:null;
+  const bnNow=arr.length?arr[arr.length-1]:null;
+  const cell=(label,v,unit='%')=>{
+    if(v==null||isNaN(v))return`<div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:8px 10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;margin-bottom:2px;">${label}</div><div style="font-size:13px;font-weight:800;color:var(--t3);">—</div></div>`;
+    const c=v>=0?'#10b981':'#ef4444';const s=v>=0?'+':'';
+    return`<div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:8px 10px;text-align:center;"><div style="font-size:9px;color:#64748b;font-weight:700;margin-bottom:2px;">${label}</div><div style="font-size:13px;font-weight:800;color:${c};">${s}${v.toFixed(4)}${unit}</div></div>`;
+  };
+  // 누적 펀딩 기반 시장 편향 뱃지
+  // 8h당 0.01%(=하루 0.03%)를 중립선으로, 24h 누적 ±0.10% 이상이면 과열로 분류
+  let bias='';
+  if(cum24!=null){
+    if(cum24>=0.10)bias=`<span style="font-size:10px;background:rgba(239,68,68,.18);color:#ef4444;padding:2px 8px;border-radius:6px;font-weight:800;border:1px solid rgba(239,68,68,.35);">🔥 롱 과열 — 롱 비용 부담</span>`;
+    else if(cum24>0.03)bias=`<span style="font-size:10px;background:rgba(239,68,68,.10);color:#ef4444;padding:2px 8px;border-radius:6px;font-weight:700;border:1px solid rgba(239,68,68,.20);">롱 비용 부담</span>`;
+    else if(cum24<=-0.10)bias=`<span style="font-size:10px;background:rgba(16,185,129,.18);color:#10b981;padding:2px 8px;border-radius:6px;font-weight:800;border:1px solid rgba(16,185,129,.35);">🧊 숏 과열 — 숏 비용 부담</span>`;
+    else if(cum24<-0.03)bias=`<span style="font-size:10px;background:rgba(16,185,129,.10);color:#10b981;padding:2px 8px;border-radius:6px;font-weight:700;border:1px solid rgba(16,185,129,.20);">숏 비용 부담</span>`;
+    else bias=`<span style="font-size:10px;background:var(--bg3);color:var(--t3);padding:2px 8px;border-radius:6px;font-weight:700;border:1px solid var(--bd3);">중립</span>`;
+  }
+  el.innerHTML=`
+    <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:6px;"><span>현재 펀딩비 (거래소별)</span>${bias}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
+      ${cell('🟡 Binance',bnNow)}
+      ${cell('🟧 Bybit',bbRate)}
+      ${cell('⬛ OKX',okxRate)}
+    </div>
+    <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:6px;">바이낸스 누적 펀딩비</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+      ${cell('24h 누적',cum24)}
+      ${cell('7d 누적',cum7d)}
+      ${cell('21d 누적',cumAll)}
+    </div>`;
+}
+
+// ── 롱숏 비율 차트 (24h) ──
+let _lsChart=null;
+async function loadLongShortChart(binSym){
+  const el=document.getElementById('ls-chart-sec');if(!el)return;
+  const [glob,top,topPos]=await Promise.all([
+    safeFetch(`${FD}/globalLongShortAccountRatio?symbol=${binSym}&period=1h&limit=24`),
+    safeFetch(`${FD}/topLongShortAccountRatio?symbol=${binSym}&period=1h&limit=24`),
+    safeFetch(`${FD}/topLongShortPositionRatio?symbol=${binSym}&period=1h&limit=24`),
+  ]);
+  if(!Array.isArray(glob)||!glob.length){el.innerHTML='<div style="font-size:11px;color:#64748b;">데이터 없음</div>';return;}
+  const labels=glob.map(x=>{const d=new Date(x.timestamp);return `${String(d.getHours()).padStart(2,'0')}:00`;});
+  const dGlob=glob.map(x=>parseFloat(x.longShortRatio));
+  const dTop=Array.isArray(top)?top.map(x=>parseFloat(x.longShortRatio)):[];
+  const dTopP=Array.isArray(topPos)?topPos.map(x=>parseFloat(x.longShortRatio)):[];
+  const last=v=>v.length?v[v.length-1]:null;
+  const first=v=>v.length?v[0]:null;
+  const fmt=v=>v==null?'—':`${v.toFixed(2)}x`;
+  const cur=last(dGlob);const curT=last(dTop);const curTP=last(dTopP);
+  // 24h 변화 (첫 샘플 → 현재)
+  const delta=(cur,prev)=>{if(cur==null||prev==null||isNaN(cur)||isNaN(prev))return'';const d=cur-prev;const c=d>=0?'#10b981':'#ef4444';const s=d>=0?'+':'';return`<div style="font-size:9px;color:${c};font-weight:700;margin-top:1px;">${s}${d.toFixed(2)} (24h)</div>`;};
+  const dG=delta(cur,first(dGlob));const dT=delta(curT,first(dTop));const dTP=delta(curTP,first(dTopP));
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;">
+      <div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-size:9px;color:#64748b;font-weight:700;">전체 계정</div>
+        <div style="font-size:14px;font-weight:800;color:${cur>=1?'#10b981':'#ef4444'};">${fmt(cur)}</div>
+        ${dG}
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-size:9px;color:#64748b;font-weight:700;">탑 트레이더 (계정)</div>
+        <div style="font-size:14px;font-weight:800;color:${curT>=1?'#10b981':'#ef4444'};">${fmt(curT)}</div>
+        ${dT}
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:8px;text-align:center;">
+        <div style="font-size:9px;color:#64748b;font-weight:700;">탑 트레이더 (포지션)</div>
+        <div style="font-size:14px;font-weight:800;color:${curTP>=1?'#10b981':'#ef4444'};">${fmt(curTP)}</div>
+        ${dTP}
+      </div>
+    </div>
+    <div style="position:relative;height:180px;"><canvas id="ls-chart-canvas"></canvas></div>`;
+  const cv=document.getElementById('ls-chart-canvas');if(!cv)return;
+  if(_lsChart){try{_lsChart.destroy();}catch{}}
+  _lsChart=new Chart(cv.getContext('2d'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'전체',data:dGlob,borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.10)',borderWidth:2,tension:.25,pointRadius:0,fill:false},
+      {label:'탑(계정)',data:dTop,borderColor:'#3b82f6',borderWidth:2,tension:.25,pointRadius:0,fill:false,hidden:!dTop.length},
+      {label:'탑(포지션)',data:dTopP,borderColor:'#a78bfa',borderWidth:2,tension:.25,pointRadius:0,fill:false,hidden:!dTopP.length},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#94a3b8',font:{size:10},boxWidth:12}}},
+      scales:{x:{ticks:{color:'#64748b',font:{size:9},maxTicksLimit:6},grid:{display:false}},
+              y:{ticks:{color:'#64748b',font:{size:10},callback:v=>v.toFixed(2)+'x'},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+}
+
+// ── 업비트 입출금 상태 ──
+// 공식 /v1/status/wallet은 JWT 인증 필요로 변경됨 (2024~)
+// 대체: 공식 공개 페이지 https://upbit.com/service_center/wallet_status 가 powered by 내부 JSON
+// 직접 조회 안 되면 시세 활성 여부로 추정
+let _upbitWalletCache=null;let _upbitWalletAt=0;let _upbitWalletAuth=false;let _upbitWalletErr=false;let _upbitWalletPromise=null;
+async function getUpbitWalletStatus(){
+  if(_upbitWalletCache&&Date.now()-_upbitWalletAt<5*60*1000)return _upbitWalletCache;
+  if(_upbitWalletPromise)return _upbitWalletPromise;
+  _upbitWalletPromise=(async()=>{
+    const URL='https://api.upbit.com/v1/status/wallet';
+    let data=null;let authRequired=false;
+    const tryParse=async r=>{
+      if(!r||!r.ok)return null;
+      const j=await r.json().catch(()=>null);
+      if(Array.isArray(j)&&j.length)return j;
+      if(j&&j.error&&(j.error.name==='no_authorization_token'||/Authorization/i.test(j.error.message||'')))authRequired=true;
+      return null;
+    };
+    // 1) 직접 fetch
+    try{const r=await fetch(URL,{signal:AbortSignal.timeout(5000),headers:{'Accept':'application/json'}});data=await tryParse(r);}catch{}
+    // 2) 프록시 폴백
+    if(!data){try{const r=await upbitFetch(URL);data=await tryParse(r);}catch{}}
+    if(data){
+      _upbitWalletCache=data;_upbitWalletAt=Date.now();_upbitWalletErr=false;_upbitWalletAuth=false;
+      console.log(`[upbit-wallet] ${data.length}개 wallet status OK`);
+    }else if(authRequired){
+      _upbitWalletAuth=true;_upbitWalletErr=true;
+      console.warn('[upbit-wallet] /v1/status/wallet 은 JWT 인증 필요 — 공식 API 키 없으면 조회 불가');
+    }else{
+      _upbitWalletErr=true;
+      console.warn('[upbit-wallet] API 응답 실패 (CORS/네트워크)');
+    }
+    return _upbitWalletCache||[];
+  })().finally(()=>{_upbitWalletPromise=null;});
+  return _upbitWalletPromise;
+}
+async function loadUpbitWallet(sym){
+  const el=document.getElementById('wallet-status-sec');if(!el)return;
+  const list=await getUpbitWalletStatus();
+  const rows=list.filter(x=>x.currency===sym);
+  if(!rows.length){el.innerHTML='<div style="font-size:11px;color:#64748b;">업비트 미상장</div>';return;}
+  const stateLabel={working:['🟢 정상','#10b981'],withdraw_only:['🟠 출금만','#f59e0b'],deposit_only:['🟡 입금만','#facc15'],paused:['🔴 점검 중','#ef4444'],unsupported:['⚫ 미지원','#64748b']};
+  el.innerHTML=rows.map(r=>{
+    const [lbl,c]=stateLabel[r.wallet_state]||[r.wallet_state||'?','#64748b'];
+    return`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;padding:8px 12px;font-size:12px;">
+      <div><b style="color:var(--t1);">${r.currency}</b> <span style="color:#64748b;font-size:10px;">${r.net_type||''}</span></div>
+      <div style="color:${c};font-weight:700;">${lbl}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── 김프 실시간 (Binance miniTicker WS + Upbit WS + 빗썸 폴링) ──
+let _bnKimWs=null,_upKimWs=null,_bbKimTimer=null;
+let _kimRenderTimer=null,_kimInPlaceTimer=null,_kimSubKey='';
+// 가격만 부드럽게 갱신 (DOM/이미지는 그대로 유지)
+function _kimUpdateCellsInPlace(){
+  if(G.tab!=='kimchi'||!G.kimchi||!G.kimchi.length||G.curSym)return;
+  const isB=G.kimEx==='bithumb';
+  const exLabel=isB?'빗썸':'업비트';
+  G.kimchi.forEach(k=>{
+    const row=document.querySelector(`.ci-kim[data-sym="${k.symbol}"]`);if(!row)return;
+    const krw=isB?(k.bbKrw||0):(k.upbitKrw||0);
+    const ch=isB?(k.bbCh24??0):(k.ch24??0);
+    const prem=isB?(k.bbPremium):(k.premium);
+    const vol=isB?(k.bbVol||0):(k.upVol||0);
+    const setText=(sel,txt)=>{const el=row.querySelector(sel);if(!el)return;if(el.textContent!==txt){el.textContent=txt;_flash(el);}};
+    const setColor=(sel,col)=>{const el=row.querySelector(sel);if(el)el.style.color=col;};
+    setText('[data-cell="exPrice"]',F.krwPrice(krw));
+    if(k.binKrw)setText('[data-cell="binPrice"]',F.krwPrice(k.binKrw));
+    const uc=ch>=0?'#10b981':'#ef4444';
+    setText('[data-cell="ch"]',`${ch>=0?'+':''}${ch.toFixed(2)}%`);setColor('[data-cell="ch"]',uc);
+    if(k.binCh24!=null){const bc=k.binCh24>=0?'#10b981':'#ef4444';setText('[data-cell="binCh"]',`${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%`);setColor('[data-cell="binCh"]',bc);}
+    if(prem!=null){const pc=prem>=0?'#10b981':'#ef4444';const pe=row.querySelector('[data-cell="prem"]');if(pe){const newTxt=`${prem>=0?'+':''}${prem.toFixed(2)}%`;if(pe.textContent!==newTxt){pe.textContent=newTxt;pe.style.color=pc;_flash(pe);}}}
+    if(vol)setText('[data-cell="vol"]',F.krwAbbr(vol).replace(/<[^>]+>/g,''));
+  });
+}
+function _flash(el){el.classList.add('cell-flash');setTimeout(()=>el.classList.remove('cell-flash'),400);}
+function debouncedKimRender(){
+  // 김프 비교 화면 활성화 시: WS 가격 들어오면 요약 카드 갱신
+  if(_kc.sym&&document.body.classList.contains('km-compare')){
+    if(!_kimInPlaceTimer){_kimInPlaceTimer=setTimeout(()=>{_kimInPlaceTimer=null;try{renderKimchiCompareSummary(_kc.sym);}catch{}},500);}
+    return;
+  }
+  if(G.tab!=='kimchi'||G.curSym)return;
+  // 즉시 가격 in-place 업데이트 (이미지 깜빡임 없음)
+  if(!_kimInPlaceTimer){_kimInPlaceTimer=setTimeout(()=>{_kimInPlaceTimer=null;_kimUpdateCellsInPlace();},300);}
+  // 정렬 순서 변경을 위한 풀 렌더는 30초마다
+  if(_kimRenderTimer)return;
+  _kimRenderTimer=setTimeout(()=>{
+    _kimRenderTimer=null;
+    if(G.tab==='kimchi'&&G.kimchi.length&&!G.curSym){
+      const lw=document.getElementById('lw');
+      const st=lw?lw.scrollTop:0;
+      renderKimchiList(sortKimchi(G.kimchi));
+      if(lw)lw.scrollTop=st;
+    }
+  },30000);
+}
+function _recomputeKim(k){
+  if(!k||!k.binKrw)return;
+  if(k.upbitKrw)k.premium=(k.upbitKrw/k.binKrw-1)*100;
+  if(k.bbKrw)k.bbPremium=(k.bbKrw/k.binKrw-1)*100;
+}
+function connectBinanceMini(){
+  if(_bnKimWs||typeof WebSocket==='undefined')return;
+  try{
+    _bnKimWs=new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr');
+    _bnKimWs.onmessage=ev=>{
+      try{
+        const arr=JSON.parse(ev.data);if(!Array.isArray(arr)||!G.kimchi||!G.kimchi.length)return;
+        const map={};G.kimchi.forEach(k=>{map[k.symbol]=k;});
+        let any=false;
+        arr.forEach(t=>{
+          if(!t.s||!t.s.endsWith('USDT'))return;
+          const sym=t.s.slice(0,-4);const k=map[sym];if(!k)return;
+          const p=parseFloat(t.c);if(!(p>0))return;
+          k.binUsd=p;k.binKrw=p*G_KRW;
+          const o=parseFloat(t.o);if(o>0)k.binCh24=(p/o-1)*100;
+          _recomputeKim(k);any=true;
+        });
+        if(any)debouncedKimRender();
+      }catch{}
+    };
+    _bnKimWs.onclose=()=>{_bnKimWs=null;setTimeout(connectBinanceMini,3000);};
+    _bnKimWs.onerror=()=>{try{_bnKimWs.close();}catch{}};
+  }catch{_bnKimWs=null;}
+}
+function connectUpbitWs(){
+  if(typeof WebSocket==='undefined'||!G.kimchi||!G.kimchi.length)return;
+  const codes=G.kimchi.map(k=>`KRW-${k.symbol}`);
+  const key=codes.join(',');
+  if(key===_kimSubKey&&_upKimWs&&_upKimWs.readyState===1)return;
+  _kimSubKey=key;
+  if(_upKimWs){try{_upKimWs.close();}catch{}_upKimWs=null;}
+  try{
+    _upKimWs=new WebSocket('wss://api.upbit.com/websocket/v1');
+    _upKimWs.binaryType='arraybuffer';
+    _upKimWs.onopen=()=>{
+      const msg=[{ticket:'wings-kim-'+Date.now()},{type:'ticker',codes}];
+      try{_upKimWs.send(JSON.stringify(msg));}catch{}
+    };
+    _upKimWs.onmessage=ev=>{
+      try{
+        let txt;
+        if(ev.data instanceof ArrayBuffer)txt=new TextDecoder('utf-8').decode(new Uint8Array(ev.data));
+        else if(typeof ev.data==='string')txt=ev.data;
+        else return;
+        const data=JSON.parse(txt);
+        if(!data||!data.code)return;
+        const sym=data.code.replace('KRW-','');
+        const k=G.kimchi.find(x=>x.symbol===sym);if(!k)return;
+        const p=data.trade_price;
+        if(p>0){k.upbitKrw=p;k.ch24=(data.change_rate||0)*100;_recomputeKim(k);}
+        debouncedKimRender();
+      }catch{}
+    };
+    _upKimWs.onclose=()=>{_upKimWs=null;_kimSubKey='';if(G.tab==='kimchi')setTimeout(connectUpbitWs,3000);};
+    _upKimWs.onerror=()=>{try{_upKimWs.close();}catch{}};
+  }catch{_upKimWs=null;}
+}
+async function pollBithumb(){
+  if(G.tab!=='kimchi'||!G.kimchi||!G.kimchi.length)return;
+  try{
+    const bd=await bithumbGet('/public/ticker/ALL_KRW');
+    if(bd?.status==='0000'&&bd.data){
+      let any=false;
+      G.kimchi.forEach(k=>{
+        const t=bd.data[k.symbol];if(!t||typeof t!=='object')return;
+        const p=parseFloat(t.closing_price);
+        if(!(p>0))return;
+        k.bbKrw=p;k.bbVol=parseFloat(t.acc_trade_value_24H)||k.bbVol||0;
+        const ch=parseFloat(t.fluctate_rate_24H);if(!isNaN(ch))k.bbCh24=ch;
+        if(k.binKrw)k.bbPremium=(p/k.binKrw-1)*100;
+        any=true;
+      });
+      if(any)debouncedKimRender();
+    }
+  }catch{}
+}
+function startKimchiRealtime(){
+  if(G.tab!=='kimchi')return;
+  connectBinanceMini();
+  connectUpbitWs();
+  if(!_bbKimTimer)_bbKimTimer=setInterval(pollBithumb,5000);
+  pollBithumb();
+}
+// 탭 전환 시 김프 탭이면 WS 시작
+const _origDoSetTab=typeof _doSetTab==='function'?_doSetTab:null;
+if(_origDoSetTab){
+  _doSetTab=function(tab){
+    const r=_origDoSetTab.apply(this,arguments);
+    if(tab==='kimchi'&&G.kimchi&&G.kimchi.length)setTimeout(startKimchiRealtime,100);
+    return r;
+  };
+}
+// ── 통합 populator (loadCoinDetail에서 호출) ──
+function populateDetailExtras(sym,binSym){
+  try{loadFundCross(sym,binSym);}catch{}
+  try{loadLongShortChart(binSym);}catch{}
+  try{renderLiqFeed(sym);}catch{}
+  try{renderLiqBucket(sym);}catch{}
+  if(G.detailSource==='upbit'){
+    try{loadUpbitWallet(sym);}catch{}
+    setTimeout(()=>{try{drawKimpHistoryChart(sym);}catch{}},100);
+  }
+}
+
+// 초기 김프 이력 한번 채우기 (G.kimchi가 채워지면 자동 누적)
+setTimeout(snapshotKimpHistory,3000);
+
 // 초기 해시가 있으면 해당 뷰로 라우팅, 없으면 기본 coins 탭
 (function init(){
   const h=location.hash;
-  if(h.startsWith('#/coin/')){
+  if(h.startsWith('#/kimp/')||h.startsWith('#/kimchi/')){
+    // 김프 디테일 라우트 → 그냥 김프 리스트로 (인라인 패널 방식)
+    history.replaceState({view:'list',tab:'kimchi'},'','#/kimchi');
+    _doSetTab('kimchi');
+    startAutoRefresh();
+  }else if(h.startsWith('#/coin/')){
     const rest=h.slice(7);
     const [binSym,query]=rest.split('?');
     const isUpbit=query&&query.includes('src=upbit');
@@ -3316,6 +4578,22 @@ window.addEventListener('popstate',applyRoute);
     loadList().then(()=>startAutoRefresh());
   }
 })();
+// 뒤로가기 처리 — 김프 비교 화면에서 popstate 시 정리
+window.addEventListener('popstate',e=>{
+  const h=location.hash;
+  const isKimpDetail=h.startsWith('#/kimp/')||h.startsWith('#/kimchi/');
+  if(!isKimpDetail&&document.body.classList.contains('km-compare')){
+    document.body.classList.remove('km-compare');
+    destroyCompareCharts&&destroyCompareCharts();
+    const kv=document.getElementById('kc-view');if(kv)kv.style.display='none';
+    document.getElementById('list-view').style.display='flex';
+    _kc.sym=null;G.curSym=null;
+  }
+  if(isKimpDetail){
+    const sym=h.startsWith('#/kimp/')?h.slice(7):h.slice(9);
+    if(_kc.sym!==sym)showKimpDetail(sym);
+  }
+});
 </script>
 
 <!-- ================= 동시접속자 (Firebase Realtime DB Presence) ================= -->
