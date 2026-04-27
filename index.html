@@ -310,12 +310,14 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <span style="font-size:11px;color:var(--t3);">⋮⋮</span>
     <span style="font-size:12px;font-weight:800;color:var(--t1);">💬 실시간 채팅</span>
     <span id="chat-online" style="font-size:10px;font-weight:700;color:#10b981;margin-left:auto;">👥 ··</span>
+    <span id="chat-lock-btn" style="cursor:pointer;font-size:13px;color:var(--t3);line-height:1;padding:0 4px;user-select:none;display:none;" title="채팅 잠금 토글 (관리자)" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='var(--t3)'">🔓</span>
     <span id="chat-close-btn" style="cursor:pointer;font-size:16px;color:var(--t3);line-height:1;padding:0 2px;user-select:none;" title="채팅 닫기" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--t3)'">×</span>
   </div>
   <div id="chat-messages" style="flex:1;min-height:0;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;font-size:11px;"></div>
+  <div id="chat-lock-banner" style="display:none;padding:6px 12px;background:rgba(239,68,68,.12);border-top:1px solid rgba(239,68,68,.3);color:#ef4444;font-size:10px;font-weight:700;text-align:center;">🔒 채팅이 일시 중지되었습니다</div>
   <div id="chat-input-bar" style="padding:7px 12px;border-top:1px solid var(--bd3);background:var(--bg3);display:flex;align-items:center;gap:5px;">
     <input id="chat-nick-input" type="text" maxlength="12" placeholder="닉네임" style="width:38px;flex-shrink:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 3px;font-size:9px;color:var(--t1);outline:none;">
-    <input id="chat-msg-input" type="text" maxlength="200" placeholder="메시지..." style="flex:1;min-width:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--t1);outline:none;">
+    <input id="chat-msg-input" type="text" maxlength="100" placeholder="메시지..." style="flex:1;min-width:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--t1);outline:none;">
     <button id="chat-send-btn" style="background:#f59e0b;color:#0B0E11;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;">전송</button>
   </div>
   <div id="chat-resize-handle" title="크기 조절" style="position:absolute;bottom:0;right:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 0 55%,var(--t3) 55% 65%,transparent 65% 75%,var(--t3) 75% 85%,transparent 85% 100%);z-index:2;"></div>
@@ -323,10 +325,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <style>
 @media (max-width:1100px){#chat-panel,#chat-reopen-btn{display:none!important;}}
 #chat-messages::-webkit-scrollbar{width:4px}#chat-messages::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
-.chat-msg{display:flex;gap:6px;line-height:1.4;flex-shrink:0;align-items:flex-start;flex-wrap:wrap;}
-.chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;}
-.chat-msg .body{color:var(--t1);word-break:break-word;}
-.chat-msg .time{color:var(--t3);font-size:9px;flex-shrink:0;margin-left:auto;}
+.chat-msg{display:flex;gap:6px;line-height:1.4;flex-shrink:0;align-items:flex-start;}
+.chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chat-msg .body{color:var(--t1);flex:1;min-width:0;word-break:break-word;overflow-wrap:anywhere;}
+.chat-msg .time{color:var(--t3);font-size:9px;flex-shrink:0;align-self:flex-start;padding-top:2px;}
 #chat-drag-handle:active{background:var(--b1)!important;}
 .chat-shake{animation:chatShake .3s;border-color:#ef4444!important;}
 @keyframes chatShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
@@ -483,6 +485,7 @@ const MY_CHANNELS=[
   {name:'Wings Insight', desc:'공식 텔레그램 채널', url:'https://t.me/wingsroom', emoji:'🪽'},
   {name:'Wings Chatting', desc:'실시간 채팅 그룹', url:'https://t.me/wingschatting', emoji:'💬'},
   {name:'Wings Essay', desc:'에세이 채널', url:'https://t.me/wingsview', emoji:'📝'},
+  {name:'윙스코드', desc:'Discord 커뮤니티', url:'https://discord.gg/S3zVcn5Q4', emoji:'🎮'},
 ];
 function toggleChannels(){
   const m=document.getElementById('ch-modal'),b=document.getElementById('ch-backdrop');
@@ -4301,17 +4304,46 @@ function renderFxBadges(){
   }
 }
 async function fetchKRW(){
-  try{
-    const r=await fetch('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',{signal:AbortSignal.timeout(5000)});
-    const d=await r.json();
-    if(d?.usd?.krw){_fxState.usdToday=d.usd.krw;G_KRW=Math.round(d.usd.krw);}
-  }catch{}
-  try{
-    const y=new Date(Date.now()-86400000).toISOString().slice(0,10);
-    const r=await fetch(`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${y}/v1/currencies/usd.json`,{signal:AbortSignal.timeout(5000)});
-    const d=await r.json();
-    if(d?.usd?.krw)_fxState.usdY=d.usd.krw;
-  }catch{}
+  // USD/KRW — 여러 소스 폴백 (jsdelivr 구버전 deprecated → Frankfurter/ER-API 우선)
+  const todayKrw=await (async()=>{
+    const sources=[
+      {url:'https://api.frankfurter.app/latest?from=USD&to=KRW',pick:d=>d?.rates?.KRW},
+      {url:'https://open.er-api.com/v6/latest/USD',pick:d=>d?.rates?.KRW},
+      {url:'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',pick:d=>d?.usd?.krw},
+      {url:'https://latest.currency-api.pages.dev/v1/currencies/usd.json',pick:d=>d?.usd?.krw},
+    ];
+    for(const s of sources){
+      try{
+        const r=await fetch(s.url,{signal:AbortSignal.timeout(5000)});
+        if(!r.ok)continue;
+        const d=await r.json();
+        const k=s.pick(d);
+        if(k&&!isNaN(k))return k;
+      }catch{}
+    }
+    return null;
+  })();
+  if(todayKrw){_fxState.usdToday=todayKrw;G_KRW=Math.round(todayKrw);}
+  // 전일 환율 (대비% 계산용) — Frankfurter는 날짜별 endpoint 지원
+  const ydate=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const yKrw=await (async()=>{
+    const sources=[
+      {url:`https://api.frankfurter.app/${ydate}?from=USD&to=KRW`,pick:d=>d?.rates?.KRW},
+      {url:`https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@${ydate}/v1/currencies/usd.json`,pick:d=>d?.usd?.krw},
+    ];
+    for(const s of sources){
+      try{
+        const r=await fetch(s.url,{signal:AbortSignal.timeout(5000)});
+        if(!r.ok)continue;
+        const d=await r.json();
+        const k=s.pick(d);
+        if(k&&!isNaN(k))return k;
+      }catch{}
+    }
+    return null;
+  })();
+  if(yKrw)_fxState.usdY=yKrw;
+  // Upbit USDT/KRW
   try{
     const r=await fetch('https://api.upbit.com/v1/ticker?markets=KRW-USDT',{signal:AbortSignal.timeout(5000)});
     const d=await r.json();
@@ -4936,7 +4968,7 @@ window.addEventListener('popstate',e=>{
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getDatabase, ref, onValue, onDisconnect, set, serverTimestamp, remove,
-    push, query, limitToLast, off
+    push, query, limitToLast, off, get, orderByKey, endBefore
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const FB_CFG = {
@@ -5013,27 +5045,184 @@ window.addEventListener('popstate',e=>{
       return `hsl(${hue} 75% 62%)`;
     };
 
+    const isMeAdmin = ADMIN_UIDS.has(uid);
+    const renderMsgHtml = m => {
+      const nick = m.nick || '익명';
+      const seed = m.uid || nick;
+      const isAdmin = m.uid && ADMIN_UIDS.has(m.uid);
+      const adminBadge = isAdmin ? `<span style="font-size:9px;background:rgba(245,158,11,.18);color:#f59e0b;padding:1px 5px;border-radius:4px;border:1px solid rgba(245,158,11,.4);font-weight:800;flex-shrink:0;">👑 관리자</span>` : '';
+      const delBtn = isMeAdmin ? `<span class="chat-del-btn" data-key="${m._k}" style="cursor:pointer;color:#ef4444;font-size:12px;padding:0 4px;flex-shrink:0;opacity:.5;" title="삭제" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">✕</span>` : '';
+      return `<div class="chat-msg" data-key="${m._k}">
+        ${adminBadge}
+        <span class="nick" style="color:${nickColor(seed)};">${escapeHtml(nick)}</span>
+        <span class="body">${escapeHtml(m.text||'')}</span>
+        <span class="time">${fmtTime(m.ts)}</span>
+        ${delBtn}
+      </div>`;
+    };
+    // 렌더링 상태 — 라이브(limitToLast 50) + 히스토리(스크롤 업으로 추가 로드)
+    let _renderedKeys = new Set();
+    let _oldestKey = null; // 현재 화면에 표시된 가장 오래된 메시지의 key
+    let _loadingOlder = false;
+    let _noMoreOlder = false;
+    const PAGE_SIZE = 50;
+
+    const MAX_VISIBLE = 100; // 화면에 표시 가능한 총 메시지 수 상한
+    const ensureLoadMoreBtn = () => {
+      if (_noMoreOlder) return;
+      // 이미 100개 이상 보이면 버튼 안 만듦
+      if (_renderedKeys.size >= MAX_VISIBLE) return;
+      let btn = document.getElementById('chat-load-more');
+      if (btn) return;
+      btn = document.createElement('button');
+      btn.id = 'chat-load-more';
+      btn.textContent = '채팅 더보기 +50';
+      btn.style.cssText = 'display:block;width:100%;padding:6px;font-size:10px;color:#f59e0b;background:transparent;border:1px dashed var(--bd3);border-radius:6px;cursor:pointer;font-weight:700;margin-bottom:6px;';
+      btn.addEventListener('click', loadOlderMessages);
+      msgsBox.insertAdjacentElement('afterbegin', btn);
+    };
+
+    let _justSent = false;
+    let _liveKeys = new Set(); // limitToLast(50) 스냅샷에 들어있는 키 추적
     onValue(msgsRef, (snap) => {
       const v = snap.val() || {};
-      const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => (a.ts||0) - (b.ts||0));
+      const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => a._k.localeCompare(b._k));
       if (!msgsBox) return;
-      // 새 메시지 오기 전에 사용자가 바닥 근처에 있었는지 기록 (50px 이내)
       const wasAtBottom = (msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight) < 50;
-      msgsBox.innerHTML = arr.map(m => {
-        const nick = m.nick || '익명';
-        const seed = m.uid || nick;
-        const isAdmin = m.uid && ADMIN_UIDS.has(m.uid);
-        const adminBadge = isAdmin ? `<span style="font-size:9px;background:rgba(245,158,11,.18);color:#f59e0b;padding:1px 5px;border-radius:4px;border:1px solid rgba(245,158,11,.4);font-weight:800;flex-shrink:0;">👑 관리자</span>` : '';
-        return `<div class="chat-msg">
-          ${adminBadge}
-          <span class="nick" style="color:${nickColor(seed)};">${escapeHtml(nick)}</span>
-          <span class="body">${escapeHtml(m.text||'')}</span>
-          <span class="time">${fmtTime(m.ts)}</span>
-        </div>`;
-      }).join('');
-      // 바닥에 있었을 때만 자동 스크롤 (위로 읽고 있을 땐 위치 유지)
-      if (wasAtBottom) msgsBox.scrollTop = msgsBox.scrollHeight;
+      const newLiveKeys = new Set(arr.map(m => m._k));
+      const oldestLive = arr[0]?._k || '';
+      // 라이브 윈도우 안에서 사라진 메시지 = 삭제됨 → DOM에서도 제거
+      for (const k of _liveKeys) {
+        if (!newLiveKeys.has(k) && k >= oldestLive) {
+          const el = msgsBox.querySelector(`[data-key="${CSS.escape(k)}"]`);
+          if (el) el.remove();
+          _renderedKeys.delete(k);
+        }
+      }
+      _liveKeys = newLiveKeys;
+      arr.forEach(m => {
+        if (!_renderedKeys.has(m._k)) {
+          msgsBox.insertAdjacentHTML('beforeend', renderMsgHtml(m));
+          _renderedKeys.add(m._k);
+        }
+      });
+      if (_oldestKey === null && arr.length) {
+        _oldestKey = arr[0]._k;
+        ensureLoadMoreBtn();
+      }
+      if (wasAtBottom || _justSent) {
+        msgsBox.scrollTop = msgsBox.scrollHeight;
+        _justSent = false;
+      }
     });
+    // ── 채팅 잠금 (관리자만 토글 가능) ────────────────
+    let _chatLocked = false;
+    const lockBtn = document.getElementById('chat-lock-btn');
+    const lockBanner = document.getElementById('chat-lock-banner');
+    if (isMeAdmin && lockBtn) lockBtn.style.display = 'inline';
+    const applyLockState = locked => {
+      _chatLocked = !!locked;
+      if (lockBanner) lockBanner.style.display = _chatLocked ? 'block' : 'none';
+      if (lockBtn) lockBtn.textContent = _chatLocked ? '🔒' : '🔓';
+      // 일반 사용자: 입력 비활성화. 관리자는 잠긴 상태에서도 보낼 수 있음
+      const blockNonAdmin = _chatLocked && !isMeAdmin;
+      if (msgInput) {
+        msgInput.disabled = blockNonAdmin;
+        msgInput.placeholder = blockNonAdmin ? '채팅 일시 중지됨' : '메시지...';
+      }
+      if (sendBtn) {
+        sendBtn.disabled = blockNonAdmin;
+        sendBtn.style.opacity = blockNonAdmin ? '.4' : '1';
+        sendBtn.style.cursor = blockNonAdmin ? 'not-allowed' : 'pointer';
+      }
+    };
+    onValue(ref(db, 'chat_config/locked'), snap => applyLockState(snap.val() === true));
+    if (lockBtn) lockBtn.addEventListener('click', async () => {
+      const next = !_chatLocked;
+      try {
+        await set(ref(db, 'chat_config/locked'), next);
+      } catch (e) {
+        alert('잠금 토글 실패: ' + (e?.message || e?.code) + '\nFirebase 규칙에서 chat_config/locked 쓰기 허용 확인 필요');
+      }
+    });
+
+    // 삭제 버튼 클릭 (이벤트 위임)
+    msgsBox.addEventListener('click', e => {
+      const btn = e.target.closest('.chat-del-btn');
+      if (!btn) return;
+      const key = btn.dataset.key;
+      if (!confirm('이 메시지를 삭제하시겠습니까?')) return;
+      // 낙관적 UI: 즉시 DOM에서 제거
+      const el = msgsBox.querySelector(`[data-key="${CSS.escape(key)}"]`);
+      if (el) el.remove();
+      _renderedKeys.delete(key);
+      remove(ref(db, 'messages/' + key)).catch(err => {
+        alert('삭제 실패: ' + (err?.message || err?.code || 'unknown') + '\nFirebase 규칙에서 delete 허용 확인 필요');
+        // 실패 시 onValue가 다시 그려줌
+      });
+    });
+    // sendMsg에서 호출할 수 있도록 외부 노출
+    window._chatJustSent = () => { _justSent = true; };
+
+    // "채팅 더보기 +50" 버튼 클릭 시 이전 50개 추가 로드
+    const loadOlderMessages = async () => {
+      if (_loadingOlder || _noMoreOlder || !_oldestKey) return;
+      _loadingOlder = true;
+      const btn = document.getElementById('chat-load-more');
+      if (btn) { btn.textContent = '불러오는 중...'; btn.disabled = true; }
+      try {
+        const q = query(ref(db, 'messages'), orderByKey(), endBefore(_oldestKey), limitToLast(PAGE_SIZE));
+        const snap = await get(q);
+        const v = snap.val() || {};
+        const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => a._k.localeCompare(b._k));
+        if (btn) btn.remove();
+        if (!arr.length) {
+          _noMoreOlder = true;
+          const end = document.createElement('div');
+          end.style.cssText = 'text-align:center;padding:6px;font-size:10px;color:var(--t3);opacity:.6;';
+          end.textContent = '— 더 이상 메시지 없음 —';
+          msgsBox.insertAdjacentElement('afterbegin', end);
+          return;
+        }
+        const prevH = msgsBox.scrollHeight;
+        const html = arr.map(renderMsgHtml).join('');
+        msgsBox.insertAdjacentHTML('afterbegin', html);
+        arr.forEach(m => _renderedKeys.add(m._k));
+        _oldestKey = arr[0]._k;
+        msgsBox.scrollTop = msgsBox.scrollHeight - prevH;
+        // 다시 더보기 버튼 추가
+        ensureLoadMoreBtn();
+      } catch (e) {
+        if (btn) { btn.textContent = '채팅 더보기 +50'; btn.disabled = false; }
+        console.error('[chat] load older 실패', e);
+      } finally {
+        _loadingOlder = false;
+      }
+    };
+
+    // ── DB 200개 자동 정리 (관리자만, 1분에 한 번) ──
+    let _lastCleanupAt = 0;
+    const cleanupOldMessages = async () => {
+      if (!ADMIN_UIDS.has(uid)) return; // 관리자만
+      const now = Date.now();
+      if (now - _lastCleanupAt < 60 * 1000) return;
+      _lastCleanupAt = now;
+      try {
+        const snap = await get(query(ref(db, 'messages'), limitToLast(500)));
+        const v = snap.val() || {};
+        const all = Object.entries(v).sort((a,b) => a[0].localeCompare(b[0]));
+        if (all.length <= 200) return;
+        const toDelete = all.slice(0, all.length - 200);
+        for (const [k] of toDelete) {
+          try { await remove(ref(db, 'messages/' + k)); } catch {}
+        }
+        console.log('[chat] cleanup: removed', toDelete.length, 'old messages');
+      } catch (e) {
+        console.warn('[chat] cleanup 실패 (Firebase 규칙 확인 필요)', e);
+      }
+    };
+    setTimeout(cleanupOldMessages, 8000);
+    setInterval(cleanupOldMessages, 5 * 60 * 1000);
 
     const syncNick = () => {
       const v = (nickInput.value || '').trim().slice(0, 12);
@@ -5068,6 +5257,8 @@ window.addEventListener('popstate',e=>{
         setTimeout(()=>nickInput?.classList.remove('chat-shake'),400);
         return;
       }
+      // 채팅 잠금 상태에서는 일반 사용자 차단 (관리자는 가능)
+      if (_chatLocked && !isMeAdmin) { showChatErr('채팅이 일시 중지되었습니다'); return; }
       // 닉네임 예약어 차단 (사칭 방지)
       const nickNorm = myNick.toLowerCase().replace(/\s+/g,'');
       if (RESERVED_NICKS.some(r => nickNorm.includes(r.toLowerCase()))) {
@@ -5087,8 +5278,12 @@ window.addEventListener('popstate',e=>{
       lastSendAt = now;
       try {
         console.log('[chat] sending', { nick: myNick, text: t });
-        await push(ref(db, 'messages'), { nick: myNick, text: t.slice(0, 200), ts: serverTimestamp(), uid: uid });
+        window._chatJustSent && window._chatJustSent();
+        await push(ref(db, 'messages'), { nick: myNick, text: t.slice(0, 100), ts: serverTimestamp(), uid: uid });
         msgInput.value = '';
+        // 즉시 한 번 + Firebase echo 후 한 번 더 (지연된 onValue 대비)
+        msgsBox.scrollTop = msgsBox.scrollHeight;
+        setTimeout(() => { msgsBox.scrollTop = msgsBox.scrollHeight; }, 200);
         console.log('[chat] sent OK');
       } catch (e) {
         console.error('[chat] send 실패', e);
