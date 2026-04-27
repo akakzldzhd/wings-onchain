@@ -97,7 +97,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   #hdr>div:first-child{padding:10px 10px 6px!important;gap:5px!important;row-gap:6px!important}
   #hdr>div:first-child>div:first-child{flex:1;min-width:0;gap:5px!important}
   #hdr>div:first-child>div:first-child>div:first-child{font-size:15px!important}
-  #fng-badge,#dom-badge,#online-badge{display:none!important}
+  #fng-badge,#dom-badge{display:none!important}
   #refresh-badge{display:none!important}
   #si{width:100%!important;min-width:0;flex:1;font-size:13px!important;padding:8px 10px!important}
   #hdr>div:first-child>div:last-child{width:100%;margin-left:0!important;gap:5px!important}
@@ -224,11 +224,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <div onclick="location.reload()" style="font-size:17px;font-weight:800;color:#f59e0b;letter-spacing:-.3px;cursor:pointer;user-select:none;margin-right:2px;" title="새로고침">🪽 Wings OnChain</div>
       <div class="live-dot" style="width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
       <span id="refresh-badge" style="font-size:10px;color:#64748b;font-weight:600;min-width:22px;">—</span>
-      <span id="fng-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:var(--t3);cursor:help;white-space:nowrap;" title="Crypto Fear & Greed Index">😐 ··</span>
-      <span id="dom-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:var(--t3);cursor:help;white-space:nowrap;" title="BTC 도미넌스 / ETH 도미넌스">₿ ··</span>
+      <button id="ch-btn-top" onclick="toggleChannels()" style="padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;white-space:nowrap;" title="운영중인 채널들">📢 운영중인 채널들</button>
       <span id="online-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#10b981;cursor:help;white-space:nowrap;" title="지금 이 순간 동시접속자">👥 ··</span>
       <span id="usdkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#22c55e;cursor:help;white-space:nowrap;" title="달러/원 환율">$ ₩··</span>
-      <span id="usdtkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:help;white-space:nowrap;" title="업비트 USDT/KRW">₮ ₩··</span>
+      <span id="usdtkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:help;white-space:nowrap;" title="업비트 USDT/KRW · 테더 김프">₮ ₩··</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
       <button id="theme-btn" onclick="toggleTheme()" style="padding:5px 9px;border-radius:8px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
@@ -305,12 +304,131 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 </div><!-- /app -->
 <div id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--b1);color:var(--t1);padding:8px 18px;border-radius:10px;font-size:12px;z-index:9999;border:1px solid #475569;transition:transform .25s;pointer-events:none;white-space:nowrap;"></div>
+<!-- 실시간 채팅 패널 (앱 우측 여백) -->
+<div id="chat-panel" style="position:fixed;top:80px;right:20px;width:280px;max-height:calc(100vh - 110px);background:var(--bg2);border:1px solid var(--bd3);border-radius:12px;display:flex;flex-direction:column;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);overflow:hidden;">
+  <div id="chat-drag-handle" style="padding:10px 14px;border-bottom:1px solid var(--bd3);display:flex;align-items:center;gap:8px;background:var(--bg3);cursor:move;user-select:none;">
+    <span style="font-size:11px;color:var(--t3);">⋮⋮</span>
+    <span style="font-size:12px;font-weight:800;color:var(--t1);">💬 실시간 채팅</span>
+    <span id="chat-online" style="font-size:10px;font-weight:700;color:#10b981;margin-left:auto;">👥 ··</span>
+  </div>
+  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:200px;max-height:400px;font-size:11px;"></div>
+  <div id="chat-input-bar" style="padding:7px 12px;border-top:1px solid var(--bd3);background:var(--bg3);display:flex;align-items:center;gap:5px;">
+    <input id="chat-nick-input" type="text" maxlength="12" placeholder="닉네임" style="width:38px;flex-shrink:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 3px;font-size:9px;color:var(--t1);outline:none;">
+    <input id="chat-msg-input" type="text" maxlength="200" placeholder="메시지..." style="flex:1;min-width:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--t1);outline:none;">
+    <button id="chat-send-btn" style="background:#f59e0b;color:#0B0E11;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;">전송</button>
+  </div>
+</div>
+<style>
+@media (max-width:1100px){#chat-panel{display:none!important;}}
+#chat-messages::-webkit-scrollbar{width:4px}#chat-messages::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
+.chat-msg{display:flex;gap:6px;line-height:1.4;}
+.chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;}
+.chat-msg .body{color:var(--t1);word-break:break-word;}
+.chat-msg .time{color:var(--t3);font-size:9px;flex-shrink:0;margin-left:auto;}
+#chat-drag-handle:active{background:var(--b1)!important;}
+.chat-shake{animation:chatShake .3s;border-color:#ef4444!important;}
+@keyframes chatShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+</style>
+<script>
+(function(){
+  const panel=document.getElementById('chat-panel');
+  const handle=document.getElementById('chat-drag-handle');
+  if(!panel||!handle)return;
+  // 저장된 위치 복원
+  try{
+    const saved=JSON.parse(localStorage.getItem('woc-chat-pos')||'null');
+    if(saved&&typeof saved.left==='number'&&typeof saved.top==='number'){
+      panel.style.left=saved.left+'px';
+      panel.style.top=saved.top+'px';
+      panel.style.right='auto';
+    }
+  }catch{}
+  let startX=0,startY=0,origLeft=0,origTop=0,dragging=false;
+  const onDown=e=>{
+    const ev=e.touches?e.touches[0]:e;
+    dragging=true;
+    startX=ev.clientX;startY=ev.clientY;
+    const r=panel.getBoundingClientRect();
+    origLeft=r.left;origTop=r.top;
+    panel.style.left=origLeft+'px';
+    panel.style.top=origTop+'px';
+    panel.style.right='auto';
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+    document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('touchend',onUp);
+    e.preventDefault();
+  };
+  const onMove=e=>{
+    if(!dragging)return;
+    const ev=e.touches?e.touches[0]:e;
+    let nl=origLeft+(ev.clientX-startX);
+    let nt=origTop+(ev.clientY-startY);
+    // 화면 밖으로 못 나가게 클램프
+    const w=panel.offsetWidth,h=panel.offsetHeight;
+    nl=Math.max(0,Math.min(window.innerWidth-w,nl));
+    nt=Math.max(0,Math.min(window.innerHeight-h,nt));
+    panel.style.left=nl+'px';
+    panel.style.top=nt+'px';
+    if(e.cancelable)e.preventDefault();
+  };
+  const onUp=()=>{
+    if(!dragging)return;
+    dragging=false;
+    document.removeEventListener('mousemove',onMove);
+    document.removeEventListener('mouseup',onUp);
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onUp);
+    try{
+      localStorage.setItem('woc-chat-pos',JSON.stringify({left:parseFloat(panel.style.left),top:parseFloat(panel.style.top)}));
+    }catch{}
+  };
+  handle.addEventListener('mousedown',onDown);
+  handle.addEventListener('touchstart',onDown,{passive:false});
+})();
+</script>
+
+<!-- 운영 채널 모달 -->
+<div id="ch-backdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;" onclick="toggleChannels()"></div>
+<div id="ch-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:20px 22px;z-index:9999;min-width:320px;max-width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+    <span style="font-size:15px;font-weight:800;color:var(--t1);">📢 운영 채널</span>
+    <span onclick="toggleChannels()" style="cursor:pointer;font-size:22px;color:var(--t3);line-height:1;padding:0 4px;user-select:none;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='var(--t3)'">×</span>
+  </div>
+  <div id="ch-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+</div>
 
 <script>
 const BN='https://api.binance.com/api/v3';
 const FN='https://fapi.binance.com/fapi/v1';
 // 거래 중단·조작 의심 종목 완전 차단 블랙리스트
 const BLACKLIST=new Set(['ALPACA','A2Z']);
+// ── 운영 텔레그램 채널 목록 ─────────────────────────
+// 새 채널 추가는 이 배열에 객체 하나 넣으면 됨
+const MY_CHANNELS=[
+  {name:'Wings Insight', desc:'공식 텔레그램 채널', url:'https://t.me/wingsroom', emoji:'🪽'},
+  {name:'Wings Chatting', desc:'실시간 채팅 그룹', url:'https://t.me/wingschatting', emoji:'💬'},
+  {name:'Wings Essay', desc:'에세이 채널', url:'https://t.me/wingsview', emoji:'📝'},
+];
+function toggleChannels(){
+  const m=document.getElementById('ch-modal'),b=document.getElementById('ch-backdrop');
+  if(!m||!b)return;
+  const opening=m.style.display==='none'||!m.style.display;
+  if(opening){
+    const list=document.getElementById('ch-list');
+    list.innerHTML=MY_CHANNELS.length
+      ?MY_CHANNELS.map(c=>`<a href="${c.url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg3);border:1px solid var(--bd3);border-radius:10px;text-decoration:none;transition:all .15s;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='var(--b1)'" onmouseout="this.style.borderColor='var(--bd3)';this.style.background='var(--bg3)'">
+        <span style="font-size:22px;flex-shrink:0;">${c.emoji||'📢'}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:var(--t1);">${c.name}</div>
+          ${c.desc?`<div style="font-size:11px;color:var(--t3);margin-top:2px;">${c.desc}</div>`:''}
+        </div>
+        <span style="font-size:11px;color:#60a5fa;flex-shrink:0;">열기 →</span>
+      </a>`).join('')
+      :'<div style="font-size:12px;color:var(--t3);text-align:center;padding:20px;line-height:1.7;">아직 등록된 채널이 없습니다.<br><span style="font-size:10px;color:#475569;">코드 상단 <b>MY_CHANNELS</b> 배열에 추가하세요.</span></div>';
+    m.style.display='block';b.style.display='block';
+  }else{m.style.display='none';b.style.display='none';}
+}
 const FD='https://fapi.binance.com/futures/data';
 const DS='https://api.dexscreener.com';
 const CC='https://api.coincap.io/v2';
@@ -3946,23 +4064,33 @@ function renderFxBadges(){
   const usdtLabel=G.lang==='ko'?'테더':'USDT';
   const elUsd=document.getElementById('usdkrw-badge');
   if(elUsd&&_fxState.usdToday){
-    let chHtml='';
+    let chTip='';
     if(_fxState.usdY){
       const ch=(_fxState.usdToday-_fxState.usdY)/_fxState.usdY*100;
-      const c=ch>=0?'#10b981':'#ef4444';
       const s=ch>=0?'+':'';
-      chHtml=` <span style="color:${c};">${s}${ch.toFixed(2)}%</span>`;
+      chTip=` · 전일대비 ${s}${ch.toFixed(2)}%`;
     }
-    elUsd.innerHTML=`${usdLabel} ₩${Math.round(_fxState.usdToday).toLocaleString()}${chHtml}`;
-    elUsd.title=`${usdLabel}/원 환율: ₩${_fxState.usdToday.toFixed(2)}${_fxState.usdY?` (전일 ₩${_fxState.usdY.toFixed(2)})`:''}`;
+    elUsd.innerHTML=`${usdLabel} ₩${Math.round(_fxState.usdToday).toLocaleString()}`;
+    elUsd.title=`${usdLabel}/원 환율: ₩${_fxState.usdToday.toFixed(2)}${_fxState.usdY?` (전일 ₩${_fxState.usdY.toFixed(2)})`:''}${chTip}`;
   }
   const elUsdt=document.getElementById('usdtkrw-badge');
   if(elUsdt&&_fxState.usdtPrice){
-    const ch=_fxState.usdtCh||0;
-    const c=ch>=0?'#10b981':'#ef4444';
-    const s=ch>=0?'+':'';
-    elUsdt.innerHTML=`${usdtLabel} ₩${_fxState.usdtPrice.toLocaleString()} <span style="color:${c};">${s}${ch.toFixed(2)}%</span>`;
-    elUsdt.title=`업비트 ${usdtLabel}/KRW: ₩${_fxState.usdtPrice.toLocaleString()} (24h ${s}${ch.toFixed(2)}%)`;
+    // 인라인은 김프%만, 24h 변동률은 tooltip에
+    let premHtml='';let premTip='';
+    if(_fxState.usdToday){
+      const prem=(_fxState.usdtPrice/_fxState.usdToday-1)*100;
+      const c=prem>=0?'#10b981':'#ef4444';
+      const s=prem>=0?'+':'';
+      premHtml=`<span style="margin-left:6px;">김프 <span style="color:${c};">${s}${prem.toFixed(2)}%</span></span>`;
+      premTip=` · 김프 ${s}${prem.toFixed(2)}%`;
+    }
+    let chTip='';
+    if(_fxState.usdtCh!=null){
+      const s=_fxState.usdtCh>=0?'+':'';
+      chTip=` · 전일대비 ${s}${_fxState.usdtCh.toFixed(2)}%`;
+    }
+    elUsdt.innerHTML=`${usdtLabel} ₩${_fxState.usdtPrice.toLocaleString()}${premHtml}`;
+    elUsdt.title=`업비트 ${usdtLabel}/KRW: ₩${_fxState.usdtPrice.toLocaleString()}${chTip}${premTip}`;
   }
 }
 async function fetchKRW(){
@@ -4600,7 +4728,8 @@ window.addEventListener('popstate',e=>{
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getDatabase, ref, onValue, onDisconnect, set, serverTimestamp, remove
+    getDatabase, ref, onValue, onDisconnect, set, serverTimestamp, remove,
+    push, query, limitToLast, off
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
   const FB_CFG = {
@@ -4617,7 +4746,12 @@ window.addEventListener('popstate',e=>{
     const app = initializeApp(FB_CFG);
     const db  = getDatabase(app);
 
-    const uid = (crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now().toString(36));
+    let uid = '';
+    try { uid = localStorage.getItem('woc-uid') || ''; } catch {}
+    if (!uid) {
+      uid = (crypto.randomUUID?.() || Math.random().toString(36).slice(2) + Date.now().toString(36));
+      try { localStorage.setItem('woc-uid', uid); } catch {}
+    }
     const myRef  = ref(db, 'presence/' + uid);
     const allRef = ref(db, 'presence');
 
@@ -4641,10 +4775,116 @@ window.addEventListener('popstate',e=>{
         else if (typeof t !== 'number') n++;
       }
       if (badge) badge.textContent = '👥 ' + n;
+      const co = document.getElementById('chat-online');
+      if (co) co.textContent = '👥 ' + n;
     });
+
+    // ── 실시간 채팅 ──────────────────────────────────
+    const msgsRef = query(ref(db, 'messages'), limitToLast(50));
+    const msgsBox = document.getElementById('chat-messages');
+    const nickInput = document.getElementById('chat-nick-input');
+    const msgInput = document.getElementById('chat-msg-input');
+    const sendBtn = document.getElementById('chat-send-btn');
+
+    let myNick = '';
+    try { myNick = localStorage.getItem('woc-chat-nick') || ''; } catch {}
+    if (nickInput) nickInput.value = myNick;
+
+    const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmtTime = ts => {
+      const d = new Date(ts || Date.now());
+      return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+    };
+    // 닉네임 → 고정 색상 (같은 닉이면 항상 같은 색)
+    const nickColor = name => {
+      let h = 0;
+      const s = String(name || '');
+      for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+      const hue = Math.abs(h) % 360;
+      return `hsl(${hue} 75% 62%)`;
+    };
+
+    onValue(msgsRef, (snap) => {
+      const v = snap.val() || {};
+      const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => (a.ts||0) - (b.ts||0));
+      if (!msgsBox) return;
+      msgsBox.innerHTML = arr.map(m => {
+        const nick = m.nick || '익명';
+        // 색상 시드: uid 우선 (같은 닉이라도 다른 사람이면 다른 색), 없으면 nick으로 폴백
+        const seed = m.uid || nick;
+        return `<div class="chat-msg">
+          <span class="nick" style="color:${nickColor(seed)};">${escapeHtml(nick)}</span>
+          <span class="body">${escapeHtml(m.text||'')}</span>
+          <span class="time">${fmtTime(m.ts)}</span>
+        </div>`;
+      }).join('');
+      msgsBox.scrollTop = msgsBox.scrollHeight;
+    });
+
+    const syncNick = () => {
+      const v = (nickInput.value || '').trim().slice(0, 12);
+      myNick = v;
+      try { localStorage.setItem('woc-chat-nick', v); } catch {}
+    };
+    nickInput?.addEventListener('input', syncNick);
+    nickInput?.addEventListener('blur', syncNick);
+
+    // 링크/욕설 차단
+    const LINK_RE = /(https?:\/\/|www\.|t\.me\/|[\w-]+\.(com|net|org|io|co|kr|me|xyz|app|dev|biz|info|gg|tv|fi|ru|cn|jp))/i;
+    const PROFANITY = ['시발','씨발','시바','씨바','쉬발','쒸발','ㅅㅂ','ㅆㅂ','개새','새끼','병신','ㅂㅅ','좆','존나','좆같','지랄','꺼져','닥쳐','미친','찐따','등신','년아','놈아','보지','자지','fuck','shit','bitch','asshole','dick'];
+    const showChatErr = (msg) => {
+      if (!msgsBox) return;
+      const err = document.createElement('div');
+      err.style.cssText = 'color:#ef4444;font-size:10px;padding:4px 0;';
+      err.textContent = '⚠ ' + msg;
+      msgsBox.appendChild(err);
+      msgsBox.scrollTop = msgsBox.scrollHeight;
+      setTimeout(()=>err.remove(), 4000);
+    };
+
+    let lastSendAt = 0;
+    const sendMsg = async () => {
+      syncNick();
+      const t = (msgInput.value || '').trim();
+      if (!t) return;
+      if (!myNick) {
+        nickInput?.focus();
+        nickInput?.classList.add('chat-shake');
+        setTimeout(()=>nickInput?.classList.remove('chat-shake'),400);
+        return;
+      }
+      // 링크 차단
+      if (LINK_RE.test(t)) { showChatErr('링크는 올릴 수 없습니다'); return; }
+      // 욕설 차단 (대소문자 무시, 공백 제거 후 검사)
+      const norm = t.toLowerCase().replace(/\s+/g, '');
+      if (PROFANITY.some(w => norm.includes(w.toLowerCase()))) { showChatErr('부적절한 표현은 사용할 수 없습니다'); return; }
+      const now = Date.now();
+      if (now - lastSendAt < 1500) return; // 1.5초 스로틀 (도배 방지)
+      lastSendAt = now;
+      try {
+        console.log('[chat] sending', { nick: myNick, text: t });
+        await push(ref(db, 'messages'), { nick: myNick, text: t.slice(0, 200), ts: serverTimestamp(), uid: uid });
+        msgInput.value = '';
+        console.log('[chat] sent OK');
+      } catch (e) {
+        console.error('[chat] send 실패', e);
+        // 사용자에게 보이는 에러 메시지
+        if (msgsBox) {
+          const err = document.createElement('div');
+          err.style.cssText = 'color:#ef4444;font-size:10px;padding:4px 0;';
+          err.textContent = '⚠ 전송 실패: ' + (e?.message || e?.code || 'unknown') + ' (Firebase 규칙 확인 필요)';
+          msgsBox.appendChild(err);
+          msgsBox.scrollTop = msgsBox.scrollHeight;
+        }
+      }
+    };
+    sendBtn?.addEventListener('click', sendMsg);
+    msgInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendMsg(); } });
+    nickInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); msgInput?.focus(); } });
   } catch (e) {
     console.error('[online] Firebase init 실패', e);
     if (badge) badge.style.display = 'none';
+    const cp = document.getElementById('chat-panel'); if (cp) cp.style.display = 'none';
   }
 </script>
 
