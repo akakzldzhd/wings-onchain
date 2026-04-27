@@ -325,10 +325,18 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 <style>
 @media (max-width:1100px){#chat-panel,#chat-reopen-btn{display:none!important;}}
 #chat-messages::-webkit-scrollbar{width:4px}#chat-messages::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
+/* 기본: 인라인 한 줄 (닉·메시지·시간) */
 .chat-msg{display:flex;gap:6px;line-height:1.4;flex-shrink:0;align-items:flex-start;}
-.chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;white-space:nowrap;}
 .chat-msg .body{color:var(--t1);flex:1;min-width:0;word-break:break-word;overflow-wrap:anywhere;}
 .chat-msg .time{color:var(--t3);font-size:9px;flex-shrink:0;align-self:flex-start;padding-top:2px;}
+.chat-msg .chat-del-btn{flex-shrink:0;}
+/* 닉 긴 경우(2행 모드): 닉/시간이 위, 본문이 아래로 */
+.chat-msg.long-nick{flex-direction:column;gap:2px;}
+.chat-msg.long-nick .chat-msg-hdr{display:flex;align-items:center;gap:6px;min-width:0;}
+.chat-msg.long-nick .nick{flex-shrink:1;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;}
+.chat-msg.long-nick .body{padding-left:1px;}
+.chat-msg.long-nick .time{margin-left:auto;}
 #chat-drag-handle:active{background:var(--b1)!important;}
 .chat-shake{animation:chatShake .3s;border-color:#ef4444!important;}
 @keyframes chatShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
@@ -1169,12 +1177,13 @@ const F={
   krwMil(n){if(!n||isNaN(n))return'—';n=parseFloat(n);const mil=Math.round(n/1e6);return`${mil.toLocaleString('ko')} 백만`;},
   chain(c){const m={ethereum:'⟠',bsc:'🔶',solana:'◎',polygon:'🟣',avalanche:'🔺',arbitrum:'🔵',base:'🔷',optimism:'🔴',sui:'💧',ton:'💎',tron:'🔴'};return m[(c||'').toLowerCase()]||'🔗';},
   img(sym,sz=28){
-    // 정규화: cgCache 원본 우선 → IMG_ALIAS → 1000/1M strip
+    // 정규화: cgCache 원본 우선 → IMG_ALIAS → Binance 선물 multiplier prefix strip
     const norm=(()=>{
       if(cgCache[sym]?.image)return sym;
       if(IMG_ALIAS[sym])return IMG_ALIAS[sym];
-      const m=sym.match(/^1000(.+)$/);if(m)return m[1];
-      const m2=sym.match(/^1M(.+)$/);if(m2)return m2[1];
+      // Binance 선물에서 쓰는 multiplier prefix들: 1M / 1000 / 10000 / 100000 / 1000000
+      const m=sym.match(/^(1000000|100000|10000|1000|1M)([A-Z]{2,})$/);
+      if(m)return m[2];
       return sym;
     })();
     const lo=norm.toLowerCase();const loSym=sym.toLowerCase();
@@ -3063,11 +3072,12 @@ async function spotOrFutTicker(sym){
   }catch{}
   throw Error(`시세 조회 실패 (${sym})`);
 }
-async function spotOrFutKlines(sym,interval,limit){
+async function spotOrFutKlines(sym,interval,limit,endTime){
   // 업비트 탭에서 진입한 경우 Upbit 캔들 직접 사용 (KRW 그대로)
   if(G.detailSource==='upbit'){const u=await upbitKlinesRaw(sym,interval,limit).catch(()=>null);if(u)return u;}
-  try{const d=await bnGet(`/klines?symbol=${sym}&interval=${interval}&limit=${limit}`);if(Array.isArray(d)&&d.length)return d;}catch{}
-  try{const r=await fetch(`${FN}/klines?symbol=${sym}&interval=${interval}&limit=${limit}`);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)return d;}}catch{}
+  const endP=endTime?`&endTime=${endTime}`:'';
+  try{const d=await bnGet(`/klines?symbol=${sym}&interval=${interval}&limit=${limit}${endP}`);if(Array.isArray(d)&&d.length)return d;}catch{}
+  try{const r=await fetch(`${FN}/klines?symbol=${sym}&interval=${interval}&limit=${limit}${endP}`);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)return d;}}catch{}
   // Upbit 캔들 폴백
   try{
     const base=sym.replace('USDT','');
@@ -3093,12 +3103,38 @@ async function spotOrFutKlines(sym,interval,limit){
   return null;
 }
 async function fetchKlinesSF(sym,tf){
-  // 장기 타임프레임은 수년치 데이터 로드 (3일·주·월봉)
-  const lmMap={'1m':120,'5m':120,'15m':120,'30m':120,'1h':120,'2h':120,'4h':120,'6h':120,'8h':120,'12h':120,'1d':365,'3d':500,'1w':400,'1M':120};
-  const lm=lmMap[tf]||100;
-  const raw=await spotOrFutKlines(sym,tf,lm);
-  if(!raw)return null;
-  return raw.map(x=>({time:x[0],open:parseFloat(x[1]),high:parseFloat(x[2]),low:parseFloat(x[3]),close:parseFloat(x[4]),volume:parseFloat(x[5])}));
+  // 장기 타임프레임은 2017년 비트코인 시작점까지 거슬러 로드 (페이지네이션)
+  const lmMap={
+    '1m':500,'5m':500,'15m':500,'30m':500,
+    '1h':500,'2h':500,'4h':500,'6h':500,'8h':500,'12h':500,
+    '1d':4000,   // 일봉: ~3500개 (2017~)
+    '3d':1500,   // 3일봉: ~1170개 (2017~)
+    '1w':600,    // 주봉: ~480개 (2017~)
+    '1M':150,    // 월봉: ~110개 (2017~)
+  };
+  const target=lmMap[tf]||500;
+  const MAX_REQ=1500;
+  const toRow=x=>({time:x[0],open:parseFloat(x[1]),high:parseFloat(x[2]),low:parseFloat(x[3]),close:parseFloat(x[4]),volume:parseFloat(x[5])});
+  // 한 번에 처리 가능한 양
+  if(target<=MAX_REQ){
+    const raw=await spotOrFutKlines(sym,tf,target);
+    if(!raw)return null;
+    return raw.map(toRow);
+  }
+  // 페이지네이션 — 1500개씩 endTime 거슬러 올라감 (1d 등 장기)
+  const allRaw=[];
+  let endTime=null;
+  while(allRaw.length<target){
+    const remaining=target-allRaw.length;
+    const lim=Math.min(remaining,MAX_REQ);
+    const chunk=await spotOrFutKlines(sym,tf,lim,endTime).catch(()=>null);
+    if(!chunk||!chunk.length)break;
+    allRaw.unshift(...chunk); // 오래된 청크가 앞으로
+    endTime=chunk[0][0]-1;    // 다음 요청은 이 청크의 가장 오래된 직전까지
+    if(chunk.length<lim)break; // 더 이상 데이터 없음 (상장 이전)
+  }
+  if(!allRaw.length)return null;
+  return allRaw.map(toRow);
 }
 
 async function loadCoinDetail(binSym){
@@ -5052,6 +5088,20 @@ window.addEventListener('popstate',e=>{
       const isAdmin = m.uid && ADMIN_UIDS.has(m.uid);
       const adminBadge = isAdmin ? `<span style="font-size:9px;background:rgba(245,158,11,.18);color:#f59e0b;padding:1px 5px;border-radius:4px;border:1px solid rgba(245,158,11,.4);font-weight:800;flex-shrink:0;">👑 관리자</span>` : '';
       const delBtn = isMeAdmin ? `<span class="chat-del-btn" data-key="${m._k}" style="cursor:pointer;color:#ef4444;font-size:12px;padding:0 4px;flex-shrink:0;opacity:.5;" title="삭제" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">✕</span>` : '';
+      // 닉 길이 추정: 한글 1자 ≈ 2 weight, ASCII 1 weight. weight 합이 12 초과면 2행 모드
+      const nickWeight = [...nick].reduce((s,ch) => s + (ch.charCodeAt(0) > 127 ? 2 : 1), 0);
+      const longNick = nickWeight > 12;
+      if (longNick) {
+        return `<div class="chat-msg long-nick" data-key="${m._k}">
+          <div class="chat-msg-hdr">
+            ${adminBadge}
+            <span class="nick" style="color:${nickColor(seed)};">${escapeHtml(nick)}</span>
+            <span class="time">${fmtTime(m.ts)}</span>
+            ${delBtn}
+          </div>
+          <div class="body">${escapeHtml(m.text||'')}</div>
+        </div>`;
+      }
       return `<div class="chat-msg" data-key="${m._k}">
         ${adminBadge}
         <span class="nick" style="color:${nickColor(seed)};">${escapeHtml(nick)}</span>
