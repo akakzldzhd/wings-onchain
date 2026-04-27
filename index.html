@@ -3346,6 +3346,7 @@ function renderDetailContent(sym,binSym,t,klines,tf,price,ch24,cur){
         </div>
         <div id="chart-toggles" style="display:flex;align-items:center;gap:6px;font-size:10px;margin-bottom:6px;flex-wrap:wrap;color:var(--t3);"></div>
         <div id="cc-container" style="height:420px;width:100%;min-width:280px;min-height:200px;max-width:100%;max-height:900px;border-radius:6px;overflow:auto;resize:both;"></div>
+        <div style="display:flex;justify-content:center;padding:4px 0;"><span id="chat-time-label-pill" style="background:var(--bg3);border:1px solid var(--bd3);color:var(--t2);font-size:11px;font-weight:600;padding:3px 12px;border-radius:6px;font-family:monospace;letter-spacing:.02em;display:inline-block;min-width:200px;text-align:center;"><span id="chart-time-label">—</span></span></div>
         <div style="font-size:9px;color:var(--t3);text-align:right;margin-top:2px;padding-right:4px;">↘ 모서리 드래그로 크기 조절</div>
       </div>
 
@@ -3784,13 +3785,48 @@ async function fetchKlines(binSym,tf){
   return k.map(x=>({time:x[0],open:parseFloat(x[1]),high:parseFloat(x[2]),low:parseFloat(x[3]),close:parseFloat(x[4]),volume:parseFloat(x[5])}));
 }
 let _lastKlines=null;
-// 차트 사용자 설정 — 표시 지표 + 사용자 정의 이평선 + 높이/폭
+// 차트 사용자 설정 — 표시 지표 + 사용자 정의 이평선 + 높이/폭 + 선 두께/선명도
 let _chartHidden=new Set();
 try{const s=JSON.parse(localStorage.getItem('woc-chart-hidden')||'[]');_chartHidden=new Set(s);}catch{}
+let _chartLineWidth=1; // 1, 2, 3
+let _chartLineAlpha=1; // 1.0, 0.6, 0.3
+try{const w=parseInt(localStorage.getItem('woc-chart-lw')||'1');if([1,2,3].includes(w))_chartLineWidth=w;}catch{}
+try{const a=parseFloat(localStorage.getItem('woc-chart-la')||'1');if([1,0.6,0.3].includes(a))_chartLineAlpha=a;}catch{}
+function setLineWidth(v){
+  const w=parseInt(v);
+  if(![1,2,3].includes(w))return;
+  _chartLineWidth=w;
+  try{localStorage.setItem('woc-chart-lw',String(w));}catch{}
+  if(_lastKlines)drawCandleChart(_lastKlines);
+}
+function setLineAlpha(v){
+  const a=parseFloat(v);
+  if(![1,0.6,0.3].includes(a))return;
+  _chartLineAlpha=a;
+  try{localStorage.setItem('woc-chart-la',String(a));}catch{}
+  if(_lastKlines)drawCandleChart(_lastKlines);
+}
 let _customMAs=[]; // 사용자가 추가한 MA 기간 배열 (예: [50, 200])
 try{const s=JSON.parse(localStorage.getItem('woc-chart-custom-mas')||'[]');if(Array.isArray(s))_customMAs=s.filter(n=>Number.isInteger(n)&&n>=2&&n<=500);}catch{}
 const _MA_PALETTE=['#ec4899','#06b6d4','#84cc16','#f97316','#8b5cf6','#14b8a6','#facc15','#f43f5e'];
 const customMAColor=p=>_MA_PALETTE[Math.abs(p*7919)%_MA_PALETTE.length];
+// 색상 + 알파 → rgba 변환 (hex/rgb/rgba 모두 처리)
+function applyAlpha(color,alpha){
+  if(!color)return color;
+  if(color.startsWith('#')){
+    const hex=color.slice(1);
+    const v=hex.length===3?hex.split('').map(c=>c+c).join(''):hex;
+    const r=parseInt(v.slice(0,2),16),g=parseInt(v.slice(2,4),16),b=parseInt(v.slice(4,6),16);
+    return`rgba(${r},${g},${b},${alpha})`;
+  }
+  if(color.startsWith('rgba')){
+    return color.replace(/,\s*[\d.]+\)\s*$/,`,${alpha})`);
+  }
+  if(color.startsWith('rgb(')){
+    return color.replace(/^rgb\(/,'rgba(').replace(/\)$/,`,${alpha})`);
+  }
+  return color;
+}
 function toggleIndicator(key){
   if(_chartHidden.has(key))_chartHidden.delete(key);else _chartHidden.add(key);
   try{localStorage.setItem('woc-chart-hidden',JSON.stringify([..._chartHidden]));}catch{}
@@ -3824,9 +3860,15 @@ function rebuildToggleBar(){
   const customs=_customMAs.map(p=>['ma'+p,'MA'+p,customMAColor(p),p]);
   const trailing=[['bb','BB(20,2)','#94a3b8'],['vol','거래량','#64748b']];
   const btn=([k,l,c,custom])=>`<button class="ind-toggle" data-ind="${k}" onclick="toggleIndicator('${k}')" oncontextmenu="${custom?`event.preventDefault();removeCustomMA(${custom});`:''}" title="${custom?'좌클릭 ON/OFF · 우클릭 삭제':''}" style="background:transparent;border:1px solid var(--bd3);color:${c};padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;transition:all .1s;">${l}</button>`;
+  const selStyle='background:var(--bg3);border:1px solid var(--bd3);color:var(--t2);padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;outline:none;';
+  const lwOpt=(v,l)=>`<option value="${v}"${_chartLineWidth==v?' selected':''}>${l}</option>`;
+  const laOpt=(v,l)=>`<option value="${v}"${_chartLineAlpha==v?' selected':''}>${l}</option>`;
   bar.innerHTML=`<span style="color:var(--t3);font-weight:700;margin-right:2px;">표시:</span>`
     +[...defaults,...customs,...trailing].map(btn).join('')
-    +`<button onclick="addCustomMA()" title="이평선 추가" style="background:transparent;border:1px dashed var(--b1);color:var(--t3);padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">+ MA</button>`;
+    +`<button onclick="addCustomMA()" title="이평선 추가" style="background:transparent;border:1px dashed var(--b1);color:var(--t3);padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">+ MA</button>`
+    +`<span style="color:var(--bd3);margin:0 2px;">|</span>`
+    +`<select onchange="setLineWidth(this.value)" title="이평선/BB 두께" style="${selStyle}">${lwOpt(1,'선 얇게')}${lwOpt(2,'선 보통')}${lwOpt(3,'선 굵게')}</select>`
+    +`<select onchange="setLineAlpha(this.value)" title="이평선/BB 선명도" style="${selStyle}">${laOpt(1,'진하게')}${laOpt(0.6,'중간')}${laOpt(0.3,'연하게')}</select>`;
   syncToggleUI();
 }
 function syncToggleUI(){
@@ -3866,9 +3908,17 @@ function _bindChartResize(){
 function drawCandleChart(klines){
   _lastKlines=klines;
   const container=document.getElementById('cc-container');if(!container)return;
+  // 사용자 zoom/pan 보존: 기존 차트의 보이는 범위 저장 → 재생성 후 복원
+  const savedRange=lwChart?.timeScale?.()?.getVisibleLogicalRange?.();
   applyChartSize();
   rebuildToggleBar();
   setTimeout(_bindChartResize,0);
+  // savedRange는 클로저로 캡처해서 함수 끝에서 복원
+  const restoreView=()=>{
+    if(savedRange&&lwChart){
+      try{lwChart.timeScale().setVisibleLogicalRange(savedRange);}catch{}
+    }
+  };
   // 기존 차트 정리
   if(lwChart){lwChart.remove();lwChart=null;}
   if(volChart){volChart.remove();volChart=null;}
@@ -3924,9 +3974,15 @@ function drawCandleChart(klines){
     rightPriceScale:{borderColor,scaleMargins:{top:0.08,bottom:0.05}},
     timeScale:{borderColor,timeVisible:true,secondsVisible:false,visible:false,rightOffset:6,barSpacing:8},
     watermark:{visible:!!sym,fontSize:32,horzAlign:'center',vertAlign:'center',color:isLight?'rgba(30,35,41,.05)':'rgba(255,255,255,.04)',text:sym?`${sym}${isUpbit?'/KRW':'/USDT'} · ${G.tf||''}`:''},
-    localization:isUpbit?{priceFormatter:p=>{if(p>=1000)return`₩${Math.round(p).toLocaleString('ko')}`;if(p>=1)return`₩${p.toFixed(2)}`;if(p>=0.01)return`₩${p.toFixed(4)}`;return`₩${p.toFixed(8).replace(/0+$/,'').replace(/\.$/,'')}`;}}:undefined,
+    localization:{priceFormatter:isUpbit
+      ?p=>{if(p>=1000)return`${Math.round(p).toLocaleString('ko')}`;if(p>=1)return`${p.toFixed(2)}`;if(p>=0.01)return`${p.toFixed(4)}`;return`${p.toFixed(8).replace(/0+$/,'').replace(/\.$/,'')}`;}
+      :p=>{if(p>=1000)return`${p.toLocaleString('en',{maximumFractionDigits:2})}`;if(p>=1)return`${p.toFixed(4)}`;if(p>=0.01)return`${p.toFixed(5)}`;if(p>=0.0001)return`${p.toFixed(6)}`;return`${p.toFixed(8).replace(/0+$/,'').replace(/\.$/,'')}`;}
+    },
   });
-  const csOpts={upColor,downColor,borderUpColor:upColor,borderDownColor:downColor,wickUpColor:upColor,wickDownColor:downColor,priceLineColor:accentColor,priceLineWidth:1,priceLineStyle:LightweightCharts.LineStyle.Dashed,lastValueVisible:true};
+  // 마지막 캔들 방향에 따라 시세선 색상 결정 (Binance 스타일)
+  const lastK=klines[klines.length-1];
+  const priceLineColor=lastK&&lastK.close>=lastK.open?upColor:downColor;
+  const csOpts={upColor,downColor,borderUpColor:upColor,borderDownColor:downColor,wickUpColor:upColor,wickDownColor:downColor,priceLineColor,priceLineWidth:1,priceLineStyle:LightweightCharts.LineStyle.Dashed,lastValueVisible:true};
   const maxPrice=Math.max(...klines.map(k=>k.high));
   if(isUpbit){
     const minMove=maxPrice>=1000?1:maxPrice>=100?0.1:maxPrice>=1?0.01:maxPrice>=0.01?0.0001:0.00000001;
@@ -3941,7 +3997,7 @@ function drawCandleChart(klines){
   const candleData=klines.map(k=>({time:Math.floor(k.time/1000),open:k.open,high:k.high,low:k.low,close:k.close}));
   cs.setData(candleData);
 
-  // 볼린저 밴드 (토글 가능)
+  // 볼린저 밴드 (토글 가능) — 사용자 설정 적용
   if(!_chartHidden.has('bb')){
     const bbPeriod=20,bbMult=2;
     const bbData=klines.map((k,i)=>{
@@ -3952,17 +4008,19 @@ function drawCandleChart(klines){
       const sd=Math.sqrt(variance);
       return{time:candleData[i].time,upper:avg+bbMult*sd,middle:avg,lower:avg-bbMult*sd};
     }).filter(Boolean);
-    const bbOpts={lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false};
-    lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.35)'}).setData(bbData.map(b=>({time:b.time,value:b.upper})));
-    lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.35)'}).setData(bbData.map(b=>({time:b.time,value:b.lower})));
-    lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.25)',lineStyle:2}).setData(bbData.map(b=>({time:b.time,value:b.middle})));
+    const bbW=_chartLineWidth;
+    const bbOpts={lineWidth:bbW,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false};
+    lwChart.addLineSeries({...bbOpts,color:applyAlpha('#94a3b8',_chartLineAlpha*0.55)}).setData(bbData.map(b=>({time:b.time,value:b.upper})));
+    lwChart.addLineSeries({...bbOpts,color:applyAlpha('#94a3b8',_chartLineAlpha*0.55)}).setData(bbData.map(b=>({time:b.time,value:b.lower})));
+    lwChart.addLineSeries({...bbOpts,color:applyAlpha('#94a3b8',_chartLineAlpha*0.4),lineStyle:2}).setData(bbData.map(b=>({time:b.time,value:b.middle})));
   }
 
-  // 이동평균선 (기본 + 사용자 정의, 개별 토글 가능)
-  const maCfg=[
-    {p:5,c:'#f59e0b',w:1.2},{p:10,c:'#3b82f6',w:1.2},{p:20,c:'rgba(148,163,184,.55)',w:1},{p:60,c:'#10b981',w:1.2},{p:120,c:'#a78bfa',w:1.2},
-    ..._customMAs.map(p=>({p,c:customMAColor(p),w:1.2}))
+  // 이동평균선 (기본 + 사용자 정의, 개별 토글 가능) — 사용자 설정 두께/선명도 적용
+  const baseMaCfg=[
+    {p:5,c:'#f59e0b'},{p:10,c:'#3b82f6'},{p:20,c:'#94a3b8'},{p:60,c:'#10b981'},{p:120,c:'#a78bfa'},
+    ..._customMAs.map(p=>({p,c:customMAColor(p)}))
   ];
+  const maCfg=baseMaCfg.map(({p,c})=>({p,c:applyAlpha(c,_chartLineAlpha),w:_chartLineWidth}));
   maCfg.forEach(({p,c,w})=>{
     if(_chartHidden.has('ma'+p))return;
     if(klines.length<p)return;
@@ -3976,6 +4034,12 @@ function drawCandleChart(klines){
 
   // OHLC 툴팁 헬퍼 (거래량 토글 여부 무관하게 동작)
   const fmtDate=t=>{const d=new Date(t*1000);const Y=d.getFullYear();const M=String(d.getMonth()+1).padStart(2,'0');const D=String(d.getDate()).padStart(2,'0');const h=String(d.getHours()).padStart(2,'0');const m=String(d.getMinutes()).padStart(2,'0');return`${Y}-${M}-${D} ${h}:${m}`;};
+  const fmtDateKr=t=>{const d=new Date(t*1000);const day=['일','월','화','수','목','금','토'][d.getDay()];return`${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${day}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;};
+  const updateTimeLabel=time=>{
+    const el=document.getElementById('chart-time-label');
+    if(!el)return;
+    el.textContent=time?fmtDateKr(time):'—';
+  };
   const fmtPrice=p=>{if(p>=1000)return p.toLocaleString('en',{maximumFractionDigits:2});if(p>=1)return p.toFixed(2);if(p>=0.01)return p.toFixed(4);return p.toFixed(8).replace(/0+$/,'').replace(/\.$/,'');};
   const updateOhlcTip=time=>{
     if(!time){ohlcTip.style.display='none';return;}
@@ -3986,11 +4050,12 @@ function drawCandleChart(klines){
     ohlcTip.innerHTML=`<div style="color:${textColor};font-weight:700;">${fmtDate(c.time)}</div><div>O <b style="color:${textColor}">${fmtPrice(c.open)}</b>  H <b style="color:#10b981">${fmtPrice(c.high)}</b>  L <b style="color:#ef4444">${fmtPrice(c.low)}</b>  C <b style="color:${col}">${fmtPrice(c.close)}</b> <span style="color:${col};">${ch>=0?'+':''}${pct.toFixed(2)}%</span></div>`;
     ohlcTip.style.display='block';
   };
-  lwChart.subscribeCrosshairMove(param=>updateOhlcTip(param.time));
+  lwChart.subscribeCrosshairMove(param=>{updateOhlcTip(param.time);updateTimeLabel(param.time);});
 
   // 거래량 별도 차트 (하단 패널) — 토글 OFF면 스킵
   if(!showVol){
     lwChart.applyOptions({timeScale:{borderColor,timeVisible:true,secondsVisible:false,visible:true}});
+    restoreView();
     return;
   }
   volChart=LightweightCharts.createChart(volDiv,{
@@ -4014,19 +4079,27 @@ function drawCandleChart(klines){
   const fmtVol=v=>{if(v==null||isNaN(v))return'—';if(v>=1e9)return(v/1e9).toFixed(2)+'B';if(v>=1e6)return(v/1e6).toFixed(2)+'M';if(v>=1e3)return(v/1e3).toFixed(2)+'K';return v.toFixed(2);};
   lwChart.subscribeCrosshairMove(param=>{
     updateOhlcTip(param.time);
+    updateTimeLabel(param.time);
     if(!param.time){volTip.textContent='VOL —';return;}
     const v=param.seriesData.get(volSeries)?.value??volData.find(d=>d.time===param.time)?.value;
     volTip.textContent=v!=null?`VOL ${fmtVol(v)}`:'VOL —';
   });
   volChart.subscribeCrosshairMove(param=>{
     updateOhlcTip(param.time);
+    updateTimeLabel(param.time);
     if(!param.time){volTip.textContent='VOL —';return;}
     const d=volData.find(x=>x.time===param.time);
     volTip.textContent=d?`VOL ${fmtVol(d.value)}`:'VOL —';
   });
 
-  lwChart.timeScale().fitContent();
-  volChart.timeScale().fitContent();
+  // 사용자 zoom/pan 보존: 저장된 range 있으면 복원, 없으면 fitContent
+  if(savedRange){
+    restoreView();
+    try{volChart.timeScale().setVisibleLogicalRange(savedRange);}catch{}
+  }else{
+    lwChart.timeScale().fitContent();
+    volChart.timeScale().fitContent();
+  }
 }
 async function reChart(binSym,tf){
   G.tf=tf;
@@ -4340,23 +4413,26 @@ function renderFxBadges(){
   }
 }
 async function fetchKRW(){
-  // USD/KRW — 여러 소스 폴백 (jsdelivr 구버전 deprecated → Frankfurter/ER-API 우선)
+  // USD/KRW — 작동 확인된 소스 우선 (jsdelivr/ER-API 안정, Frankfurter는 종종 빈 응답)
   const todayKrw=await (async()=>{
     const sources=[
-      {url:'https://api.frankfurter.app/latest?from=USD&to=KRW',pick:d=>d?.rates?.KRW},
-      {url:'https://open.er-api.com/v6/latest/USD',pick:d=>d?.rates?.KRW},
       {url:'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',pick:d=>d?.usd?.krw},
       {url:'https://latest.currency-api.pages.dev/v1/currencies/usd.json',pick:d=>d?.usd?.krw},
+      {url:'https://open.er-api.com/v6/latest/USD',pick:d=>d?.rates?.KRW},
+      {url:'https://api.frankfurter.app/latest?from=USD&to=KRW',pick:d=>d?.rates?.KRW},
     ];
     for(const s of sources){
       try{
-        const r=await fetch(s.url,{signal:AbortSignal.timeout(5000)});
-        if(!r.ok)continue;
-        const d=await r.json();
-        const k=s.pick(d);
-        if(k&&!isNaN(k))return k;
-      }catch{}
+        const r=await fetch(s.url,{signal:AbortSignal.timeout(4000)});
+        if(!r.ok){console.log('[fx] '+s.url+' status '+r.status);continue;}
+        const txt=await r.text();
+        if(!txt||txt.length<10){console.log('[fx] '+s.url+' empty body');continue;}
+        const d=JSON.parse(txt);
+        const k=parseFloat(s.pick(d));
+        if(k>0&&!isNaN(k)){console.log('[fx] USD/KRW='+k+' from '+s.url);return k;}
+      }catch(e){console.log('[fx] '+s.url+' err',e?.message||e);}
     }
+    console.warn('[fx] 모든 USD/KRW 소스 실패 — 김프 표시 불가');
     return null;
   })();
   if(todayKrw){_fxState.usdToday=todayKrw;G_KRW=Math.round(todayKrw);}
