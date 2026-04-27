@@ -1925,7 +1925,7 @@ async function loadKimchiList(){
     const upbitRows=tickerResponses.flat().filter(Boolean);
     const upbitMap={};
     upbitRows.filter(t=>t.trade_price>0&&t.acc_trade_price_24h>0&&t.market_state!=='DELISTED'&&t.market_state!=='PREVIEW')
-      .forEach(t=>{upbitMap[t.market.replace('KRW-','')]={krw:t.trade_price,ch24:t.change_rate*100,vol:t.acc_trade_price_24h};});
+      .forEach(t=>{upbitMap[t.market.replace('KRW-','')]={krw:t.trade_price,ch24:(t.signed_change_rate??t.change_rate*(t.change==='FALL'?-1:1))*100,vol:t.acc_trade_price_24h};});
     // 빗썸 시세 — 위에서 미리 받은 응답 사용
     const bithumbMap={};
     if(bithumbResp?.status==='0000'&&bithumbResp.data){
@@ -2243,7 +2243,7 @@ async function loadUpbitList(){
           name,
           priceKrw:t.trade_price,
           priceUsd:t.trade_price/G_KRW, // 환산용
-          ch24:t.change_rate*100,
+          ch24:(t.signed_change_rate??t.change_rate*(t.change==='FALL'?-1:1))*100,
           vol24:t.acc_trade_price_24h, // 업비트 KRW 기준 24h 거래대금
           mcUsd:cg?.marketCapUsd||0,
         };
@@ -3022,7 +3022,7 @@ async function upbitTickerRaw(sym){
   return{
     symbol:sym,
     lastPrice:t.trade_price.toString(),
-    priceChangePercent:(t.change_rate*100).toString(),
+    priceChangePercent:((t.signed_change_rate??t.change_rate*(t.change==='FALL'?-1:1))*100).toString(),
     quoteVolume:t.acc_trade_price_24h.toString(),
     highPrice:t.high_price.toString(),
     lowPrice:t.low_price.toString(),
@@ -3058,7 +3058,7 @@ async function spotOrFutTicker(sym){
     const arr=await upbitGet(`/v1/ticker?markets=KRW-${base}`);
     if(arr?.[0]){
       const t=arr[0];
-      return{symbol:sym,lastPrice:(t.trade_price/G_KRW).toString(),priceChangePercent:(t.change_rate*100).toString(),quoteVolume:(t.acc_trade_price_24h/G_KRW).toString(),highPrice:(t.high_price/G_KRW).toString(),lowPrice:(t.low_price/G_KRW).toString(),_upbitOnly:true};
+      return{symbol:sym,lastPrice:(t.trade_price/G_KRW).toString(),priceChangePercent:((t.signed_change_rate??t.change_rate*(t.change==='FALL'?-1:1))*100).toString(),quoteVolume:(t.acc_trade_price_24h/G_KRW).toString(),highPrice:(t.high_price/G_KRW).toString(),lowPrice:(t.low_price/G_KRW).toString(),_upbitOnly:true};
     }
   }catch{}
   throw Error(`시세 조회 실패 (${sym})`);
@@ -4857,7 +4857,7 @@ function connectUpbitWs(){
         const sym=data.code.replace('KRW-','');
         const k=G.kimchi.find(x=>x.symbol===sym);if(!k)return;
         const p=data.trade_price;
-        if(p>0){k.upbitKrw=p;k.ch24=(data.change_rate||0)*100;_recomputeKim(k);}
+        if(p>0){k.upbitKrw=p;k.ch24=((data.signed_change_rate??(data.change_rate||0)*(data.change==='FALL'?-1:1)))*100;_recomputeKim(k);}
         debouncedKimRender();
       }catch{}
     };
@@ -5086,7 +5086,12 @@ window.addEventListener('popstate',e=>{
     let _liveKeys = new Set(); // limitToLast(50) 스냅샷에 들어있는 키 추적
     onValue(msgsRef, (snap) => {
       const v = snap.val() || {};
-      const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => a._k.localeCompare(b._k));
+      // ts(서버 타임스탬프) 우선 정렬, 동일하면 key 단순 비교 (localeCompare 금지 — 로케일 변형 위험)
+      const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => {
+        const dt = (a.ts||0) - (b.ts||0);
+        if (dt) return dt;
+        return a._k < b._k ? -1 : a._k > b._k ? 1 : 0;
+      });
       console.log('[chat] onValue fired. messages count:', arr.length);
       if (!msgsBox) return;
       const wasAtBottom = (msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight) < 50;
@@ -5175,7 +5180,11 @@ window.addEventListener('popstate',e=>{
         const q = query(ref(db, 'messages'), orderByKey(), endBefore(_oldestKey), limitToLast(PAGE_SIZE));
         const snap = await get(q);
         const v = snap.val() || {};
-        const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => a._k.localeCompare(b._k));
+        const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => {
+          const dt = (a.ts||0) - (b.ts||0);
+          if (dt) return dt;
+          return a._k < b._k ? -1 : a._k > b._k ? 1 : 0;
+        });
         if (btn) btn.remove();
         if (!arr.length) {
           _noMoreOlder = true;
@@ -5211,7 +5220,11 @@ window.addEventListener('popstate',e=>{
       try {
         const snap = await get(query(ref(db, 'messages'), limitToLast(500)));
         const v = snap.val() || {};
-        const all = Object.entries(v).sort((a,b) => a[0].localeCompare(b[0]));
+        const all = Object.entries(v).sort((a,b) => {
+          const dt = (a[1]?.ts||0) - (b[1]?.ts||0);
+          if (dt) return dt;
+          return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0;
+        });
         if (all.length <= 200) return;
         const toDelete = all.slice(0, all.length - 200);
         for (const [k] of toDelete) {
