@@ -5087,6 +5087,7 @@ window.addEventListener('popstate',e=>{
     onValue(msgsRef, (snap) => {
       const v = snap.val() || {};
       const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => a._k.localeCompare(b._k));
+      console.log('[chat] onValue fired. messages count:', arr.length);
       if (!msgsBox) return;
       const wasAtBottom = (msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight) < 50;
       const newLiveKeys = new Set(arr.map(m => m._k));
