@@ -305,24 +305,25 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 </div><!-- /app -->
 <div id="toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--b1);color:var(--t1);padding:8px 18px;border-radius:10px;font-size:12px;z-index:9999;border:1px solid #475569;transition:transform .25s;pointer-events:none;white-space:nowrap;"></div>
 <!-- 실시간 채팅 패널 (앱 우측 여백) -->
-<div id="chat-panel" style="position:fixed;top:80px;right:20px;width:280px;max-height:calc(100vh - 110px);background:var(--bg2);border:1px solid var(--bd3);border-radius:12px;display:flex;flex-direction:column;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);overflow:hidden;">
+<div id="chat-panel" style="position:fixed;top:80px;right:20px;width:280px;height:480px;min-width:240px;min-height:280px;max-width:90vw;max-height:90vh;background:var(--bg2);border:1px solid var(--bd3);border-radius:12px;display:flex;flex-direction:column;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);overflow:hidden;">
   <div id="chat-drag-handle" style="padding:10px 14px;border-bottom:1px solid var(--bd3);display:flex;align-items:center;gap:8px;background:var(--bg3);cursor:move;user-select:none;">
     <span style="font-size:11px;color:var(--t3);">⋮⋮</span>
     <span style="font-size:12px;font-weight:800;color:var(--t1);">💬 실시간 채팅</span>
     <span id="chat-online" style="font-size:10px;font-weight:700;color:#10b981;margin-left:auto;">👥 ··</span>
     <span id="chat-close-btn" style="cursor:pointer;font-size:16px;color:var(--t3);line-height:1;padding:0 2px;user-select:none;" title="채팅 닫기" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--t3)'">×</span>
   </div>
-  <div id="chat-messages" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:200px;max-height:400px;font-size:11px;"></div>
+  <div id="chat-messages" style="flex:1;min-height:0;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;font-size:11px;"></div>
   <div id="chat-input-bar" style="padding:7px 12px;border-top:1px solid var(--bd3);background:var(--bg3);display:flex;align-items:center;gap:5px;">
     <input id="chat-nick-input" type="text" maxlength="12" placeholder="닉네임" style="width:38px;flex-shrink:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 3px;font-size:9px;color:var(--t1);outline:none;">
     <input id="chat-msg-input" type="text" maxlength="200" placeholder="메시지..." style="flex:1;min-width:0;background:var(--bg2);border:1px solid var(--b1);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--t1);outline:none;">
     <button id="chat-send-btn" style="background:#f59e0b;color:#0B0E11;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;">전송</button>
   </div>
+  <div id="chat-resize-handle" title="크기 조절" style="position:absolute;bottom:0;right:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 0 55%,var(--t3) 55% 65%,transparent 65% 75%,var(--t3) 75% 85%,transparent 85% 100%);z-index:2;"></div>
 </div>
 <style>
 @media (max-width:1100px){#chat-panel,#chat-reopen-btn{display:none!important;}}
 #chat-messages::-webkit-scrollbar{width:4px}#chat-messages::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
-.chat-msg{display:flex;gap:6px;line-height:1.4;}
+.chat-msg{display:flex;gap:6px;line-height:1.4;flex-shrink:0;align-items:flex-start;flex-wrap:wrap;}
 .chat-msg .nick{color:#f59e0b;font-weight:700;flex-shrink:0;}
 .chat-msg .body{color:var(--t1);word-break:break-word;}
 .chat-msg .time{color:var(--t3);font-size:9px;flex-shrink:0;margin-left:auto;}
@@ -352,6 +353,61 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   }catch{}
   closeBtn?.addEventListener('click',e=>{e.stopPropagation();setChatOpen(false);});
   reopenBtn?.addEventListener('click',()=>setChatOpen(true));
+  // 저장된 크기 복원
+  try{
+    const sz=JSON.parse(localStorage.getItem('woc-chat-size')||'null');
+    if(sz&&typeof sz.w==='number'&&typeof sz.h==='number'){
+      panel.style.width=sz.w+'px';
+      panel.style.height=sz.h+'px';
+    }
+  }catch{}
+  // 패널 어디에서 휠을 굴려도 메시지 영역만 스크롤 (배경 페이지/코인 목록 스크롤 차단)
+  panel.addEventListener('wheel',e=>{
+    const box=document.getElementById('chat-messages');
+    if(box&&box.scrollHeight>box.clientHeight)box.scrollTop+=e.deltaY;
+    // 메시지가 스크롤할 게 없어도 항상 차단 — 뒤쪽 코인 목록이 같이 스크롤되는 문제 방지
+    e.preventDefault();
+    e.stopPropagation();
+  },{passive:false});
+  // 리사이즈 핸들
+  const resizeH=document.getElementById('chat-resize-handle');
+  if(resizeH){
+    let rsX=0,rsY=0,rsW=0,rsH=0,rsActive=false;
+    const rsDown=e=>{
+      const ev=e.touches?e.touches[0]:e;
+      rsActive=true;
+      rsX=ev.clientX;rsY=ev.clientY;
+      const r=panel.getBoundingClientRect();
+      rsW=r.width;rsH=r.height;
+      document.addEventListener('mousemove',rsMove);
+      document.addEventListener('mouseup',rsUp);
+      document.addEventListener('touchmove',rsMove,{passive:false});
+      document.addEventListener('touchend',rsUp);
+      e.preventDefault();e.stopPropagation();
+    };
+    const rsMove=e=>{
+      if(!rsActive)return;
+      const ev=e.touches?e.touches[0]:e;
+      let nw=rsW+(ev.clientX-rsX);
+      let nh=rsH+(ev.clientY-rsY);
+      nw=Math.max(240,Math.min(window.innerWidth*0.9,nw));
+      nh=Math.max(280,Math.min(window.innerHeight*0.9,nh));
+      panel.style.width=nw+'px';
+      panel.style.height=nh+'px';
+      if(e.cancelable)e.preventDefault();
+    };
+    const rsUp=()=>{
+      if(!rsActive)return;
+      rsActive=false;
+      document.removeEventListener('mousemove',rsMove);
+      document.removeEventListener('mouseup',rsUp);
+      document.removeEventListener('touchmove',rsMove);
+      document.removeEventListener('touchend',rsUp);
+      try{localStorage.setItem('woc-chat-size',JSON.stringify({w:panel.offsetWidth,h:panel.offsetHeight}));}catch{}
+    };
+    resizeH.addEventListener('mousedown',rsDown);
+    resizeH.addEventListener('touchstart',rsDown,{passive:false});
+  }
   // 저장된 위치 복원
   try{
     const saved=JSON.parse(localStorage.getItem('woc-chat-pos')||'null');
@@ -4823,6 +4879,8 @@ window.addEventListener('popstate',e=>{
       const d = new Date(ts || Date.now());
       return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
     };
+    // 관리자 uid 목록 (이 uid에서 보낸 메시지에는 👑 관리자 배지 표시)
+    const ADMIN_UIDS = new Set(['17577acf-8962-4c57-8211-15fc926185e0']);
     // 닉네임 → 고정 색상 (같은 닉이면 항상 같은 색)
     const nickColor = name => {
       let h = 0;
@@ -4836,17 +4894,22 @@ window.addEventListener('popstate',e=>{
       const v = snap.val() || {};
       const arr = Object.entries(v).map(([k, m]) => ({...m, _k:k})).sort((a,b) => (a.ts||0) - (b.ts||0));
       if (!msgsBox) return;
+      // 새 메시지 오기 전에 사용자가 바닥 근처에 있었는지 기록 (50px 이내)
+      const wasAtBottom = (msgsBox.scrollHeight - msgsBox.scrollTop - msgsBox.clientHeight) < 50;
       msgsBox.innerHTML = arr.map(m => {
         const nick = m.nick || '익명';
-        // 색상 시드: uid 우선 (같은 닉이라도 다른 사람이면 다른 색), 없으면 nick으로 폴백
         const seed = m.uid || nick;
+        const isAdmin = m.uid && ADMIN_UIDS.has(m.uid);
+        const adminBadge = isAdmin ? `<span style="font-size:9px;background:rgba(245,158,11,.18);color:#f59e0b;padding:1px 5px;border-radius:4px;border:1px solid rgba(245,158,11,.4);font-weight:800;flex-shrink:0;">👑 관리자</span>` : '';
         return `<div class="chat-msg">
+          ${adminBadge}
           <span class="nick" style="color:${nickColor(seed)};">${escapeHtml(nick)}</span>
           <span class="body">${escapeHtml(m.text||'')}</span>
           <span class="time">${fmtTime(m.ts)}</span>
         </div>`;
       }).join('');
-      msgsBox.scrollTop = msgsBox.scrollHeight;
+      // 바닥에 있었을 때만 자동 스크롤 (위로 읽고 있을 땐 위치 유지)
+      if (wasAtBottom) msgsBox.scrollTop = msgsBox.scrollHeight;
     });
 
     const syncNick = () => {
