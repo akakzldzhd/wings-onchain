@@ -3305,15 +3305,9 @@ function renderDetailContent(sym,binSym,t,klines,tf,price,ch24,cur){
               `<button onclick="reChart('${binSym}','${b.tf}')" data-tf="${b.tf}" style="padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;${G.tf===b.tf?'background:#f59e0b;color:#000;border:none;':'background:var(--bg3);color:#64748b;border:1px solid var(--b1);'}">${b.l}</button>`).join('')}
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px;font-size:10px;margin-bottom:6px;flex-wrap:wrap;color:var(--t3);">
-          <span style="color:#f59e0b;font-weight:700;">— MA5</span>
-          <span style="color:#3b82f6;font-weight:700;">— MA10</span>
-          <span style="color:rgba(148,163,184,.7);font-weight:600;">— MA20</span>
-          <span style="color:#10b981;font-weight:700;">— MA60</span>
-          <span style="color:#a78bfa;font-weight:700;">— MA120</span>
-          <span style="color:#94a3b8;opacity:.7;">⋯ BB(20,2)</span>
-        </div>
-        <div id="cc-container" style="height:420px;border-radius:6px;overflow:hidden;"></div>
+        <div id="chart-toggles" style="display:flex;align-items:center;gap:6px;font-size:10px;margin-bottom:6px;flex-wrap:wrap;color:var(--t3);"></div>
+        <div id="cc-container" style="height:420px;width:100%;min-width:280px;min-height:200px;max-width:100%;max-height:900px;border-radius:6px;overflow:auto;resize:both;"></div>
+        <div style="font-size:9px;color:var(--t3);text-align:right;margin-top:2px;padding-right:4px;">↘ 모서리 드래그로 크기 조절</div>
       </div>
 
       <!-- 거래하기 + 알람 설정 (차트 바로 아래) -->
@@ -3751,9 +3745,91 @@ async function fetchKlines(binSym,tf){
   return k.map(x=>({time:x[0],open:parseFloat(x[1]),high:parseFloat(x[2]),low:parseFloat(x[3]),close:parseFloat(x[4]),volume:parseFloat(x[5])}));
 }
 let _lastKlines=null;
+// 차트 사용자 설정 — 표시 지표 + 사용자 정의 이평선 + 높이/폭
+let _chartHidden=new Set();
+try{const s=JSON.parse(localStorage.getItem('woc-chart-hidden')||'[]');_chartHidden=new Set(s);}catch{}
+let _customMAs=[]; // 사용자가 추가한 MA 기간 배열 (예: [50, 200])
+try{const s=JSON.parse(localStorage.getItem('woc-chart-custom-mas')||'[]');if(Array.isArray(s))_customMAs=s.filter(n=>Number.isInteger(n)&&n>=2&&n<=500);}catch{}
+const _MA_PALETTE=['#ec4899','#06b6d4','#84cc16','#f97316','#8b5cf6','#14b8a6','#facc15','#f43f5e'];
+const customMAColor=p=>_MA_PALETTE[Math.abs(p*7919)%_MA_PALETTE.length];
+function toggleIndicator(key){
+  if(_chartHidden.has(key))_chartHidden.delete(key);else _chartHidden.add(key);
+  try{localStorage.setItem('woc-chart-hidden',JSON.stringify([..._chartHidden]));}catch{}
+  syncToggleUI();
+  if(_lastKlines)drawCandleChart(_lastKlines);
+}
+function addCustomMA(){
+  const v=prompt('추가할 이평선 기간 입력 (2~500, 예: 50, 200)','50');
+  if(v==null)return;
+  const p=parseInt(v);
+  if(!Number.isInteger(p)||p<2||p>500){alert('2 ~ 500 사이의 정수만 가능합니다');return;}
+  if(_customMAs.includes(p)||[5,10,20,60,120].includes(p)){alert('이미 추가된 이평선입니다');return;}
+  _customMAs.push(p);_customMAs.sort((a,b)=>a-b);
+  try{localStorage.setItem('woc-chart-custom-mas',JSON.stringify(_customMAs));}catch{}
+  rebuildToggleBar();
+  if(_lastKlines)drawCandleChart(_lastKlines);
+}
+function removeCustomMA(p){
+  _customMAs=_customMAs.filter(x=>x!==p);
+  _chartHidden.delete('ma'+p);
+  try{
+    localStorage.setItem('woc-chart-custom-mas',JSON.stringify(_customMAs));
+    localStorage.setItem('woc-chart-hidden',JSON.stringify([..._chartHidden]));
+  }catch{}
+  rebuildToggleBar();
+  if(_lastKlines)drawCandleChart(_lastKlines);
+}
+function rebuildToggleBar(){
+  const bar=document.getElementById('chart-toggles');if(!bar)return;
+  const defaults=[['ma5','MA5','#f59e0b'],['ma10','MA10','#3b82f6'],['ma20','MA20','rgba(148,163,184,.85)'],['ma60','MA60','#10b981'],['ma120','MA120','#a78bfa']];
+  const customs=_customMAs.map(p=>['ma'+p,'MA'+p,customMAColor(p),p]);
+  const trailing=[['bb','BB(20,2)','#94a3b8'],['vol','거래량','#64748b']];
+  const btn=([k,l,c,custom])=>`<button class="ind-toggle" data-ind="${k}" onclick="toggleIndicator('${k}')" oncontextmenu="${custom?`event.preventDefault();removeCustomMA(${custom});`:''}" title="${custom?'좌클릭 ON/OFF · 우클릭 삭제':''}" style="background:transparent;border:1px solid var(--bd3);color:${c};padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;transition:all .1s;">${l}</button>`;
+  bar.innerHTML=`<span style="color:var(--t3);font-weight:700;margin-right:2px;">표시:</span>`
+    +[...defaults,...customs,...trailing].map(btn).join('')
+    +`<button onclick="addCustomMA()" title="이평선 추가" style="background:transparent;border:1px dashed var(--b1);color:var(--t3);padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;">+ MA</button>`;
+  syncToggleUI();
+}
+function syncToggleUI(){
+  document.querySelectorAll('.ind-toggle').forEach(btn=>{
+    const k=btn.dataset.ind;
+    const on=!_chartHidden.has(k);
+    btn.style.background=on?'rgba(245,158,11,.12)':'transparent';
+    btn.style.borderColor=on?'rgba(245,158,11,.4)':'var(--bd3)';
+    btn.style.opacity=on?'1':'.45';
+  });
+}
+function applyChartSize(){
+  const c=document.getElementById('cc-container');if(!c)return;
+  let h=420,w=null;
+  try{const s=parseInt(localStorage.getItem('woc-chart-height')||'420');if(s>=200&&s<=900)h=s;}catch{}
+  try{const s=parseInt(localStorage.getItem('woc-chart-width')||'0');if(s>=280&&s<=2000)w=s;}catch{}
+  c.style.height=h+'px';
+  if(w)c.style.width=w+'px';
+}
+function _bindChartResize(){
+  const c=document.getElementById('cc-container');
+  if(!c||c._roBound)return;
+  c._roBound=true;
+  // ResizeObserver로 사용자 리사이즈 감지 → localStorage 저장
+  let saveTimer=null;
+  const ro=new ResizeObserver(()=>{
+    if(saveTimer)clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{
+      try{
+        localStorage.setItem('woc-chart-height',String(c.clientHeight));
+        localStorage.setItem('woc-chart-width',String(c.clientWidth));
+      }catch{}
+    },300);
+  });
+  ro.observe(c);
+}
 function drawCandleChart(klines){
   _lastKlines=klines;
   const container=document.getElementById('cc-container');if(!container)return;
+  applyChartSize();
+  rebuildToggleBar();
+  setTimeout(_bindChartResize,0);
   // 기존 차트 정리
   if(lwChart){lwChart.remove();lwChart=null;}
   if(volChart){volChart.remove();volChart=null;}
@@ -3761,36 +3837,57 @@ function drawCandleChart(klines){
 
   const isUpbit=G.detailSource==='upbit';
   const isLight=document.documentElement.dataset.theme==='light';
-  const bgColor=isLight?'#ffffff':'#0f172a';
-  const textColor=isLight?'#475569':'#94a3b8';
-  const gridColor=isLight?'rgba(15,23,42,.06)':'rgba(255,255,255,.04)';
-  const borderColor=isLight?'#cbd5e1':'#334155';
+  // Binance 차트 컬러 팔레트
+  const bgColor=isLight?'#FAFAFA':'#181A20';
+  const textColor=isLight?'#1E2329':'#848E9C';
+  const gridColor=isLight?'rgba(0,0,0,.05)':'rgba(255,255,255,.03)';
+  const borderColor=isLight?'#EAECEF':'#2B3139';
+  const upColor='#0ECB81';
+  const downColor='#F6465D';
+  const accentColor='#F0B90B';
+  const sym=G.curSym||'';
 
-  // 가격 차트 영역 (75%) + 거래량 영역 (25%)
+  // 가격 차트 영역 + (거래량 영역 — 사용자가 켰을 때만)
   const totalH=container.clientHeight||420;
-  const priceH=Math.round(totalH*0.76);
-  const volH=totalH-priceH-4; // 구분선 여유
+  const showVol=!_chartHidden.has('vol');
+  const priceH=showVol?Math.round(totalH*0.76):totalH;
+  const volH=showVol?(totalH-priceH-4):0;
   const priceDiv=document.createElement('div');priceDiv.style.cssText=`height:${priceH}px;position:relative;`;
-  const sepDiv=document.createElement('div');sepDiv.style.cssText=`height:4px;background:${borderColor};opacity:.5;`;
-  const volDiv=document.createElement('div');volDiv.style.cssText=`height:${volH}px;position:relative;`;
-  const volTip=document.createElement('div');
-  volTip.id='vol-tooltip';
-  volTip.style.cssText=`position:absolute;top:4px;left:8px;font-size:10px;color:${textColor};background:${bgColor};padding:2px 6px;border-radius:4px;pointer-events:none;font-weight:600;border:1px solid ${borderColor};z-index:2;`;
-  volTip.textContent='VOL —';
-  volDiv.appendChild(volTip);
-  container.appendChild(priceDiv);container.appendChild(sepDiv);container.appendChild(volDiv);
+  // 캔들 hover 시 날짜 + OHLC 표시 툴팁
+  const ohlcTip=document.createElement('div');
+  ohlcTip.id='ohlc-tooltip';
+  ohlcTip.style.cssText=`position:absolute;top:6px;left:8px;font-size:10px;color:${textColor};background:${bgColor};padding:4px 8px;border-radius:4px;pointer-events:none;font-weight:600;border:1px solid ${borderColor};z-index:3;line-height:1.5;font-family:monospace;display:none;`;
+  priceDiv.appendChild(ohlcTip);
+  let sepDiv=null,volDiv=null,volTip=null;
+  if(showVol){
+    sepDiv=document.createElement('div');sepDiv.style.cssText=`height:4px;background:${borderColor};opacity:.5;`;
+    volDiv=document.createElement('div');volDiv.style.cssText=`height:${volH}px;position:relative;`;
+    volTip=document.createElement('div');
+    volTip.id='vol-tooltip';
+    volTip.style.cssText=`position:absolute;top:4px;left:8px;font-size:10px;color:${textColor};background:${bgColor};padding:2px 6px;border-radius:4px;pointer-events:none;font-weight:600;border:1px solid ${borderColor};z-index:2;`;
+    volTip.textContent='VOL —';
+    volDiv.appendChild(volTip);
+  }
+  container.appendChild(priceDiv);
+  if(sepDiv)container.appendChild(sepDiv);
+  if(volDiv)container.appendChild(volDiv);
 
-  // 가격 차트
+  // 가격 차트 (Binance 스타일)
   lwChart=LightweightCharts.createChart(priceDiv,{
     autoSize:true,
-    layout:{background:{color:bgColor},textColor},
+    layout:{background:{color:bgColor},textColor,fontFamily:"-apple-system, BinancePlex, system-ui, sans-serif"},
     grid:{vertLines:{color:gridColor},horzLines:{color:gridColor}},
-    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
-    rightPriceScale:{borderColor},
-    timeScale:{borderColor,timeVisible:true,secondsVisible:false,visible:false},
+    crosshair:{
+      mode:LightweightCharts.CrosshairMode.Normal,
+      vertLine:{color:textColor,width:1,style:LightweightCharts.LineStyle.Dashed,labelBackgroundColor:'#2B3139'},
+      horzLine:{color:textColor,width:1,style:LightweightCharts.LineStyle.Dashed,labelBackgroundColor:'#2B3139'},
+    },
+    rightPriceScale:{borderColor,scaleMargins:{top:0.08,bottom:0.05}},
+    timeScale:{borderColor,timeVisible:true,secondsVisible:false,visible:false,rightOffset:6,barSpacing:8},
+    watermark:{visible:!!sym,fontSize:32,horzAlign:'center',vertAlign:'center',color:isLight?'rgba(30,35,41,.05)':'rgba(255,255,255,.04)',text:sym?`${sym}${isUpbit?'/KRW':'/USDT'} · ${G.tf||''}`:''},
     localization:isUpbit?{priceFormatter:p=>{if(p>=1000)return`₩${Math.round(p).toLocaleString('ko')}`;if(p>=1)return`₩${p.toFixed(2)}`;if(p>=0.01)return`₩${p.toFixed(4)}`;return`₩${p.toFixed(8).replace(/0+$/,'').replace(/\.$/,'')}`;}}:undefined,
   });
-  const csOpts={upColor:'#10b981',downColor:'#ef4444',borderUpColor:'#10b981',borderDownColor:'#ef4444',wickUpColor:'#10b981',wickDownColor:'#ef4444'};
+  const csOpts={upColor,downColor,borderUpColor:upColor,borderDownColor:downColor,wickUpColor:upColor,wickDownColor:downColor,priceLineColor:accentColor,priceLineWidth:1,priceLineStyle:LightweightCharts.LineStyle.Dashed,lastValueVisible:true};
   const maxPrice=Math.max(...klines.map(k=>k.high));
   if(isUpbit){
     const minMove=maxPrice>=1000?1:maxPrice>=100?0.1:maxPrice>=1?0.01:maxPrice>=0.01?0.0001:0.00000001;
@@ -3805,24 +3902,30 @@ function drawCandleChart(klines){
   const candleData=klines.map(k=>({time:Math.floor(k.time/1000),open:k.open,high:k.high,low:k.low,close:k.close}));
   cs.setData(candleData);
 
-  // 볼린저 밴드
-  const bbPeriod=20,bbMult=2;
-  const bbData=klines.map((k,i)=>{
-    if(i<bbPeriod-1)return null;
-    const slice=klines.slice(i-bbPeriod+1,i+1);
-    const avg=slice.reduce((s,x)=>s+x.close,0)/bbPeriod;
-    const variance=slice.reduce((s,x)=>s+(x.close-avg)**2,0)/bbPeriod;
-    const sd=Math.sqrt(variance);
-    return{time:candleData[i].time,upper:avg+bbMult*sd,middle:avg,lower:avg-bbMult*sd};
-  }).filter(Boolean);
-  const bbOpts={lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false};
-  lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.35)'}).setData(bbData.map(b=>({time:b.time,value:b.upper})));
-  lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.35)'}).setData(bbData.map(b=>({time:b.time,value:b.lower})));
-  lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.25)',lineStyle:2}).setData(bbData.map(b=>({time:b.time,value:b.middle})));
+  // 볼린저 밴드 (토글 가능)
+  if(!_chartHidden.has('bb')){
+    const bbPeriod=20,bbMult=2;
+    const bbData=klines.map((k,i)=>{
+      if(i<bbPeriod-1)return null;
+      const slice=klines.slice(i-bbPeriod+1,i+1);
+      const avg=slice.reduce((s,x)=>s+x.close,0)/bbPeriod;
+      const variance=slice.reduce((s,x)=>s+(x.close-avg)**2,0)/bbPeriod;
+      const sd=Math.sqrt(variance);
+      return{time:candleData[i].time,upper:avg+bbMult*sd,middle:avg,lower:avg-bbMult*sd};
+    }).filter(Boolean);
+    const bbOpts={lineWidth:1,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false};
+    lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.35)'}).setData(bbData.map(b=>({time:b.time,value:b.upper})));
+    lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.35)'}).setData(bbData.map(b=>({time:b.time,value:b.lower})));
+    lwChart.addLineSeries({...bbOpts,color:'rgba(148,163,184,.25)',lineStyle:2}).setData(bbData.map(b=>({time:b.time,value:b.middle})));
+  }
 
-  // 이동평균선
-  const maCfg=[{p:5,c:'#f59e0b',w:1.2},{p:10,c:'#3b82f6',w:1.2},{p:20,c:'rgba(148,163,184,.55)',w:1},{p:60,c:'#10b981',w:1.2},{p:120,c:'#a78bfa',w:1.2}];
+  // 이동평균선 (기본 + 사용자 정의, 개별 토글 가능)
+  const maCfg=[
+    {p:5,c:'#f59e0b',w:1.2},{p:10,c:'#3b82f6',w:1.2},{p:20,c:'rgba(148,163,184,.55)',w:1},{p:60,c:'#10b981',w:1.2},{p:120,c:'#a78bfa',w:1.2},
+    ..._customMAs.map(p=>({p,c:customMAColor(p),w:1.2}))
+  ];
   maCfg.forEach(({p,c,w})=>{
+    if(_chartHidden.has('ma'+p))return;
     if(klines.length<p)return;
     const pts=[];
     for(let i=p-1;i<klines.length;i++){
@@ -3832,32 +3935,52 @@ function drawCandleChart(klines){
     lwChart.addLineSeries({color:c,lineWidth:w,priceLineVisible:false,lastValueVisible:false,crosshairMarkerVisible:false}).setData(pts);
   });
 
-  // 거래량 별도 차트 (하단 패널)
+  // OHLC 툴팁 헬퍼 (거래량 토글 여부 무관하게 동작)
+  const fmtDate=t=>{const d=new Date(t*1000);const Y=d.getFullYear();const M=String(d.getMonth()+1).padStart(2,'0');const D=String(d.getDate()).padStart(2,'0');const h=String(d.getHours()).padStart(2,'0');const m=String(d.getMinutes()).padStart(2,'0');return`${Y}-${M}-${D} ${h}:${m}`;};
+  const fmtPrice=p=>{if(p>=1000)return p.toLocaleString('en',{maximumFractionDigits:2});if(p>=1)return p.toFixed(2);if(p>=0.01)return p.toFixed(4);return p.toFixed(8).replace(/0+$/,'').replace(/\.$/,'');};
+  const updateOhlcTip=time=>{
+    if(!time){ohlcTip.style.display='none';return;}
+    const c=candleData.find(x=>x.time===time);
+    if(!c){ohlcTip.style.display='none';return;}
+    const ch=c.close-c.open;const pct=c.open>0?(ch/c.open*100):0;
+    const col=ch>=0?'#10b981':'#ef4444';
+    ohlcTip.innerHTML=`<div style="color:${textColor};font-weight:700;">${fmtDate(c.time)}</div><div>O <b style="color:${textColor}">${fmtPrice(c.open)}</b>  H <b style="color:#10b981">${fmtPrice(c.high)}</b>  L <b style="color:#ef4444">${fmtPrice(c.low)}</b>  C <b style="color:${col}">${fmtPrice(c.close)}</b> <span style="color:${col};">${ch>=0?'+':''}${pct.toFixed(2)}%</span></div>`;
+    ohlcTip.style.display='block';
+  };
+  lwChart.subscribeCrosshairMove(param=>updateOhlcTip(param.time));
+
+  // 거래량 별도 차트 (하단 패널) — 토글 OFF면 스킵
+  if(!showVol){
+    lwChart.applyOptions({timeScale:{borderColor,timeVisible:true,secondsVisible:false,visible:true}});
+    return;
+  }
   volChart=LightweightCharts.createChart(volDiv,{
     autoSize:true,
-    layout:{background:{color:bgColor},textColor},
+    layout:{background:{color:bgColor},textColor,fontFamily:"-apple-system, BinancePlex, system-ui, sans-serif"},
     grid:{vertLines:{color:gridColor},horzLines:{color:gridColor}},
-    crosshair:{mode:LightweightCharts.CrosshairMode.Normal},
-    rightPriceScale:{borderColor},
-    timeScale:{borderColor,timeVisible:true,secondsVisible:false},
+    crosshair:{mode:LightweightCharts.CrosshairMode.Normal,vertLine:{color:textColor,width:1,style:LightweightCharts.LineStyle.Dashed,labelBackgroundColor:'#2B3139'},horzLine:{color:textColor,width:1,style:LightweightCharts.LineStyle.Dashed,labelBackgroundColor:'#2B3139'}},
+    rightPriceScale:{borderColor,scaleMargins:{top:0.1,bottom:0}},
+    timeScale:{borderColor,timeVisible:true,secondsVisible:false,rightOffset:6,barSpacing:8},
     handleScale:{axisPressedMouseMove:false},
   });
-  const volSeries=volChart.addHistogramSeries({priceFormat:{type:'volume'},color:'rgba(100,116,139,.5)'});
-  const volData=klines.map((k,i)=>({time:candleData[i].time,value:k.volume,color:k.close>=k.open?'rgba(16,185,129,.55)':'rgba(239,68,68,.55)'}));
+  const volSeries=volChart.addHistogramSeries({priceFormat:{type:'volume'},color:'rgba(132,142,156,.5)',priceLineVisible:false,lastValueVisible:false});
+  const volData=klines.map((k,i)=>({time:candleData[i].time,value:k.volume,color:k.close>=k.open?'rgba(14,203,129,.5)':'rgba(246,70,93,.5)'}));
   volSeries.setData(volData);
 
   // 타임축 동기화
   const syncRange=(src,dst)=>{src.timeScale().subscribeVisibleLogicalRangeChange(r=>{if(r)dst.timeScale().setVisibleLogicalRange(r);});};
   syncRange(lwChart,volChart);syncRange(volChart,lwChart);
 
-  // 크로스헤어 동기화 + 거래량 툴팁 업데이트
+  // 크로스헤어 동기화 + 거래량 툴팁
   const fmtVol=v=>{if(v==null||isNaN(v))return'—';if(v>=1e9)return(v/1e9).toFixed(2)+'B';if(v>=1e6)return(v/1e6).toFixed(2)+'M';if(v>=1e3)return(v/1e3).toFixed(2)+'K';return v.toFixed(2);};
   lwChart.subscribeCrosshairMove(param=>{
+    updateOhlcTip(param.time);
     if(!param.time){volTip.textContent='VOL —';return;}
     const v=param.seriesData.get(volSeries)?.value??volData.find(d=>d.time===param.time)?.value;
     volTip.textContent=v!=null?`VOL ${fmtVol(v)}`:'VOL —';
   });
   volChart.subscribeCrosshairMove(param=>{
+    updateOhlcTip(param.time);
     if(!param.time){volTip.textContent='VOL —';return;}
     const d=volData.find(x=>x.time===param.time);
     volTip.textContent=d?`VOL ${fmtVol(d.value)}`:'VOL —';
