@@ -82,6 +82,101 @@ body.km-board #lw{max-width:1600px;margin:0 auto;}
 .back-btn:hover{background:var(--b1);color:var(--t1)}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
+/* ── 좌우 분할 모드 (코인 클릭 시) — Binance 스타일 ─ */
+body.split-active #app{max-width:100% !important;width:100% !important;background:var(--bg0) !important;}
+body.split-active #body-wrap{flex-direction:row !important;background:var(--bg0);gap:6px;padding:6px 72px;}
+body.split-active #detail-view{display:flex !important;flex:1.7;min-width:0;order:1;background:var(--bg1);}
+body.split-active #list-view{flex:1;max-width:480px;min-width:320px;order:2;background:var(--bg1);}
+/* 분할 모드에서 온체인 분석(상세 본문)이 패널 폭을 충분히 활용 */
+body.split-active #dp{padding:14px 18px !important;}
+body.split-active #dp>div{max-width:none !important;}
+/* 늘어난 폭에 맞게 폰트 크기 업스케일 (인라인 font-size 패턴 매칭) */
+body.split-active #dp [style*="font-size:9px"]{font-size:11px !important;}
+body.split-active #dp [style*="font-size:10px"]{font-size:12px !important;}
+body.split-active #dp [style*="font-size:11px"]{font-size:13px !important;}
+body.split-active #dp [style*="font-size:12px"]{font-size:14px !important;}
+body.split-active #dp [style*="font-size:13px"]{font-size:15px !important;}
+body.split-active #dp [style*="font-size:14px"]{font-size:16px !important;}
+body.split-active #dp [style*="font-size:15px"]{font-size:17px !important;}
+body.split-active #dp [style*="font-size:16px"]{font-size:18px !important;}
+body.split-active #dp [style*="font-size:17px"]{font-size:19px !important;}
+body.split-active #dp [style*="font-size:18px"]{font-size:20px !important;}
+body.split-active #dp [style*="font-size:20px"]{font-size:22px !important;}
+body.split-active #dp .card{padding:14px 16px !important;}
+body.split-active #detail-hdr{padding:12px 18px !important;}
+body.split-active #detail-hdr [style*="font-size:16px"]{font-size:18px !important;}
+body.split-active #detail-hdr [style*="font-size:20px"]{font-size:22px !important;}
+/* 분할 모드 + 김프 풀와이드 모두에서 메인 탭(바이낸스/업비트/김프/DEX)을 동일한 우측 위치로 정렬 */
+body.split-active #hdr>div:nth-child(2),
+body.kimchi-wide #hdr>div:nth-child(2){
+  width:clamp(320px, calc((100vw - 150px) / 2.7), 480px);
+  margin-left:auto;margin-right:72px;
+  padding-left:0 !important;padding-right:0 !important;
+  display:flex;gap:4px;justify-content:flex-start;
+}
+body.split-active #binance-subtabs,
+body.kimchi-wide #binance-subtabs{
+  width:clamp(320px, calc((100vw - 150px) / 2.7), 480px);
+  margin-left:auto;margin-right:72px;
+  padding-left:0 !important;padding-right:0 !important;
+  display:flex;gap:4px;justify-content:flex-start;
+}
+/* 분할 모드의 우측 리스트는 폭이 좁으므로 모바일과 동일한 컴팩트 그리드를 강제 */
+body.split-active #lw>div{min-width:0 !important;}
+body.split-active .lhdr-coin,body.split-active .ci-coin{
+  grid-template-columns:18px 18px minmax(0,1fr) minmax(60px,auto) 52px 60px !important;
+  gap:5px !important;padding:9px 8px !important;
+}
+body.split-active .lhdr-coin>:nth-child(7),body.split-active .ci-coin>:nth-child(7){display:none !important;}
+body.split-active .lhdr-fut,body.split-active .ci-fut,
+body.split-active .lhdr-stk,body.split-active .ci-stk{
+  grid-template-columns:18px 18px minmax(0,1fr) minmax(60px,auto) 52px 60px !important;
+  gap:5px !important;padding:9px 8px !important;
+}
+body.split-active .lhdr-upb,body.split-active .ci-upb{
+  grid-template-columns:18px 18px minmax(0,1fr) minmax(70px,auto) 52px 60px !important;
+  gap:5px !important;padding:9px 8px !important;
+}
+body.split-active .lhdr-kim,body.split-active .ci-kim{
+  grid-template-columns:16px minmax(0,1fr) minmax(62px,auto) 44px 50px 52px !important;
+  gap:3px !important;padding:9px 7px !important;
+}
+body.split-active .lhdr-kim>:nth-child(2),body.split-active .ci-kim>:nth-child(2){display:none !important;}
+body.split-active .lhdr-dex,body.split-active .ci-dex{
+  grid-template-columns:16px minmax(0,1fr) minmax(56px,auto) 50px 60px !important;
+  gap:4px !important;padding:9px 7px !important;
+}
+body.split-active .lhdr-dex>:nth-child(3),body.split-active .lhdr-dex>:nth-child(5),body.split-active .lhdr-dex>:nth-child(6),
+body.split-active .ci-dex>:nth-child(3),body.split-active .ci-dex>:nth-child(5),body.split-active .ci-dex>:nth-child(6){display:none !important;}
+body.split-active .ci{font-size:11px !important;}
+body.split-active .ci img{width:20px !important;height:20px !important;}
+/* 모바일/좁은 화면에서는 세로 스택 (위:상세, 아래:리스트) */
+@media(max-width:900px){
+  body.split-active #body-wrap{flex-direction:column !important;padding:6px 26px;gap:6px;}
+  body.split-active #detail-view{flex:1.4;}
+  body.split-active #list-view{flex:1;max-width:none;min-width:0;}
+  body.split-active #dp{padding:10px 12px !important;}
+  body.split-active #hdr>div:nth-child(2),
+  body.kimchi-wide #hdr>div:nth-child(2){width:auto;max-width:none;margin-left:0;margin-right:0;padding:4px 26px !important;justify-content:flex-start;}
+  body.split-active #binance-subtabs,
+  body.kimchi-wide #binance-subtabs{width:auto;max-width:none;margin-left:0;margin-right:0;padding:0 26px 8px !important;justify-content:flex-start;}
+}
+
+/* ── 김프 탭만 단일 풀와이드 (양옆 여백 유지) ───── */
+body.kimchi-wide #app{max-width:100% !important;width:100% !important;background:var(--bg0) !important;}
+body.kimchi-wide #body-wrap{background:var(--bg0);padding:6px 72px;flex-direction:column !important;}
+body.kimchi-wide #detail-view{display:none !important;}
+body.kimchi-wide #list-view{flex:1;max-width:none;min-width:0;background:var(--bg1);}
+/* 김프 탭에서 검색창 및 업비트/빗썸 토글을 우측 패널 폭/위치에 맞춰 정렬 (탭과 동일선상) */
+body.kimchi-wide #search-bar>div{width:clamp(320px, calc((100vw - 150px) / 2.7), 480px);margin-left:auto;margin-right:0;}
+body.kimchi-wide #kimchisortbar>div{justify-content:flex-end;}
+body.kimchi-wide #kimchisortbar{padding:8px 12px;}
+@media(max-width:900px){
+  body.kimchi-wide #body-wrap{padding:6px 26px;}
+  body.kimchi-wide #search-bar>div{width:auto;margin-left:0;margin-right:0;}
+  body.kimchi-wide #kimchisortbar>div{justify-content:flex-start;}
+}
+
 /* ── 모바일 반응형 ───────────────────────────────── */
 @supports(height:100dvh){#app{height:100dvh}}
 @media(max-width:600px){
@@ -143,12 +238,13 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     gap:5px!important;padding:9px 8px!important
   }
 
-  /* ── 김프: # 숨김, 6컬럼 (코인 가격 24h% 김프% 거래량) ── */
+  /* ── 김프 (모바일): # / 바이낸스가격 숨김, 6컬럼 표시 (★ 코인 업비트가격 김프% 전일대비 거래대금) ── */
   .lhdr-kim,.ci-kim{
-    grid-template-columns:16px minmax(0,1fr) minmax(62px,auto) 44px 50px 52px!important;
-    gap:3px!important;padding:9px 7px!important
+    grid-template-columns:18px minmax(0,1fr) minmax(72px,auto) 70px 60px 62px!important;
+    gap:4px!important;padding:9px 8px!important
   }
   .lhdr-kim>:nth-child(2),.ci-kim>:nth-child(2){display:none!important}
+  .lhdr-kim>:nth-child(5),.ci-kim>:nth-child(5){display:none!important}
 
   /* ── DEX: mc/1h/6h 숨김, 5컬럼 (# 토큰 가격 24h 거래량) ── */
   .lhdr-dex,.ci-dex{
@@ -189,10 +285,10 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
   .lhdr-stk>:nth-child(2),.ci-stk>:nth-child(2),
   .lhdr-upb>:nth-child(2),.ci-upb>:nth-child(2){display:none!important}
 
-  /* 김프: 가장 빡빡 — 김프% + 거래량 유지 */
+  /* 김프 (좁은 모바일): 가장 빡빡 — 김프% + 거래량 유지 (8컬럼 중 #/바이낸스가격 숨김) */
   .lhdr-kim,.ci-kim{
-    grid-template-columns:14px minmax(0,1fr) minmax(56px,auto) 38px 44px 46px!important;
-    gap:2px!important;padding:8px 5px!important
+    grid-template-columns:14px minmax(0,1fr) minmax(60px,auto) 56px 46px 50px!important;
+    gap:3px!important;padding:8px 5px!important
   }
 
   .ci{font-size:10.5px!important}
@@ -224,18 +320,15 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <div onclick="location.reload()" style="font-size:17px;font-weight:800;color:#f59e0b;letter-spacing:-.3px;cursor:pointer;user-select:none;margin-right:2px;" title="새로고침">🪽 Wings OnChain</div>
       <div class="live-dot" style="width:7px;height:7px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
       <span id="refresh-badge" style="font-size:10px;color:#64748b;font-weight:600;min-width:22px;">—</span>
-      <button id="ch-btn-top" onclick="toggleChannels()" style="padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;white-space:nowrap;" title="운영중인 채널들">📢 운영중인 채널들</button>
-      <span id="online-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#10b981;cursor:help;white-space:nowrap;" title="지금 이 순간 동시접속자">👥 ··</span>
-      <span id="usdkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#22c55e;cursor:help;white-space:nowrap;" title="달러/원 환율">$ ₩··</span>
-      <span id="usdtkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:help;white-space:nowrap;" title="업비트 USDT/KRW · 테더 김프">₮ ₩··</span>
+      <button id="ch-btn-top" onclick="toggleChannels()" style="padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;white-space:nowrap;" title="운영중인 채널들">📢 운영중인 채널들</button>
+      <span id="online-badge" style="font-size:12px;font-weight:700;padding:6px 11px;border-radius:7px;background:var(--bg3);border:1px solid var(--b1);color:#10b981;cursor:help;white-space:nowrap;" title="지금 이 순간 동시접속자">👥 ··</span>
+      <span id="usdkrw-badge" style="font-size:12px;font-weight:700;padding:6px 11px;border-radius:7px;background:var(--bg3);border:1px solid var(--b1);color:#22c55e;cursor:help;white-space:nowrap;" title="달러/원 환율">$ ₩··</span>
+      <span id="usdtkrw-badge" style="font-size:12px;font-weight:700;padding:6px 11px;border-radius:7px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:help;white-space:nowrap;" title="업비트 USDT/KRW · 테더 김프">₮ ₩··</span>
     </div>
     <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
-      <button id="theme-btn" onclick="toggleTheme()" style="padding:5px 9px;border-radius:8px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
-      <button id="lang-btn" onclick="toggleLang()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="코인 이름 언어 전환">🇺🇸 EN</button>
-      <button id="cur-btn" onclick="toggleCurrency()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">$ USD</button>
-      <input id="si" type="text" placeholder="🔍 검색..."
-        style="width:130px;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--t1);outline:none;"
-        oninput="handleSearch(this.value)" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='var(--b1)'">
+      <button id="lang-btn" onclick="toggleLang()" style="padding:6px 13px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="코인 이름 언어 전환">🇺🇸 EN</button>
+      <button id="cur-btn" onclick="toggleCurrency()" style="padding:6px 13px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">$ USD</button>
+      <button id="theme-btn" onclick="toggleTheme()" style="padding:6px 11px;border-radius:7px;font-size:14px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
     </div>
   </div>
   <!-- 하단: 메인 탭 -->
@@ -255,11 +348,22 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
 <!-- BODY -->
 
-<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+<div id="body-wrap" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
 
   <!-- 코인 목록 뷰 -->
 
-  <div id="list-view" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+  <div id="list-view" style="flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;min-height:0;">
+    <!-- 검색 (탭과 리스트 사이) -->
+    <div id="search-bar" style="padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;">
+      <div style="position:relative;">
+        <input id="si" type="text" placeholder="🔍 코인 검색..."
+          style="width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:8px 36px 8px 12px;font-size:13px;color:var(--t1);outline:none;"
+          oninput="handleSearch(this.value);document.getElementById('si-clear').style.display=this.value?'flex':'none'"
+          onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='var(--b1)'">
+        <button id="si-clear" onclick="clearSearch()" title="검색 지우기"
+          style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:24px;height:24px;align-items:center;justify-content:center;background:var(--bg2);color:var(--t3);border:1px solid var(--bd3);border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;display:none;padding:0;line-height:1;">✕</button>
+      </div>
+    </div>
 <!-- 정렬 바 (김프) -->
     <div id="kimchisortbar" style="display:none;flex-direction:column;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;">
       <div style="display:flex;gap:5px;align-items:center;">
@@ -287,7 +391,7 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
 
   <!-- 상세 뷰 (전체화면) -->
 
-  <div id="detail-view" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+  <div id="detail-view" style="display:none;flex:1;flex-direction:column;overflow:hidden;min-width:0;min-height:0;">
     <!-- 상세 헤더 -->
     <div id="detail-hdr" style="background:var(--bg2);border-bottom:1px solid var(--b1);padding:10px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;"></div>
     <!-- 상세 내용 -->
@@ -528,7 +632,7 @@ const FD='https://fapi.binance.com/futures/data';
 const DS='https://api.dexscreener.com';
 const CC='https://api.coincap.io/v2';
 const CG='https://api.coingecko.com/api/v3';
-let G={tab:'coins',sort:'vol',asc:false,futSort:'gain',futAsc:false,stkSort:'vol',stkAsc:false,kimSort:'vol',kimAsc:false,upSort:'vol',upAsc:false,dexSort:'vol',dexAsc:false,dexChain:'all',currency:'usd',lang:'en',chart:null,tf:'1d',coins:[],futures:[],stocks:[],kimchi:[],upbit:[],dex:[],curSym:null,detailSource:'binance',mcLoaded:false,coinsShown:100,futShown:100,stkShown:100,upShown:100,dexShown:50,watchlist:new Set(),showWatchOnly:false,kimReverseOnly:false,kimEx:'upbit'};
+let G={tab:'coins',sort:'vol',asc:false,futSort:'gain',futAsc:false,stkSort:'vol',stkAsc:false,kimSort:'vol',kimAsc:false,upSort:'vol',upAsc:false,dexSort:'vol',dexAsc:false,dexChain:'all',currency:'usd',lang:'en',chart:null,tf:'1d',coins:[],futures:[],stocks:[],kimchi:[],upbit:[],dex:[],curSym:null,detailSource:'binance',mcLoaded:false,coinsShown:50,futShown:50,stkShown:50,upShown:50,dexShown:50,watchlist:new Set(),showWatchOnly:false,kimReverseOnly:false,kimEx:'upbit'};
 try{const k=localStorage.getItem('woc-kim-ex');if(k==='upbit'||k==='bithumb')G.kimEx=k;}catch{}
 try{const l=localStorage.getItem('woc-lang');if(l==='ko'||l==='en')G.lang=l;}catch{}
 try{const c=localStorage.getItem('woc-currency');if(c==='usd'||c==='krw')G.currency=c;}catch{}
@@ -1240,7 +1344,16 @@ function _doSetTab(tab){
   document.body.classList.remove('km-board');
   // 김프 탭 진입 시 업비트 wallet status 미리 prefetch
   if(tab==='kimchi'&&typeof getUpbitWalletStatus==='function')getUpbitWalletStatus().catch(()=>{});
-  _showListViewNoHistory();loadList();
+  _showListViewNoHistory();
+  // 김프 탭만 단일 풀와이드, 그 외는 투레이아웃
+  if(tab==='kimchi'){
+    document.body.classList.remove('split-active');
+    document.body.classList.add('kimchi-wide');
+  }else{
+    document.body.classList.remove('kimchi-wide');
+    document.body.classList.add('split-active');
+  }
+  loadList();
 }
 function setTab(tab){
   if(location.hash!==`#/${tab}`)history.pushState({view:'list',tab},'',`#/${tab}`);
@@ -1379,7 +1492,8 @@ function stopAutoRefresh(){
 }
 
 async function silentRefreshList(){
-  if(G.curSym)return;
+  // 분할 모드(우측 리스트 표시)에서는 detail 열려있어도 리스트 갱신 계속
+  if(G.curSym&&!document.body.classList.contains('split-active'))return;
   // 스크롤 위치 저장 (새로고침 깜빡임 방지)
   const lw=document.getElementById('lw');
   const scrollTop=lw?lw.scrollTop:0;
@@ -1443,9 +1557,22 @@ function stopDetailRefresh(){
 }
 
 // ── 뷰 전환 ───────────────────────────────────────
+// 투레이아웃이 기본 — list-view와 detail-view 항상 함께 표시. 코인 미선택 시 detail-view에 플레이스홀더 표시.
+function _renderDetailPlaceholder(){
+  const dv=document.getElementById('detail-view');if(!dv)return;
+  dv.style.display='flex';
+  document.getElementById('detail-hdr').innerHTML=`
+    <span style="font-size:14px;font-weight:700;color:var(--t3);">📊 코인을 선택하세요</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--t3);">우측 리스트에서 코인을 클릭하면 상세 분석이 표시됩니다</span>`;
+  document.getElementById('dp').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:300px;gap:14px;color:#475569;text-align:center;padding:40px 20px;">
+    <div style="font-size:48px;">📈</div>
+    <div style="font-size:16px;font-weight:700;color:var(--t2);">코인을 선택하세요</div>
+    <div style="font-size:13px;color:var(--t3);max-width:360px;line-height:1.5;">우측 리스트에서 원하는 코인을 클릭하면 차트, 시가총액, 선물 데이터, 청산 정보, 온체인 분석 등이 여기에 표시됩니다.</div>
+  </div>`;
+}
 function _showListViewNoHistory(){
+  document.body.classList.add('split-active'); // 투레이아웃 항상 활성
   document.getElementById('list-view').style.display='flex';
-  document.getElementById('detail-view').style.display='none';
   const kv=document.getElementById('kc-view');if(kv)kv.style.display='none';
   if(document.body.classList.contains('km-compare')){document.body.classList.remove('km-compare');try{destroyCompareCharts();}catch{}}
   if(G.chart){G.chart.destroy();G.chart=null;}
@@ -1455,14 +1582,57 @@ function _showListViewNoHistory(){
   G.curSym=null;
   stopDetailRefresh();
   startAutoRefresh();
+  // 좌측 패널은 플레이스홀더로 유지
+  _renderDetailPlaceholder();
+  // 활성 행 하이라이트 갱신 (선택 해제)
+  refreshActiveRow();
 }
 function showListView(){
   _showListViewNoHistory();
   if(location.hash!==`#/${G.tab}`)history.pushState({view:'list',tab:G.tab},'',`#/${G.tab}`);
 }
+// 코인 미선택 상태에서 리스트가 렌더되면 최상단 코인을 자동 선택 (투레이아웃 좌측 패널 자동 채움)
+// 자동 선택은 history 오염 방지를 위해 _doPickCoin 직접 호출 + replaceState 사용
+function _autoPickTopCoin(list,kind){
+  if(G.curSym)return; // 이미 선택된 코인 있으면 스킵
+  if(!list||!list.length)return;
+  if(document.body.classList.contains('km-compare'))return;
+  const top=list[0];
+  setTimeout(()=>{
+    if(G.curSym)return; // 비동기 사이 변경 체크
+    try{
+      if(kind==='upbit'){
+        if(!top.symbol)return;
+        const binSym=top.symbol+'USDT';
+        G.detailSource='upbit';
+        history.replaceState({view:'detail',sym:binSym,tab:G.tab,source:'upbit'},'',`#/coin/${binSym}?src=upbit`);
+        _doPickCoin(binSym);
+      }else{
+        if(!top.binSym)return;
+        G.detailSource='binance';
+        history.replaceState({view:'detail',sym:top.binSym,tab:G.tab,source:'binance'},'',`#/coin/${top.binSym}`);
+        _doPickCoin(top.binSym);
+      }
+    }catch{}
+  },0);
+}
+// 우측 리스트의 활성 행(현재 선택 코인) 하이라이트 동기화
+function refreshActiveRow(){
+  try{
+    document.querySelectorAll('#lw .ci.active').forEach(el=>el.classList.remove('active'));
+    if(!G.curSym)return;
+    const sym=(G.curSym||'').replace(/USDT$/,'');
+    const targets=[`pickCoin('${G.curSym}')`,`pickUpbit('${sym}')`,`pickFutures('${G.curSym}')`];
+    document.querySelectorAll('#lw .ci').forEach(el=>{
+      const oc=el.getAttribute('onclick')||'';
+      if(targets.some(t=>oc.includes(t))) el.classList.add('active');
+    });
+  }catch{}
+}
 function showDetailView(sym,name,price,ch24){
-  stopAutoRefresh();
-  document.getElementById('list-view').style.display='none';
+  // 자동 갱신은 유지(우측 리스트가 계속 보이므로)
+  document.body.classList.add('split-active');
+  document.getElementById('list-view').style.display='flex';
   const dv=document.getElementById('detail-view');
   dv.style.display='flex';
   // 상단 헤더
@@ -1481,6 +1651,7 @@ function showDetailView(sym,name,price,ch24){
       </div>
     </div>`;
   document.getElementById('dp').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;gap:14px;color:#475569;"><div style="width:36px;height:36px;border:3px solid var(--b1);border-top-color:#f59e0b;border-radius:50%;" class="spin"></div><span style="font-size:12px;">데이터 로딩 중...</span></div>`;
+  refreshActiveRow();
 }
 
 // ── 목록 ──────────────────────────────────────────
@@ -1760,6 +1931,7 @@ function renderStocksList(list){
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreStocks()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:'';
   document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${hdr}${rows}${moreBtn}</div>`;
+  _autoPickTopCoin(visible,'stocks');
 }
 
 function setFutSort(s){
@@ -1828,6 +2000,7 @@ function renderFuturesList(futures){
     </div>`;
   }
   document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${fundWidget}${hdr}${rows}${moreBtn}</div>`;
+  _autoPickTopCoin(visible,'coins');
 }
 function loadMoreFutures(){G.futShown+=50;renderFuturesList(sortFutures(G.futures));}
 
@@ -1878,6 +2051,7 @@ function renderCoinList(coins){
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreCoins()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;transition:background .1s;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:(total>100?`<div style="padding:12px;text-align:center;color:#475569;font-size:11px;">전체 ${total}개 표시 완료</div>`:'');
   document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${hdr}${rows}${moreBtn}</div>`;
+  _autoPickTopCoin(visible,'coins');
 }
 function loadMoreCoins(){G.coinsShown+=50;renderCoinList(sortCoins(G.coins));}
 
@@ -2150,21 +2324,23 @@ function renderKimchiList(list){
     </div>`;
   }
 
-  const cols='22px 20px minmax(88px,1fr) 100px 56px 78px 62px';
+  // theddari.com/kimp 스타일 — 8컬럼 (★ # 코인 업비트가격 바이낸스가격 김프% 전일대비 거래대금)
+  const cols='28px 36px minmax(180px,1.6fr) minmax(130px,1.1fr) minmax(150px,1.2fr) 110px 100px minmax(120px,1fr)';
   const arr=G.kimAsc?'↑':'↓';
-  const sh=(label,key)=>{const a=G.kimSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setKimchiSort('${key}')" style="font-size:10px;font-weight:700;text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;white-space:nowrap;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'" title="${label} 기준 정렬">${label}${a?` ${arr}`:''}</span>`;};
-  const hdr=`<div class="lhdr lhdr-kim" style="display:grid;grid-template-columns:${cols};gap:5px;padding:10px 12px 9px;border-bottom:1px solid var(--bd3);background:var(--bg3);position:sticky;top:0;z-index:2;align-items:center;">
+  const sh=(label,key,extra)=>{const a=G.kimSort===key;const col=a?'#f59e0b':'var(--t3)';return`<span onclick="setKimchiSort('${key}')" style="font-size:11px;font-weight:700;text-align:right;cursor:pointer;user-select:none;color:${col};transition:color .1s;white-space:nowrap;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${col}'" title="${label} 기준 정렬">${label}${a?` ${arr}`:''}${extra||''}</span>`;};
+  const hdr=`<div class="lhdr lhdr-kim" style="display:grid;grid-template-columns:${cols};gap:8px;padding:12px 16px;border-bottom:1px solid var(--bd3);background:var(--bg3);position:sticky;top:0;z-index:2;align-items:center;">
     ${watchHdr()}
-    <span style="font-size:10px;color:#475569;font-weight:600;text-align:center;">#</span>
-    <span style="font-size:10px;color:#64748b;font-weight:700;padding-left:32px;">코인</span>
-    <span style="font-size:10px;color:var(--t1);font-weight:800;text-align:right;line-height:1.3;">${exLabel}<br><span style="color:var(--t3);font-weight:500;font-size:9px;">바이낸스(환산)</span></span>
+    <span style="font-size:11px;color:#475569;font-weight:700;text-align:center;">#</span>
+    <span style="font-size:11px;color:#64748b;font-weight:700;padding-left:36px;">코인</span>
+    <span style="font-size:11px;color:${exColor};font-weight:800;text-align:right;">${exLabel}</span>
+    <span style="font-size:11px;color:#f59e0b;font-weight:800;text-align:right;">바이낸스</span>
     ${sh('김프%','premium')}
-    <span onclick="setKimchiSort('ch')" style="font-size:10px;color:${G.kimSort==='ch'?'#f59e0b':'#64748b'};font-weight:700;text-align:right;line-height:1.3;cursor:pointer;user-select:none;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${G.kimSort==='ch'?'#f59e0b':'#64748b'}'" title="전일대비 기준 정렬">전일대비${G.kimSort==='ch'?(G.kimAsc?' ↑':' ↓'):''}<br><span style="color:#475569;font-weight:600;font-size:9px;">(24h%)</span></span>
+    <span onclick="setKimchiSort('ch')" style="font-size:11px;color:${G.kimSort==='ch'?'#f59e0b':'var(--t3)'};font-weight:700;text-align:right;cursor:pointer;user-select:none;" onmouseover="this.style.color='#f59e0b'" onmouseout="this.style.color='${G.kimSort==='ch'?'#f59e0b':'var(--t3)'}'" title="전일대비 기준 정렬">전일대비${G.kimSort==='ch'?(G.kimAsc?' ↑':' ↓'):''}</span>
     ${sh('거래대금','vol')}
   </div>`;
   // 설명 배너
-  const tipBar=`<div style="padding:7px 12px;background:rgba(245,158,11,.06);border-bottom:1px solid rgba(245,158,11,.2);font-size:10px;color:var(--t3);line-height:1.4;text-align:center;">
-    📊 <b style="color:${exColor};">${exLabel}</b>와 <b style="color:#f59e0b;">바이낸스</b> 가격차이 · 회색 숫자는 바이낸스 환산 원화
+  const tipBar=`<div style="padding:8px 16px;background:rgba(245,158,11,.06);border-bottom:1px solid rgba(245,158,11,.2);font-size:11px;color:var(--t3);line-height:1.4;text-align:center;">
+    📊 <b style="color:${exColor};">${exLabel}</b>와 <b style="color:#f59e0b;">바이낸스</b> 가격 비교 · 김프 = (한국가 - 환산가) / 환산가 × 100
   </div>`;
   const rows=list.map((k,i)=>{
     const ch=getCh(k);
@@ -2172,54 +2348,54 @@ function renderKimchiList(list){
     const krw=getKrw(k);
     const volStr=F.krwAbbr(getVol(k));
     if(isExOnly(k)){
-      return`<div class="ci ci-kim" data-sym="${k.symbol}" style="display:grid;grid-template-columns:${cols};gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);opacity:.8;cursor:default;">
+      return`<div class="ci ci-kim" data-sym="${k.symbol}" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bg2a);opacity:.85;cursor:default;">
         <span style="text-align:center;">${starCell(k.symbol)}</span>
-        <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
-        <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
-          ${F.img(k.symbol,24)}
+        <span style="font-size:12px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
+        <div style="display:flex;align-items:center;gap:9px;min-width:0;overflow:hidden;padding-left:6px;">
+          ${F.img(k.symbol,28)}
           <div style="min-width:0;">
-            <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k.symbol}</div>
-            <div style="font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">${k.name}</div>
+            <div style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k.symbol}</div>
+            <div style="font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">${k.name}</div>
           </div>
         </div>
-        <div style="text-align:right;line-height:1.25;">
-          <div data-cell="exPrice" style="font-size:13px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
-          <div data-cell="binPrice" style="font-size:10px;color:#475569;font-weight:500;margin-top:2px;">바낸 미상장</div>
-        </div>
+        <div data-cell="exPrice" style="text-align:right;font-size:14px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
+        <div data-cell="binPrice" style="text-align:right;font-size:11px;color:#475569;font-weight:600;">바낸 미상장</div>
         <div style="text-align:right;">
-          <span data-cell="prem" style="font-size:9px;background:rgba(100,116,139,.15);color:#64748b;padding:2px 6px;border-radius:4px;border:1px solid var(--bd3);font-weight:700;">—</span>
+          <span data-cell="prem" style="display:inline-block;font-size:11px;background:rgba(100,116,139,.15);color:#64748b;padding:4px 10px;border-radius:6px;border:1px solid var(--bd3);font-weight:800;">—</span>
         </div>
-        <div style="text-align:right;line-height:1.25;">
-          <div data-cell="ch" style="font-size:11px;font-weight:700;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
-        </div>
-        <div data-cell="vol" style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
+        <div data-cell="ch" style="text-align:right;font-size:13px;font-weight:800;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
+        <div data-cell="vol" style="text-align:right;font-size:12px;color:var(--t2);font-weight:700;">${volStr}</div>
       </div>`;
     }
     const prem=getPrem(k);
     const pc=prem>=0?'#10b981':'#ef4444';
+    const pBg=prem>=0?'rgba(16,185,129,.14)':'rgba(239,68,68,.14)';
+    const pBd=prem>=0?'rgba(16,185,129,.32)':'rgba(239,68,68,.32)';
     const bc=k.binCh24>=0?'#10b981':'#ef4444';
-    return`<div class="ci ci-kim" data-sym="${k.symbol}" style="display:grid;grid-template-columns:${cols};gap:5px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bg2a);cursor:default;">
+    const binUsd=k.binUsd?F.price(k.binUsd):'';
+    return`<div class="ci ci-kim" data-sym="${k.symbol}" style="display:grid;grid-template-columns:${cols};gap:8px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--bg2a);cursor:default;">
       <span style="text-align:center;">${starCell(k.symbol)}</span>
-      <span style="font-size:11px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
-      <div style="display:flex;align-items:center;gap:7px;min-width:0;overflow:hidden;padding-left:6px;">
-        ${F.img(k.symbol,24)}
+      <span style="font-size:12px;color:var(--t3);font-weight:700;text-align:center;">${i+1}</span>
+      <div style="display:flex;align-items:center;gap:9px;min-width:0;overflow:hidden;padding-left:6px;">
+        ${F.img(k.symbol,28)}
         <div style="min-width:0;">
-          <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k.symbol}</div>
-          <div style="font-size:10px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">${k.name}</div>
+          <div style="font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k.symbol}</div>
+          <div style="font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;">${k.name}</div>
         </div>
       </div>
+      <div data-cell="exPrice" style="text-align:right;font-size:14px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
       <div style="text-align:right;line-height:1.3;">
-        <div data-cell="exPrice" style="font-size:13px;font-weight:800;color:var(--t1);">${F.krwPrice(krw)}</div>
-        <div data-cell="binPrice" style="font-size:10px;color:#475569;font-weight:500;margin-top:2px;">${F.krwPrice(k.binKrw)}</div>
+        <div data-cell="binPrice" style="font-size:13px;font-weight:700;color:var(--t2);">${F.krwPrice(k.binKrw)}</div>
+        ${binUsd?`<div style="font-size:10px;color:#475569;font-weight:500;margin-top:2px;">${binUsd}</div>`:''}
       </div>
-      <div style="text-align:right;line-height:1.15;">
-        <div data-cell="prem" style="font-size:13px;font-weight:800;color:${pc};" title="${exLabel} 김프">${prem>=0?'+':''}${prem.toFixed(2)}%</div>
+      <div style="text-align:right;">
+        <span data-cell="prem" style="display:inline-block;font-size:13px;background:${pBg};color:${pc};padding:5px 11px;border-radius:6px;border:1px solid ${pBd};font-weight:800;min-width:62px;text-align:center;" title="${exLabel} 김프">${prem>=0?'+':''}${prem.toFixed(2)}%</span>
       </div>
       <div style="text-align:right;line-height:1.3;">
-        <div data-cell="ch" style="font-size:11px;font-weight:700;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
-        <div data-cell="binCh" style="font-size:10px;color:${bc};opacity:.65;font-weight:600;margin-top:1px;">${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%</div>
+        <div data-cell="ch" style="font-size:13px;font-weight:800;color:${uc};">${ch>=0?'+':''}${ch.toFixed(2)}%</div>
+        ${k.binCh24!=null?`<div data-cell="binCh" style="font-size:10px;color:${bc};opacity:.7;font-weight:600;margin-top:2px;">바낸 ${k.binCh24>=0?'+':''}${k.binCh24.toFixed(2)}%</div>`:''}
       </div>
-      <div data-cell="vol" style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
+      <div data-cell="vol" style="text-align:right;font-size:12px;color:var(--t2);font-weight:700;">${volStr}</div>
     </div>`;
   }).join('');
   document.getElementById('lw').innerHTML=`<div>${statsBar}${tipBar}${hdr}${rows}</div>`;
@@ -2319,6 +2495,7 @@ function renderUpbitList(list){
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreUpbit()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:'';
   document.getElementById('lw').innerHTML=`<div style="min-width:520px;padding-top:10px;">${hdr}${rows}${moreBtn}</div>`;
+  _autoPickTopCoin(visible,'upbit');
 }
 
 // ── DEX 탭 (DexScreener 스타일 트렌딩 — GeckoTerminal API 기반) ────
@@ -2713,6 +2890,8 @@ function _walletPillRow(label,dep,wd,note){
 function showKimchiCompareView(sym){
   _kc.sym=sym;G.curSym=sym;
   document.body.classList.add('km-compare');
+  // 분할 모드 비활성화 (김프 비교는 단독 풀스크린)
+  document.body.classList.remove('split-active');
   // list-view + detail-view 숨김, kc-view만 표시
   document.getElementById('list-view').style.display='none';
   document.getElementById('detail-view').style.display='none';
@@ -2734,11 +2913,12 @@ function showKimchiCompareView(sym){
 function exitKimchiCompareView(){
   destroyCompareCharts();
   document.body.classList.remove('km-compare');
+  document.body.classList.add('split-active'); // 투레이아웃 복구
   G.curSym=null;_kc.sym=null;
   if(location.hash!=='#/kimchi')history.pushState({view:'list',tab:'kimchi'},'','#/kimchi');
   document.getElementById('kc-view').style.display='none';
-  document.getElementById('detail-view').style.display='none';
   document.getElementById('list-view').style.display='flex';
+  _renderDetailPlaceholder();
   if(G.kimchi&&G.kimchi.length)renderKimchiList(sortKimchi(G.kimchi));
   else loadList();
 }
@@ -3132,7 +3312,7 @@ async function fetchKlinesSF(sym,tf){
     '1M':150,    // 월봉: ~110개 (2017~)
   };
   const target=lmMap[tf]||500;
-  const MAX_REQ=1500;
+  const MAX_REQ=1000; // Binance klines API 최대값
   const toRow=x=>({time:x[0],open:parseFloat(x[1]),high:parseFloat(x[2]),low:parseFloat(x[3]),close:parseFloat(x[4]),volume:parseFloat(x[5])});
   // 한 번에 처리 가능한 양
   if(target<=MAX_REQ){
@@ -3360,17 +3540,16 @@ function renderDetailContent(sym,binSym,t,klines,tf,price,ch24,cur){
 
       <!-- 가격 차트 -->
       <div class="card" style="margin-bottom:12px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
-          <span style="font-size:12px;font-weight:700;color:var(--t2);">🕯 캔들 차트</span>
-          <div style="display:flex;gap:3px;flex-wrap:wrap;">
-            ${[{tf:'5m',l:'5분봉'},{tf:'15m',l:'15분봉'},{tf:'30m',l:'30분봉'},{tf:'1h',l:'1시간봉'},{tf:'4h',l:'4시간봉'},{tf:'6h',l:'6시간봉'},{tf:'12h',l:'12시간봉'},{tf:'1d',l:'1일봉'},{tf:'3d',l:'3일봉'},{tf:'1w',l:'1주봉'},{tf:'1M',l:'1월봉'}].map(b=>
-              `<button onclick="reChart('${binSym}','${b.tf}')" data-tf="${b.tf}" style="padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;${G.tf===b.tf?'background:#f59e0b;color:#000;border:none;':'background:var(--bg3);color:#64748b;border:1px solid var(--b1);'}">${b.l}</button>`).join('')}
-          </div>
+        <!-- 시간봉 버튼 (상단) -->
+        <div style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;">
+          ${[{tf:'5m',l:'5분봉'},{tf:'15m',l:'15분봉'},{tf:'30m',l:'30분봉'},{tf:'1h',l:'1시간봉'},{tf:'4h',l:'4시간봉'},{tf:'6h',l:'6시간봉'},{tf:'12h',l:'12시간봉'},{tf:'1d',l:'1일봉'},{tf:'3d',l:'3일봉'},{tf:'1w',l:'1주봉'},{tf:'1M',l:'1월봉'}].map(b=>
+            `<button onclick="reChart('${binSym}','${b.tf}')" data-tf="${b.tf}" style="padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;${G.tf===b.tf?'background:#f59e0b;color:#000;border:none;':'background:var(--bg3);color:#64748b;border:1px solid var(--b1);'}">${b.l}</button>`).join('')}
         </div>
+        <!-- 캔들차트 표시 라벨 (시간봉 아래) -->
+        <div style="font-size:12px;font-weight:700;color:var(--t2);margin-bottom:8px;">🕯 캔들 차트</div>
         <div id="chart-toggles" style="display:flex;align-items:center;gap:6px;font-size:10px;margin-bottom:6px;flex-wrap:wrap;color:var(--t3);"></div>
-        <div id="cc-container" style="height:420px;width:100%;min-width:280px;min-height:200px;max-width:100%;max-height:900px;border-radius:6px;overflow:auto;resize:both;"></div>
+        <div id="cc-container" style="height:420px;width:100%;border-radius:6px;overflow:hidden;"></div>
         <div style="display:flex;justify-content:center;padding:4px 0;"><span id="chat-time-label-pill" style="background:var(--bg3);border:1px solid var(--bd3);color:var(--t2);font-size:11px;font-weight:600;padding:3px 12px;border-radius:6px;font-family:monospace;letter-spacing:.02em;display:inline-block;min-width:200px;text-align:center;"><span id="chart-time-label">—</span></span></div>
-        <div style="font-size:9px;color:var(--t3);text-align:right;margin-top:2px;padding-right:4px;">↘ 모서리 드래그로 크기 조절</div>
       </div>
 
       <!-- 거래하기 + 알람 설정 (차트 바로 아래) -->
@@ -3903,45 +4082,25 @@ function syncToggleUI(){
     btn.style.opacity=on?'1':'.45';
   });
 }
-function applyChartSize(){
-  const c=document.getElementById('cc-container');if(!c)return;
-  let h=420,w=null;
-  try{const s=parseInt(localStorage.getItem('woc-chart-height')||'420');if(s>=200&&s<=900)h=s;}catch{}
-  try{const s=parseInt(localStorage.getItem('woc-chart-width')||'0');if(s>=280&&s<=2000)w=s;}catch{}
-  c.style.height=h+'px';
-  if(w)c.style.width=w+'px';
-}
-function _bindChartResize(){
-  const c=document.getElementById('cc-container');
-  if(!c||c._roBound)return;
-  c._roBound=true;
-  // ResizeObserver로 사용자 리사이즈 감지 → localStorage 저장
-  let saveTimer=null;
-  const ro=new ResizeObserver(()=>{
-    if(saveTimer)clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>{
-      try{
-        localStorage.setItem('woc-chart-height',String(c.clientHeight));
-        localStorage.setItem('woc-chart-width',String(c.clientWidth));
-      }catch{}
-    },300);
-  });
-  ro.observe(c);
-}
+function applyChartSize(){/* 사용자 리사이즈 기능 제거됨 */}
+function _bindChartResize(){/* 사용자 리사이즈 기능 제거됨 */}
+let _lastChartSym=null,_lastVisibleBars=120,_savedTimeRange=null;
 function drawCandleChart(klines){
+  if(!Array.isArray(klines)||!klines.length)return; // 데이터 없으면 렌더 스킵 (이전 차트 유지)
   _lastKlines=klines;
   const container=document.getElementById('cc-container');if(!container)return;
-  // 사용자 zoom/pan 보존: 기존 차트의 보이는 범위 저장 → 재생성 후 복원
-  const savedRange=lwChart?.timeScale?.()?.getVisibleLogicalRange?.();
+  const isNewCoin=_lastChartSym!==G.curSym;
+  _lastChartSym=G.curSym;
+  // 동일 코인 → 사용자 위치(시간 범위 + 봉 개수) 유지. 새 코인 → 초기화.
+  if(lwChart&&!isNewCoin){
+    try{const tr=lwChart.timeScale().getVisibleRange();if(tr)_savedTimeRange=tr;}catch{}
+    try{const lr=lwChart.timeScale().getVisibleLogicalRange();if(lr){const bars=Math.round(lr.to-lr.from);if(bars>=20&&bars<=4000)_lastVisibleBars=bars;}}catch{}
+  }
+  if(isNewCoin){_savedTimeRange=null;_lastVisibleBars=120;}
+  const savedTimeRange=_savedTimeRange;
   applyChartSize();
   rebuildToggleBar();
   setTimeout(_bindChartResize,0);
-  // savedRange는 클로저로 캡처해서 함수 끝에서 복원
-  const restoreView=()=>{
-    if(savedRange&&lwChart){
-      try{lwChart.timeScale().setVisibleLogicalRange(savedRange);}catch{}
-    }
-  };
   // 기존 차트 정리
   if(lwChart){lwChart.remove();lwChart=null;}
   if(volChart){volChart.remove();volChart=null;}
@@ -4078,7 +4237,20 @@ function drawCandleChart(klines){
   // 거래량 별도 차트 (하단 패널) — 토글 OFF면 스킵
   if(!showVol){
     lwChart.applyOptions({timeScale:{borderColor,timeVisible:true,secondsVisible:false,visible:true}});
-    restoreView();
+    if(savedTimeRange){
+      // 동일 코인 — 사용자 위치 그대로 (실시간 이동 안 함)
+      try{lwChart.timeScale().setVisibleRange(savedTimeRange);}catch{
+        try{const total=klines.length;lwChart.timeScale().setVisibleLogicalRange({from:Math.max(0,total-_lastVisibleBars),to:total+1});}catch{}
+      }
+    }else{
+      // 새 코인 — 마지막 ~120봉 + 실시간으로 이동
+      try{
+        const total=klines.length;
+        const start=Math.max(0,total-_lastVisibleBars);
+        lwChart.timeScale().setVisibleLogicalRange({from:start,to:total+1});
+      }catch{lwChart.timeScale().fitContent();}
+      try{lwChart.timeScale().scrollToRealTime();}catch{}
+    }
     return;
   }
   volChart=LightweightCharts.createChart(volDiv,{
@@ -4115,13 +4287,25 @@ function drawCandleChart(klines){
     volTip.textContent=d?`VOL ${fmtVol(d.value)}`:'VOL —';
   });
 
-  // 사용자 zoom/pan 보존: 저장된 range 있으면 복원, 없으면 fitContent
-  if(savedRange){
-    restoreView();
-    try{volChart.timeScale().setVisibleLogicalRange(savedRange);}catch{}
+  // 동일 코인 — 사용자가 지정한 위치(시간 범위) 그대로 유지, 실시간 이동 없음
+  if(savedTimeRange){
+    try{lwChart.timeScale().setVisibleRange(savedTimeRange);}catch{
+      try{const total=klines.length;const s=Math.max(0,total-_lastVisibleBars);lwChart.timeScale().setVisibleLogicalRange({from:s,to:total+1});volChart.timeScale().setVisibleLogicalRange({from:s,to:total+1});}catch{}
+    }
+    try{volChart.timeScale().setVisibleRange(savedTimeRange);}catch{}
   }else{
-    lwChart.timeScale().fitContent();
-    volChart.timeScale().fitContent();
+    // 새 코인 — 마지막 ~120봉 + 실시간 가격으로 스크롤
+    try{
+      const total=klines.length;
+      const start=Math.max(0,total-_lastVisibleBars);
+      lwChart.timeScale().setVisibleLogicalRange({from:start,to:total+1});
+      volChart.timeScale().setVisibleLogicalRange({from:start,to:total+1});
+    }catch{
+      lwChart.timeScale().fitContent();
+      volChart.timeScale().fitContent();
+    }
+    try{lwChart.timeScale().scrollToRealTime();}catch{}
+    try{volChart.timeScale().scrollToRealTime();}catch{}
   }
 }
 async function reChart(binSym,tf){
@@ -4132,6 +4316,13 @@ async function reChart(binSym,tf){
 
 // ── 검색 ──────────────────────────────────────────
 let _st=null;
+function clearSearch(){
+  const el=document.getElementById('si');if(!el)return;
+  el.value='';
+  const btn=document.getElementById('si-clear');if(btn)btn.style.display='none';
+  handleSearch('');
+  el.focus();
+}
 function handleSearch(q){
   clearTimeout(_st);
   if(!q.trim()){showListView();loadList();return;}
@@ -5061,6 +5252,19 @@ setTimeout(snapshotKimpHistory,3000);
 
 // 초기 해시가 있으면 해당 뷰로 라우팅, 없으면 기본 coins 탭
 (function init(){
+  // 투레이아웃 (좌:상세, 우:리스트) 항상 활성
+  document.body.classList.add('split-active');
+  // 리스트가 재렌더될 때마다 활성 행 하이라이트 동기화 (분할 모드에서 selected 행 유지)
+  try{
+    const lw=document.getElementById('lw');
+    if(lw){
+      let _raf=null;
+      new MutationObserver(()=>{if(_raf)cancelAnimationFrame(_raf);_raf=requestAnimationFrame(()=>refreshActiveRow());})
+        .observe(lw,{childList:true,subtree:false});
+    }
+  }catch{}
+  // 첫 진입 시 좌측 상세 패널을 플레이스홀더로 표시
+  if(typeof _renderDetailPlaceholder==='function')_renderDetailPlaceholder();
   const h=location.hash;
   if(h.startsWith('#/kimp/')||h.startsWith('#/kimchi/')){
     // 김프 디테일 라우트 → 그냥 김프 리스트로 (인라인 패널 방식)
