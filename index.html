@@ -227,13 +227,14 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <button id="ch-btn-top" onclick="toggleChannels()" style="padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;white-space:nowrap;" title="운영중인 채널들">📢 운영중인 채널들</button>
       <span id="online-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#10b981;cursor:help;white-space:nowrap;" title="지금 이 순간 동시접속자">👥 ··</span>
       <span id="usdkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#22c55e;cursor:help;white-space:nowrap;" title="달러/원 환율">$ ₩··</span>
-      <span id="usdtkrw-badge" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:help;white-space:nowrap;" title="업비트 USDT/KRW · 테더 김프">₮ ₩··</span>
+      <span id="usdtkrw-badge" onclick="fetchKRW();this.title='새로고침 중...'" style="font-size:10px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--bg3);border:1px solid var(--b1);color:#26a17b;cursor:pointer;white-space:nowrap;" title="업비트 USDT/KRW · 테더 김프 (클릭 시 새로고침)">₮ ₩··</span>
     </div>
-    <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
-      <button id="theme-btn" onclick="toggleTheme()" style="padding:5px 9px;border-radius:8px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
-      <button id="lang-btn" onclick="toggleLang()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="코인 이름 언어 전환">🇺🇸 EN</button>
-      <button id="cur-btn" onclick="toggleCurrency()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">$ USD</button>
-    </div>
+  </div>
+  <!-- 컨트롤 (한글/KRW/다크모드) — 상단 한 칸 아래 -->
+  <div style="padding:0 16px 6px;display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+    <button id="lang-btn" onclick="toggleLang()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="코인 이름 언어 전환">🇺🇸 EN</button>
+    <button id="cur-btn" onclick="toggleCurrency()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">$ USD</button>
+    <button id="theme-btn" onclick="toggleTheme()" style="padding:5px 9px;border-radius:8px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
   </div>
   <!-- 하단: 메인 탭 -->
   <div style="padding:4px 16px 4px;display:flex;gap:4px;">
@@ -994,13 +995,12 @@ async function dsGet(path){const r=await fetch(DS+path);if(!r.ok)throw Error(`DS
 // ── CORS 프록시 풀 ──────────────────────────────────
 // GitHub Pages에서는 직접 호출이 항상 차단되므로 제거.
 // 공용 프록시는 전세계 공유 → 레이트리밋 분산을 위해 랜덤 셔플 사용.
-// thingproxy.freeboard.io 제거 (DNS 사망), 안정적인 것만 유지
+// thingproxy.freeboard.io (DNS 사망) / proxy.cors.sh (API 키 필요·CORS 헤더 누락) 제거
 const _GENERAL_PROXIES=[
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
   u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
   u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}`,
-  u=>`https://proxy.cors.sh/${u}`,
 ];
 // 업비트 전용 — 본인 Cloudflare Worker 1순위, 폴백은 안정적인 것만
 const _UPBIT_PROXIES=[
@@ -4459,23 +4459,30 @@ function renderFxBadges(){
     elUsd.title=`${usdLabel}/원 환율: ₩${_fxState.usdToday.toFixed(2)}${_fxState.usdY?` (전일 ₩${_fxState.usdY.toFixed(2)})`:''}${chTip}`;
   }
   const elUsdt=document.getElementById('usdtkrw-badge');
-  if(elUsdt&&_fxState.usdtPrice){
-    // 인라인은 김프%만, 24h 변동률은 tooltip에
-    let premHtml='';let premTip='';
-    if(_fxState.usdToday){
-      const prem=(_fxState.usdtPrice/_fxState.usdToday-1)*100;
-      const c=prem>=0?'#10b981':'#ef4444';
-      const s=prem>=0?'+':'';
-      premHtml=`<span style="margin-left:6px;">김프 <span style="color:${c};">${s}${prem.toFixed(2)}%</span></span>`;
-      premTip=` · 김프 ${s}${prem.toFixed(2)}%`;
+  if(elUsdt){
+    if(_fxState.usdtPrice){
+      // 인라인은 김프%만, 24h 변동률은 tooltip에
+      let premHtml='';let premTip='';
+      if(_fxState.usdToday){
+        const prem=(_fxState.usdtPrice/_fxState.usdToday-1)*100;
+        const c=prem>=0?'#10b981':'#ef4444';
+        const s=prem>=0?'+':'';
+        premHtml=`<span style="margin-left:6px;">김프 <span style="color:${c};">${s}${prem.toFixed(2)}%</span></span>`;
+        premTip=` · 김프 ${s}${prem.toFixed(2)}%`;
+      }
+      let chTip='';
+      if(_fxState.usdtCh!=null){
+        const s=_fxState.usdtCh>=0?'+':'';
+        chTip=` · 전일대비 ${s}${_fxState.usdtCh.toFixed(2)}%`;
+      }
+      elUsdt.innerHTML=`${usdtLabel} ₩${_fxState.usdtPrice.toLocaleString()}${premHtml}`;
+      elUsdt.title=`업비트 ${usdtLabel}/KRW: ₩${_fxState.usdtPrice.toLocaleString()}${chTip}${premTip} (클릭 시 새로고침)`;
+    }else{
+      // 데이터 미로드 — 가능한 정보를 tooltip에라도 표시
+      elUsdt.innerHTML=`${usdtLabel} ₩··`;
+      const usdInfo=_fxState.usdToday?`기준 USD: ₩${_fxState.usdToday.toFixed(2)} · `:'';
+      elUsdt.title=`업비트 ${usdtLabel}/KRW · 테더 김프\n${usdInfo}데이터 조회 실패 — 클릭 시 새로고침`;
     }
-    let chTip='';
-    if(_fxState.usdtCh!=null){
-      const s=_fxState.usdtCh>=0?'+':'';
-      chTip=` · 전일대비 ${s}${_fxState.usdtCh.toFixed(2)}%`;
-    }
-    elUsdt.innerHTML=`${usdtLabel} ₩${_fxState.usdtPrice.toLocaleString()}${premHtml}`;
-    elUsdt.title=`업비트 ${usdtLabel}/KRW: ₩${_fxState.usdtPrice.toLocaleString()}${chTip}${premTip}`;
   }
 }
 async function fetchKRW(){
