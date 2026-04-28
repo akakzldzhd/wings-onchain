@@ -233,9 +233,6 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
       <button id="theme-btn" onclick="toggleTheme()" style="padding:5px 9px;border-radius:8px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--t1);border:1px solid var(--b1);flex-shrink:0;" title="라이트/다크 모드">🌙</button>
       <button id="lang-btn" onclick="toggleLang()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;" title="코인 이름 언어 전환">🇺🇸 EN</button>
       <button id="cur-btn" onclick="toggleCurrency()" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;background:var(--bg3);color:#f59e0b;border:1px solid var(--b1);flex-shrink:0;">$ USD</button>
-      <input id="si" type="text" placeholder="🔍 검색..."
-        style="width:130px;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:7px 10px;font-size:12px;color:var(--t1);outline:none;"
-        oninput="handleSearch(this.value)" onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='var(--b1)'">
     </div>
   </div>
   <!-- 하단: 메인 탭 -->
@@ -281,6 +278,26 @@ input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
     <div id="dexsortbar" style="display:none;gap:5px;padding:8px 12px;border-bottom:1px solid var(--bd3);background:var(--bg2);flex-shrink:0;align-items:center;">
       <button id="dsb-trend" onclick="setDexSort('trend')" style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">🔥 트렌딩</button>
       <button id="dsb-vol"   onclick="setDexSort('vol')"   style="flex:1;padding:6px 0;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:#64748b;border:1px solid transparent;">📊 거래대금</button>
+    </div>
+    <!-- 선물 — 펀딩비 극단값 (검색바 위) -->
+    <div id="fund-widget-bar" style="display:none;flex-shrink:0;padding:6px 14px 0;"></div>
+    <!-- 김프 — 평균/최고/최저 김프 통계 + 안내 (검색바 위) -->
+    <div id="kimchi-info-bar" style="display:none;flex-shrink:0;"></div>
+    <!-- 검색 (정렬바/펀딩위젯 아래, 컬럼 헤더 바로 위) -->
+    <div id="search-bar" style="padding:6px 14px 0;flex-shrink:0;display:flex;align-items:center;gap:10px;">
+      <!-- DEX 트렌딩 안내 (검색칸 왼쪽, DEX 탭에서만 표시) -->
+      <div id="dex-trending-label" style="display:none;flex:1;min-width:0;font-size:10px;color:var(--t3);line-height:1.4;">
+        <span style="color:#f59e0b;font-weight:700;">🔥 트렌딩</span>
+        <span style="opacity:.7;">지금 가장 핫한 DEX 토큰 · 거래량·트랜잭션·모멘텀 종합</span>
+      </div>
+      <div style="position:relative;max-width:280px;margin-left:auto;flex-shrink:0;">
+        <input id="si" type="text" placeholder="🔍 Search"
+          style="width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:7px 32px 7px 12px;font-size:12px;color:var(--t1);outline:none;"
+          oninput="handleSearch(this.value);document.getElementById('si-clear').style.display=this.value?'flex':'none'"
+          onfocus="this.style.borderColor='#f59e0b'" onblur="this.style.borderColor='var(--b1)'">
+        <button id="si-clear" onclick="clearSearch()" title="검색 지우기"
+          style="position:absolute;right:5px;top:50%;transform:translateY(-50%);width:22px;height:22px;align-items:center;justify-content:center;background:var(--bg2);color:var(--t3);border:1px solid var(--bd3);border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;display:none;padding:0;line-height:1;">✕</button>
+      </div>
     </div>
     <div id="lw" style="flex:1;overflow:auto;"></div>
   </div>
@@ -528,7 +545,7 @@ const FD='https://fapi.binance.com/futures/data';
 const DS='https://api.dexscreener.com';
 const CC='https://api.coincap.io/v2';
 const CG='https://api.coingecko.com/api/v3';
-let G={tab:'coins',sort:'vol',asc:false,futSort:'gain',futAsc:false,stkSort:'vol',stkAsc:false,kimSort:'vol',kimAsc:false,upSort:'vol',upAsc:false,dexSort:'vol',dexAsc:false,dexChain:'all',currency:'usd',lang:'en',chart:null,tf:'1d',coins:[],futures:[],stocks:[],kimchi:[],upbit:[],dex:[],curSym:null,detailSource:'binance',mcLoaded:false,coinsShown:100,futShown:100,stkShown:100,upShown:100,dexShown:50,watchlist:new Set(),showWatchOnly:false,kimReverseOnly:false,kimEx:'upbit'};
+let G={tab:'coins',sort:'vol',asc:false,futSort:'gain',futAsc:false,stkSort:'vol',stkAsc:false,kimSort:'vol',kimAsc:false,upSort:'vol',upAsc:false,dexSort:'vol',dexAsc:false,dexChain:'all',currency:'usd',lang:'en',chart:null,tf:'1d',coins:[],futures:[],stocks:[],kimchi:[],upbit:[],dex:[],curSym:null,detailSource:'binance',mcLoaded:false,coinsShown:50,futShown:50,stkShown:50,upShown:50,dexShown:50,watchlist:new Set(),showWatchOnly:false,kimReverseOnly:false,kimEx:'upbit'};
 try{const k=localStorage.getItem('woc-kim-ex');if(k==='upbit'||k==='bithumb')G.kimEx=k;}catch{}
 try{const l=localStorage.getItem('woc-lang');if(l==='ko'||l==='en')G.lang=l;}catch{}
 try{const c=localStorage.getItem('woc-currency');if(c==='usd'||c==='krw')G.currency=c;}catch{}
@@ -1236,7 +1253,13 @@ function _doSetTab(tab){
   document.getElementById('kimchisortbar').style.display=tab==='kimchi'?'flex':'none';
   const dxb=document.getElementById('dexsortbar');if(dxb)dxb.style.display=tab==='dex'?'flex':'none';
   const dcb=document.getElementById('dexchainbar');if(dcb)dcb.style.display=tab==='dex'?'flex':'none';
-  document.getElementById('si').value='';
+  // 선물 탭이 아니면 펀딩비 극단값 위젯 숨김
+  const fwb=document.getElementById('fund-widget-bar');if(fwb&&tab!=='futures'){fwb.innerHTML='';fwb.style.display='none';}
+  // 김프 탭이 아니면 김프 통계 바 숨김
+  const kib=document.getElementById('kimchi-info-bar');if(kib&&tab!=='kimchi'){kib.innerHTML='';kib.style.display='none';}
+  // DEX 탭이 아니면 트렌딩 라벨 숨김
+  const dtl=document.getElementById('dex-trending-label');if(dtl)dtl.style.display=tab==='dex'?'block':'none';
+  document.getElementById('si').value='';const _sic=document.getElementById('si-clear');if(_sic)_sic.style.display='none';
   document.body.classList.remove('km-board');
   // 김프 탭 진입 시 업비트 wallet status 미리 prefetch
   if(tab==='kimchi'&&typeof getUpbitWalletStatus==='function')getUpbitWalletStatus().catch(()=>{});
@@ -1255,7 +1278,7 @@ function pickBinance(){
 function setSort(s){
   const sortChanged=G.sort!==s;
   if(s==='mc'){G.sort=s;G.asc=false;}else if(G.sort===s){G.asc=!G.asc;}else{G.sort=s;G.asc=false;}
-  G.coinsShown=100;
+  G.coinsShown=50;
   updateSortUI();
   // 시가총액 ↔ 거래대금/상승률 전환 시 데이터 소스가 달라짐 (mc = 현물+선물, 그 외 = 현물만)
   const needReload=sortChanged&&((s==='mc'&&!G.coins.some(c=>c.futOnly))||(s!=='mc'&&G.coins.some(c=>c.futOnly)));
@@ -1759,7 +1782,7 @@ function renderStocksList(list){
   }).join('');
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreStocks()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:'';
-  document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${hdr}${rows}${moreBtn}</div>`;
+  document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:0;">${hdr}${rows}${moreBtn}</div>`;
 }
 
 function setFutSort(s){
@@ -1818,16 +1841,21 @@ function renderFuturesList(futures){
   }).join('');
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreFutures()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;transition:background .1s;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:(total>100?`<div style="padding:12px;text-align:center;color:#475569;font-size:11px;">전체 ${total}개 표시 완료</div>`:'');
-  // 펀딩비 극단값 위젯
-  let fundWidget='';
-  if(_fundingExtremes){
-    const pill=(x,positive)=>{const c=x.rate>=0?'#ef4444':'#10b981';return`<span onclick="pickCoin('${x.binSym}')" style="cursor:pointer;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px;background:${x.rate>=0?'rgba(239,68,68,.12)':'rgba(16,185,129,.12)'};border:1px solid ${x.rate>=0?'rgba(239,68,68,.25)':'rgba(16,185,129,.25)'};color:${c};white-space:nowrap;">${x.symbol} ${x.rate>=0?'+':''}${x.rate.toFixed(3)}%</span>`;};
-    fundWidget=`<div style="margin:0 14px 8px;padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;text-align:center;">
-      <div style="font-size:12px;color:#f59e0b;font-weight:800;margin-bottom:8px;letter-spacing:.04em;">⚡ 펀딩비 극단값</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">${_fundingExtremes.top.map(x=>pill(x,true)).join('')}<span style="color:var(--t3);align-self:center;margin:0 2px;">·</span>${_fundingExtremes.bottom.map(x=>pill(x,false)).join('')}</div>
-    </div>`;
+  // 펀딩비 극단값 위젯 — 검색바 위 별도 컨테이너에 렌더
+  const fundBar=document.getElementById('fund-widget-bar');
+  if(fundBar){
+    if(_fundingExtremes){
+      const pill=(x,positive)=>{const c=x.rate>=0?'#ef4444':'#10b981';return`<span onclick="pickCoin('${x.binSym}')" style="cursor:pointer;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px;background:${x.rate>=0?'rgba(239,68,68,.12)':'rgba(16,185,129,.12)'};border:1px solid ${x.rate>=0?'rgba(239,68,68,.25)':'rgba(16,185,129,.25)'};color:${c};white-space:nowrap;">${x.symbol} ${x.rate>=0?'+':''}${x.rate.toFixed(3)}%</span>`;};
+      fundBar.innerHTML=`<div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--bd3);border-radius:8px;text-align:center;">
+        <div style="font-size:12px;color:#f59e0b;font-weight:800;margin-bottom:8px;letter-spacing:.04em;">⚡ 펀딩비 극단값</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">${_fundingExtremes.top.map(x=>pill(x,true)).join('')}<span style="color:var(--t3);align-self:center;margin:0 2px;">·</span>${_fundingExtremes.bottom.map(x=>pill(x,false)).join('')}</div>
+      </div>`;
+      fundBar.style.display='block';
+    }else{
+      fundBar.innerHTML='';fundBar.style.display='none';
+    }
   }
-  document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${fundWidget}${hdr}${rows}${moreBtn}</div>`;
+  document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:0;">${hdr}${rows}${moreBtn}</div>`;
 }
 function loadMoreFutures(){G.futShown+=50;renderFuturesList(sortFutures(G.futures));}
 
@@ -1877,7 +1905,7 @@ function renderCoinList(coins){
   }).join('');
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreCoins()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;transition:background .1s;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:(total>100?`<div style="padding:12px;text-align:center;color:#475569;font-size:11px;">전체 ${total}개 표시 완료</div>`:'');
-  document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:10px;">${hdr}${rows}${moreBtn}</div>`;
+  document.getElementById('lw').innerHTML=`<div style="min-width:510px;padding-top:0;">${hdr}${rows}${moreBtn}</div>`;
 }
 function loadMoreCoins(){G.coinsShown+=50;renderCoinList(sortCoins(G.coins));}
 
@@ -2222,7 +2250,13 @@ function renderKimchiList(list){
       <div data-cell="vol" style="text-align:right;font-size:11px;color:var(--t2);font-weight:700;">${volStr}</div>
     </div>`;
   }).join('');
-  document.getElementById('lw').innerHTML=`<div>${statsBar}${tipBar}${hdr}${rows}</div>`;
+  // 김프 통계/안내는 검색바 위 별도 컨테이너로
+  const kib=document.getElementById('kimchi-info-bar');
+  if(kib){
+    kib.innerHTML=`${statsBar}${tipBar}`;
+    kib.style.display=(statsBar||tipBar)?'block':'none';
+  }
+  document.getElementById('lw').innerHTML=`<div>${hdr}${rows}</div>`;
   // 김프 클릭 비활성화 — 패널 재부착 로직 제거
   _kimWalletActive=null;
 }
@@ -2318,7 +2352,7 @@ function renderUpbitList(list){
   }).join('');
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreUpbit()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:'';
-  document.getElementById('lw').innerHTML=`<div style="min-width:520px;padding-top:10px;">${hdr}${rows}${moreBtn}</div>`;
+  document.getElementById('lw').innerHTML=`<div style="min-width:520px;padding-top:0;">${hdr}${rows}${moreBtn}</div>`;
 }
 
 // ── DEX 탭 (DexScreener 스타일 트렌딩 — GeckoTerminal API 기반) ────
@@ -2589,11 +2623,9 @@ function renderDexList(list){
 
   const remaining=total-shown;
   const moreBtn=remaining>0?`<div onclick="loadMoreDex()" style="padding:14px;text-align:center;cursor:pointer;background:var(--bg3);border-top:1px solid var(--bd3);font-size:12px;font-weight:700;color:#f59e0b;" onmouseover="this.style.background='var(--b1)'" onmouseout="this.style.background='var(--bg3)'">⬇ 더보기 (+${Math.min(50,remaining)} / ${remaining}개 남음)</div>`:`<div style="padding:14px;text-align:center;color:#475569;font-size:11px;">DexScreener 부스트 토큰 · 총 ${total}개</div>`;
-  const info=`<div style="padding:8px 12px;font-size:10px;color:var(--t3);line-height:1.4;border-bottom:1px solid var(--bd3);display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-    <span style="color:#f59e0b;font-weight:700;">🔥 트렌딩</span>
-    <span style="opacity:.7;">지금 가장 핫한 DEX 토큰 · 거래량·트랜잭션·모멘텀 종합</span>
-  </div>`;
-  document.getElementById('lw').innerHTML=`<div>${info}${hdr}${rows}${moreBtn}</div>`;
+  // 트렌딩 라벨은 검색바 왼쪽에 표시 (정적 HTML이라 그냥 보이게만)
+  const dtl=document.getElementById('dex-trending-label');if(dtl)dtl.style.display='block';
+  document.getElementById('lw').innerHTML=`<div>${hdr}${rows}${moreBtn}</div>`;
 }
 
 // ── 코인 상세 ─────────────────────────────────────
@@ -4132,6 +4164,13 @@ async function reChart(binSym,tf){
 
 // ── 검색 ──────────────────────────────────────────
 let _st=null;
+function clearSearch(){
+  const el=document.getElementById('si');if(!el)return;
+  el.value='';
+  const btn=document.getElementById('si-clear');if(btn)btn.style.display='none';
+  handleSearch('');
+  el.focus();
+}
 function handleSearch(q){
   clearTimeout(_st);
   if(!q.trim()){showListView();loadList();return;}
@@ -5041,9 +5080,209 @@ if(_origDoSetTab){
   _doSetTab=function(tab){
     const r=_origDoSetTab.apply(this,arguments);
     if(tab==='kimchi'&&G.kimchi&&G.kimchi.length)setTimeout(startKimchiRealtime,100);
+    // REST 부담을 줄이기 위해 코인/선물/업비트 탭에서는 WebSocket으로 실시간 갱신
+    setTimeout(()=>switchTabWebSockets(tab),100);
     return r;
   };
 }
+
+// ── 코인/선물/업비트 탭 — REST 폴링 대신 WebSocket으로 실시간 갱신 ────
+let _coinsTickerWs=null,_futTickerWs=null,_upbitTickerWs=null;
+let _coinsRenderTimer=null,_futRenderTimer=null,_upbitRenderTimer=null;
+let _detailTickerWs=null;
+const _debouncedRender=(timerVar,fn,delay=800)=>{
+  clearTimeout(window[timerVar]);
+  window[timerVar]=setTimeout(fn,delay);
+};
+function _scheduleCoinsRender(){
+  clearTimeout(_coinsRenderTimer);
+  _coinsRenderTimer=setTimeout(()=>{if(G.tab==='coins'&&G.coins.length)renderCoinList(sortCoins(G.coins));},800);
+}
+function _scheduleFutRender(){
+  clearTimeout(_futRenderTimer);
+  _futRenderTimer=setTimeout(()=>{if(G.tab==='futures'&&G.futures.length)renderFuturesList(sortFutures(G.futures));},800);
+}
+function _scheduleUpbitRender(){
+  clearTimeout(_upbitRenderTimer);
+  _upbitRenderTimer=setTimeout(()=>{if(G.tab==='upbit'&&G.upbit.length)renderUpbitList(sortUpbit(G.upbit));},800);
+}
+// 바이낸스 spot 전체 티커 스트림
+function connectCoinsTickerWs(){
+  if(typeof WebSocket==='undefined'||_coinsTickerWs)return;
+  try{
+    _coinsTickerWs=new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
+    _coinsTickerWs.onmessage=ev=>{
+      try{
+        const arr=JSON.parse(ev.data);
+        if(!Array.isArray(arr)||!G.coins||!G.coins.length)return;
+        const map={};G.coins.forEach(c=>{if(c.binSym)map[c.binSym]=c;});
+        let any=false;
+        arr.forEach(t=>{
+          const c=map[t.s];if(!c)return;
+          const p=parseFloat(t.c);if(!(p>0))return;
+          c.priceUsd=p;
+          const pc=parseFloat(t.P);if(!isNaN(pc))c.ch24=pc;
+          const q=parseFloat(t.q);if(!isNaN(q))c.vol24=q;
+          const h=parseFloat(t.h);if(!isNaN(h))c.high24=h;
+          const l=parseFloat(t.l);if(!isNaN(l))c.low24=l;
+          any=true;
+        });
+        if(any)_scheduleCoinsRender();
+      }catch{}
+    };
+    _coinsTickerWs.onclose=()=>{_coinsTickerWs=null;if(G.tab==='coins')setTimeout(connectCoinsTickerWs,3000);};
+    _coinsTickerWs.onerror=()=>{try{_coinsTickerWs.close();}catch{}};
+  }catch{_coinsTickerWs=null;}
+}
+// 바이낸스 futures 전체 티커 스트림 (다른 호스트)
+function connectFuturesTickerWs(){
+  if(typeof WebSocket==='undefined'||_futTickerWs)return;
+  try{
+    _futTickerWs=new WebSocket('wss://fstream.binance.com/ws/!ticker@arr');
+    _futTickerWs.onmessage=ev=>{
+      try{
+        const arr=JSON.parse(ev.data);
+        if(!Array.isArray(arr)||!G.futures||!G.futures.length)return;
+        const map={};G.futures.forEach(f=>{if(f.binSym)map[f.binSym]=f;});
+        let any=false;
+        arr.forEach(t=>{
+          const f=map[t.s];if(!f)return;
+          const p=parseFloat(t.c);if(!(p>0))return;
+          f.priceUsd=p;
+          const pc=parseFloat(t.P);if(!isNaN(pc))f.ch24=pc;
+          const q=parseFloat(t.q);if(!isNaN(q))f.vol24=q;
+          const h=parseFloat(t.h);if(!isNaN(h))f.high24=h;
+          const l=parseFloat(t.l);if(!isNaN(l))f.low24=l;
+          any=true;
+        });
+        if(any)_scheduleFutRender();
+      }catch{}
+    };
+    _futTickerWs.onclose=()=>{_futTickerWs=null;if(G.tab==='futures')setTimeout(connectFuturesTickerWs,3000);};
+    _futTickerWs.onerror=()=>{try{_futTickerWs.close();}catch{}};
+  }catch{_futTickerWs=null;}
+}
+// 업비트 전체 KRW 마켓 스트림
+function connectUpbitTickerWs(){
+  if(typeof WebSocket==='undefined'||_upbitTickerWs)return;
+  if(!G.upbit||!G.upbit.length){
+    if(G.tab==='upbit')setTimeout(connectUpbitTickerWs,1000); // 데이터 로드 대기 후 재시도
+    return;
+  }
+  const codes=G.upbit.map(u=>`KRW-${u.symbol}`);
+  try{
+    _upbitTickerWs=new WebSocket('wss://api.upbit.com/websocket/v1');
+    _upbitTickerWs.binaryType='arraybuffer';
+    _upbitTickerWs.onopen=()=>{
+      const msg=[{ticket:'wings-up-'+Date.now()},{type:'ticker',codes}];
+      try{_upbitTickerWs.send(JSON.stringify(msg));}catch{}
+    };
+    _upbitTickerWs.onmessage=ev=>{
+      try{
+        let txt;
+        if(ev.data instanceof ArrayBuffer)txt=new TextDecoder('utf-8').decode(new Uint8Array(ev.data));
+        else if(typeof ev.data==='string')txt=ev.data;
+        else return;
+        const data=JSON.parse(txt);
+        if(!data||!data.code)return;
+        const sym=data.code.replace('KRW-','');
+        const u=G.upbit.find(x=>x.symbol===sym);if(!u)return;
+        const p=data.trade_price;
+        if(p>0){
+          u.priceKrw=p;
+          u.ch24=((data.signed_change_rate??(data.change_rate||0)*(data.change==='FALL'?-1:1)))*100;
+          if(data.acc_trade_price_24h>0)u.vol24Krw=data.acc_trade_price_24h;
+          _scheduleUpbitRender();
+        }
+      }catch{}
+    };
+    _upbitTickerWs.onclose=()=>{_upbitTickerWs=null;if(G.tab==='upbit')setTimeout(connectUpbitTickerWs,3000);};
+    _upbitTickerWs.onerror=()=>{try{_upbitTickerWs.close();}catch{}};
+  }catch{_upbitTickerWs=null;}
+}
+// 단일 코인 상세 — startDetailRefresh 폴링 대신 WS로
+function connectDetailTickerWs(binSym){
+  if(typeof WebSocket==='undefined')return;
+  if(_detailTickerWs){try{_detailTickerWs.close();}catch{}_detailTickerWs=null;}
+  const isUp=G.detailSource==='upbit';
+  try{
+    if(isUp){
+      const sym=binSym.replace('USDT','');
+      _detailTickerWs=new WebSocket('wss://api.upbit.com/websocket/v1');
+      _detailTickerWs.binaryType='arraybuffer';
+      _detailTickerWs.onopen=()=>{
+        try{_detailTickerWs.send(JSON.stringify([{ticket:'wings-detail-'+Date.now()},{type:'ticker',codes:[`KRW-${sym}`]}]));}catch{}
+      };
+      _detailTickerWs.onmessage=ev=>{
+        try{
+          let txt;
+          if(ev.data instanceof ArrayBuffer)txt=new TextDecoder('utf-8').decode(new Uint8Array(ev.data));
+          else if(typeof ev.data==='string')txt=ev.data;
+          else return;
+          const d=JSON.parse(txt);if(!d||!d.code)return;
+          if(G.curSym!==binSym)return;
+          const price=d.trade_price;const ch24=((d.signed_change_rate??(d.change_rate||0)*(d.change==='FALL'?-1:1)))*100;
+          const priceEl=document.getElementById('hdr-price');
+          if(priceEl)priceEl.textContent=F.krwPrice(price).replace(/<[^>]+>/g,'');
+          const pctEl=priceEl?.nextElementSibling;
+          if(pctEl)pctEl.outerHTML=F.pct(ch24,true);
+        }catch{}
+      };
+    }else{
+      const stream=binSym.toLowerCase()+'@ticker';
+      _detailTickerWs=new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
+      _detailTickerWs.onmessage=ev=>{
+        try{
+          const t=JSON.parse(ev.data);if(!t||!t.s)return;
+          if(G.curSym!==binSym)return;
+          const price=parseFloat(t.c);const ch24=parseFloat(t.P);
+          const priceEl=document.getElementById('hdr-price');
+          if(priceEl)priceEl.textContent=F.price(price);
+          const pctEl=priceEl?.nextElementSibling;
+          if(pctEl)pctEl.outerHTML=F.pct(ch24,true);
+        }catch{}
+      };
+    }
+    _detailTickerWs.onclose=()=>{_detailTickerWs=null;};
+    _detailTickerWs.onerror=()=>{try{_detailTickerWs.close();}catch{}};
+  }catch{_detailTickerWs=null;}
+}
+function _closeDetailTickerWs(){if(_detailTickerWs){try{_detailTickerWs.close();}catch{}_detailTickerWs=null;}}
+// 탭별 WS on/off
+function switchTabWebSockets(tab){
+  // 코인 탭이 아닌데 spot WS가 살아있으면 종료
+  if(tab!=='coins'&&_coinsTickerWs){try{_coinsTickerWs.close();}catch{}_coinsTickerWs=null;}
+  if(tab!=='futures'&&_futTickerWs){try{_futTickerWs.close();}catch{}_futTickerWs=null;}
+  if(tab!=='upbit'&&_upbitTickerWs){try{_upbitTickerWs.close();}catch{}_upbitTickerWs=null;}
+  if(tab==='coins')connectCoinsTickerWs();
+  else if(tab==='futures')connectFuturesTickerWs();
+  else if(tab==='upbit')setTimeout(connectUpbitTickerWs,500); // G.upbit 채워질 시간
+}
+// startDetailRefresh를 WS로 교체 (REST 폴링 비활성화)
+const _origStartDetailRefresh=typeof startDetailRefresh==='function'?startDetailRefresh:null;
+startDetailRefresh=function(binSym){stopDetailRefresh();connectDetailTickerWs(binSym);};
+const _origStopDetailRefresh=typeof stopDetailRefresh==='function'?stopDetailRefresh:null;
+stopDetailRefresh=function(){if(_origStopDetailRefresh)_origStopDetailRefresh();_closeDetailTickerWs();};
+// silentRefreshList 빈도 다운 — WS로 가격은 들어오므로 메타 갱신만 5분에 한 번
+const _origSilentRefreshList=typeof silentRefreshList==='function'?silentRefreshList:null;
+let _lastSilentRefreshAt=0;
+silentRefreshList=async function(){
+  const now=Date.now();
+  // WS가 커버하는 탭(coins/futures/upbit)은 5분에 한 번만 REST로 메타 갱신
+  if(G.tab==='coins'||G.tab==='futures'||G.tab==='upbit'){
+    if(now-_lastSilentRefreshAt<5*60*1000)return;
+  }
+  _lastSilentRefreshAt=now;
+  if(_origSilentRefreshList)return _origSilentRefreshList.apply(this,arguments);
+};
+// 빗썸 폴링 빈도 5초 → 15초
+clearInterval(_bbKimTimer);_bbKimTimer=null;
+const _origStartKimchiRealtime=typeof startKimchiRealtime==='function'?startKimchiRealtime:null;
+startKimchiRealtime=function(){
+  if(_origStartKimchiRealtime)_origStartKimchiRealtime();
+  if(_bbKimTimer){clearInterval(_bbKimTimer);_bbKimTimer=null;}
+  if(typeof pollBithumb==='function')_bbKimTimer=setInterval(pollBithumb,15000);
+};
 // ── 통합 populator (loadCoinDetail에서 호출) ──
 function populateDetailExtras(sym,binSym){
   try{loadFundCross(sym,binSym);}catch{}
