@@ -3038,23 +3038,48 @@ async function upbitTickerRaw(sym){
     _upbit:true,
   };
 }
-async function upbitKlinesRaw(sym,interval,limit){
+// Upbit 'to' 파라미터: ISO 8601 + 'Z'(UTC) 명시. 누락 시 KST로 해석되어 9시간 어긋남.
+function _upbitToISO(ms){return new Date(ms).toISOString().replace(/\.\d+Z$/,'Z');}
+async function upbitKlinesRaw(sym,interval,limit,endTime){
   const base=sym.replace('USDT','');
-  const map={'1m':'minutes/1','5m':'minutes/5','15m':'minutes/15','30m':'minutes/30','1h':'minutes/60','4h':'minutes/240','1d':'days','1w':'weeks','1M':'months'};
-  const path=map[interval];if(!path)return null;
-  const d=await upbitGet(`/v1/candles/${path}?market=KRW-${base}&count=${Math.min(limit,200)}`);
-  if(!Array.isArray(d)||!d.length)return null;
-  return d.slice().reverse().map(c=>[
-    c.timestamp,
-    c.opening_price.toString(),
-    c.high_price.toString(),
-    c.low_price.toString(),
-    c.trade_price.toString(),
-    (c.candle_acc_trade_volume||0).toString(),
-    c.timestamp,
-    (c.candle_acc_trade_price||0).toString(),
-    '0','0','0','0',
-  ]);
+  const pathMap={'1m':'minutes/1','5m':'minutes/5','15m':'minutes/15','30m':'minutes/30','1h':'minutes/60','4h':'minutes/240','1d':'days','1w':'weeks','1M':'months'};
+  const stepMap={'1m':60e3,'5m':3e5,'15m':9e5,'30m':18e5,'1h':36e5,'4h':144e5,'1d':864e5,'1w':6048e5,'1M':2592e6};
+  const path=pathMap[interval];if(!path)return null;
+  const stepMs=stepMap[interval]||864e5;
+  const PER=200;
+  const total=Math.max(1,limit|0);
+  const rowOf=c=>[c.timestamp,c.opening_price.toString(),c.high_price.toString(),c.low_price.toString(),c.trade_price.toString(),(c.candle_acc_trade_volume||0).toString(),c.timestamp,(c.candle_acc_trade_price||0).toString(),'0','0','0','0'];
+  // 단일 페이지 fast path
+  if(total<=PER){
+    const qs=`market=KRW-${base}&count=${total}`+(endTime?`&to=${encodeURIComponent(_upbitToISO(endTime))}`:'');
+    const d=await upbitGet(`/v1/candles/${path}?${qs}`);
+    if(!Array.isArray(d)||!d.length)return null;
+    return d.slice().reverse().map(rowOf);
+  }
+  // 다중 페이지: 예측 가능한 시간 경계로 병렬 호출 (5개씩 배치, 빈 배치 나오면 조기 종료)
+  const baseT=endTime||Date.now();
+  const pages=Math.ceil(total/PER);
+  const seen=new Map();
+  const BATCH=5;
+  outer: for(let i=0;i<pages;i+=BATCH){
+    const batch=[];
+    for(let j=i;j<Math.min(i+BATCH,pages);j++){
+      const cnt=Math.min(PER,total-j*PER);
+      const to=(j===0&&!endTime)?null:_upbitToISO(baseT-j*PER*stepMs);
+      const qs=`market=KRW-${base}&count=${cnt}`+(to?`&to=${encodeURIComponent(to)}`:'');
+      batch.push(upbitGet(`/v1/candles/${path}?${qs}`).catch(()=>null));
+    }
+    const r=await Promise.all(batch);
+    let any=false;
+    for(const arr of r){
+      if(!Array.isArray(arr)||!arr.length)continue;
+      any=true;
+      for(const c of arr) if(!seen.has(c.timestamp)) seen.set(c.timestamp,c);
+    }
+    if(!any)break outer; // 모든 페이지가 비어있으면 더 이상 과거 데이터 없음
+  }
+  if(!seen.size)return null;
+  return [...seen.values()].sort((a,b)=>a.timestamp-b.timestamp).map(rowOf);
 }
 async function spotOrFutTicker(sym){
   // 업비트 탭에서 진입한 경우 Upbit 직접 사용 (KRW 그대로)
@@ -3073,30 +3098,24 @@ async function spotOrFutTicker(sym){
   throw Error(`시세 조회 실패 (${sym})`);
 }
 async function spotOrFutKlines(sym,interval,limit,endTime){
-  // 업비트 탭에서 진입한 경우 Upbit 캔들 직접 사용 (KRW 그대로)
-  if(G.detailSource==='upbit'){const u=await upbitKlinesRaw(sym,interval,limit).catch(()=>null);if(u)return u;}
+  // 업비트 탭에서 진입한 경우 Upbit 캔들 직접 사용 (KRW 그대로) — 페이지네이션 지원
+  if(G.detailSource==='upbit'){const u=await upbitKlinesRaw(sym,interval,limit,endTime).catch(()=>null);if(u)return u;}
   const endP=endTime?`&endTime=${endTime}`:'';
   try{const d=await bnGet(`/klines?symbol=${sym}&interval=${interval}&limit=${limit}${endP}`);if(Array.isArray(d)&&d.length)return d;}catch{}
   try{const r=await fetch(`${FN}/klines?symbol=${sym}&interval=${interval}&limit=${limit}${endP}`);if(r.ok){const d=await r.json();if(Array.isArray(d)&&d.length)return d;}}catch{}
-  // Upbit 캔들 폴백
+  // Upbit 캔들 폴백 (KRW→USD 환산) — 페이지네이션 지원
   try{
-    const base=sym.replace('USDT','');
-    const map={'1m':'minutes/1','5m':'minutes/5','15m':'minutes/15','30m':'minutes/30','1h':'minutes/60','4h':'minutes/240','1d':'days','1w':'weeks','1M':'months'};
-    const path=map[interval];
-    if(!path)return null;
-    const cnt=Math.min(limit,200);
-    const d=await upbitGet(`/v1/candles/${path}?market=KRW-${base}&count=${cnt}`);
-    if(!Array.isArray(d)||!d.length)return null;
-    // Upbit 캔들은 최신부터 내림차순 → Binance 포맷(오름차순)으로 변환, KRW→USD 환산
-    return d.slice().reverse().map(c=>[
-      c.timestamp,
-      (c.opening_price/G_KRW).toString(),
-      (c.high_price/G_KRW).toString(),
-      (c.low_price/G_KRW).toString(),
-      (c.trade_price/G_KRW).toString(),
-      (c.candle_acc_trade_volume||0).toString(),
-      c.timestamp,
-      ((c.candle_acc_trade_price||0)/G_KRW).toString(),
+    const raw=await upbitKlinesRaw(sym,interval,limit,endTime);
+    if(!raw)return null;
+    return raw.map(c=>[
+      c[0],
+      (parseFloat(c[1])/G_KRW).toString(),
+      (parseFloat(c[2])/G_KRW).toString(),
+      (parseFloat(c[3])/G_KRW).toString(),
+      (parseFloat(c[4])/G_KRW).toString(),
+      c[5],
+      c[6],
+      (parseFloat(c[7])/G_KRW).toString(),
       '0','0','0','0',
     ]);
   }catch{}
@@ -3134,7 +3153,11 @@ async function fetchKlinesSF(sym,tf){
     if(chunk.length<lim)break; // 더 이상 데이터 없음 (상장 이전)
   }
   if(!allRaw.length)return null;
-  return allRaw.map(toRow);
+  // 페이지 경계에서 동일 timestamp 중복 가능 (Upbit) — dedup + 시간 오름차순 정렬
+  const seenT=new Set();
+  const dedup=allRaw.filter(r=>{const t=r[0];if(seenT.has(t))return false;seenT.add(t);return true;});
+  dedup.sort((a,b)=>a[0]-b[0]);
+  return dedup.map(toRow);
 }
 
 async function loadCoinDetail(binSym){
@@ -4115,11 +4138,20 @@ function handleSearch(q){
   _st=setTimeout(async()=>{
     showListView();
     const q2=q.toUpperCase();
-    const matched=G.coins.filter(c=>c.symbol.includes(q2)||c.name.toUpperCase().includes(q2)).map((c,i)=>({...c,rank:i+1}));
+    // 코인/선물/업비트/주식 통합 — symbol+binSym 기준 dedup, 거래대금 내림차순
+    const pool=[];
+    const seenKey=new Set();
+    const add=(c,kind)=>{if(!c)return;const k=(c.binSym||'')+'|'+(c.symbol||'');if(seenKey.has(k))return;seenKey.add(k);pool.push({...c,_kind:kind});};
+    (G.coins||[]).forEach(c=>add(c,c.futOnly?'futures':'spot'));
+    (G.futures||[]).forEach(c=>add(c,'futures'));
+    (G.upbit||[]).forEach(c=>add({...c,binSym:c.binSym||(c.symbol+'USDT')},'upbit'));
+    (G.stocks||[]).forEach(c=>add(c,'stock'));
+    const matched=pool.filter(c=>(c.symbol||'').toUpperCase().includes(q2)||(c.name||'').toUpperCase().includes(q2)||(c.displaySym||'').toUpperCase().includes(q2)).sort((a,b)=>(b.vol24||0)-(a.vol24||0)).map((c,i)=>({...c,rank:i+1}));
     let h='';
     if(matched.length){
       h+=`<div style="padding:8px 16px 4px;font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">코인 (${matched.length})</div>`;
-      h+=matched.map(c=>{const cc=c.ch24>=0?'#10b981':'#ef4444';const bg=c.ch24>=0?'rgba(16,185,129,.12)':'rgba(239,68,68,.12)';return`<div class="ci" onclick="pickCoin('${c.binSym}')" style="display:flex;align-items:center;gap:10px;padding:10px 16px;"><span style="font-size:11px;color:#64748b;font-weight:600;width:24px;text-align:right;flex-shrink:0;">${c.rank}</span>${F.img(c.symbol,28)}<div style="min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;font-weight:700;">${c.name}</span><span style="font-size:11px;color:#64748b;flex-shrink:0;">${c.symbol}</span></div><div style="display:flex;align-items:center;gap:7px;margin-top:3px;"><span style="font-size:12px;font-weight:700;">${F.price(c.priceUsd)}</span><span style="font-size:11px;font-weight:700;background:${bg};color:${cc};padding:2px 6px;border-radius:4px;">${c.ch24>=0?'+':''}${c.ch24.toFixed(2)}%</span><span style="font-size:11px;color:#64748b;">${F.money(c.vol24)}</span></div></div></div>`;}).join('');
+      const tagOf=k=>k==='futures'?'<span style="font-size:9px;background:rgba(245,158,11,.15);color:#f59e0b;padding:1px 5px;border-radius:3px;border:1px solid rgba(245,158,11,.3);font-weight:700;margin-left:4px;">선물</span>':k==='upbit'?'<span style="font-size:9px;background:rgba(96,165,250,.15);color:#60a5fa;padding:1px 5px;border-radius:3px;border:1px solid rgba(96,165,250,.3);font-weight:700;margin-left:4px;">업비트</span>':k==='stock'?'<span style="font-size:9px;background:rgba(167,139,250,.15);color:#a78bfa;padding:1px 5px;border-radius:3px;border:1px solid rgba(167,139,250,.3);font-weight:700;margin-left:4px;">주식</span>':'';
+      h+=matched.map(c=>{const cc=c.ch24>=0?'#10b981':'#ef4444';const bg=c.ch24>=0?'rgba(16,185,129,.12)':'rgba(239,68,68,.12)';const click=c._kind==='upbit'&&!c.binSym?`pickUpbit('${c.symbol}')`:`pickCoin('${c.binSym}')`;return`<div class="ci" onclick="${click}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;"><span style="font-size:11px;color:#64748b;font-weight:600;width:24px;text-align:right;flex-shrink:0;">${c.rank}</span>${F.img(c.symbol,28)}<div style="min-width:0;"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:13px;font-weight:700;">${c.name}</span><span style="font-size:11px;color:#64748b;flex-shrink:0;">${c.symbol}</span>${tagOf(c._kind)}</div><div style="display:flex;align-items:center;gap:7px;margin-top:3px;"><span style="font-size:12px;font-weight:700;">${F.price(c.priceUsd)}</span><span style="font-size:11px;font-weight:700;background:${bg};color:${cc};padding:2px 6px;border-radius:4px;">${c.ch24>=0?'+':''}${(c.ch24||0).toFixed(2)}%</span><span style="font-size:11px;color:#64748b;">${F.money(c.vol24||0)}</span></div></div></div>`;}).join('');
     }
     try{
       const dxData=await dsGet(`/latest/dex/search?q=${encodeURIComponent(q)}`);
