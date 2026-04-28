@@ -994,24 +994,19 @@ async function dsGet(path){const r=await fetch(DS+path);if(!r.ok)throw Error(`DS
 // ── CORS 프록시 풀 ──────────────────────────────────
 // GitHub Pages에서는 직접 호출이 항상 차단되므로 제거.
 // 공용 프록시는 전세계 공유 → 레이트리밋 분산을 위해 랜덤 셔플 사용.
+// thingproxy.freeboard.io 제거 (DNS 사망), 안정적인 것만 유지
 const _GENERAL_PROXIES=[
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
   u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
-  u=>`https://cors.eu.org/${u}`,
-  u=>`https://thingproxy.freeboard.io/fetch/${u}`,
   u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}`,
   u=>`https://proxy.cors.sh/${u}`,
 ];
-// 업비트 전용 프록시 풀 (일반 풀과 독립 — 레이트리밋 간섭 방지)
-// 1순위: 전용 Cloudflare Worker, 나머지: 공용 프록시 폴백
+// 업비트 전용 — 본인 Cloudflare Worker 1순위, 폴백은 안정적인 것만
 const _UPBIT_PROXIES=[
   u=>`https://upbit-proxy.akakzldzhd.workers.dev/?url=${encodeURIComponent(u)}`,
-  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
   u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-  u=>`https://cors.eu.org/${u}`,
   u=>`https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(u)}`,
-  u=>`https://thingproxy.freeboard.io/fetch/${u}`,
   u=>`https://api.cors.lol/?url=${encodeURIComponent(u)}`,
 ];
 function _shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -5015,8 +5010,10 @@ function connectBinanceMini(){
     _bnKimWs.onerror=()=>{try{_bnKimWs.close();}catch{}};
   }catch{_bnKimWs=null;}
 }
+let _upKimFails=0,_upKimGaveUp=false;
 function connectUpbitWs(){
   if(typeof WebSocket==='undefined'||!G.kimchi||!G.kimchi.length)return;
+  if(_upKimGaveUp)return; // 너무 많이 실패하면 중단
   const codes=G.kimchi.map(k=>`KRW-${k.symbol}`);
   const key=codes.join(',');
   if(key===_kimSubKey&&_upKimWs&&_upKimWs.readyState===1)return;
@@ -5026,6 +5023,7 @@ function connectUpbitWs(){
     _upKimWs=new WebSocket('wss://api.upbit.com/websocket/v1');
     _upKimWs.binaryType='arraybuffer';
     _upKimWs.onopen=()=>{
+      _upKimFails=0; // 성공 시 카운터 리셋
       const msg=[{ticket:'wings-kim-'+Date.now()},{type:'ticker',codes}];
       try{_upKimWs.send(JSON.stringify(msg));}catch{}
     };
@@ -5044,9 +5042,16 @@ function connectUpbitWs(){
         debouncedKimRender();
       }catch{}
     };
-    _upKimWs.onclose=()=>{_upKimWs=null;_kimSubKey='';if(G.tab==='kimchi')setTimeout(connectUpbitWs,3000);};
+    _upKimWs.onclose=()=>{
+      _upKimWs=null;_kimSubKey='';
+      if(G.tab!=='kimchi')return;
+      _upKimFails++;
+      if(_upKimFails>=5){_upKimGaveUp=true;console.warn('[upbit ws] 5회 연속 실패 — 재시도 중단. 탭 다시 진입 시 재시도');return;}
+      const delay=Math.min(60000,3000*Math.pow(2,_upKimFails-1)); // 3·6·12·24·48초 백오프
+      setTimeout(connectUpbitWs,delay);
+    };
     _upKimWs.onerror=()=>{try{_upKimWs.close();}catch{}};
-  }catch{_upKimWs=null;}
+  }catch{_upKimWs=null;_upKimFails++;}
 }
 async function pollBithumb(){
   if(G.tab!=='kimchi'||!G.kimchi||!G.kimchi.length)return;
@@ -5163,8 +5168,10 @@ function connectFuturesTickerWs(){
   }catch{_futTickerWs=null;}
 }
 // 업비트 전체 KRW 마켓 스트림
+let _upbitFails=0,_upbitGaveUp=false;
 function connectUpbitTickerWs(){
   if(typeof WebSocket==='undefined'||_upbitTickerWs)return;
+  if(_upbitGaveUp)return;
   if(!G.upbit||!G.upbit.length){
     if(G.tab==='upbit')setTimeout(connectUpbitTickerWs,1000); // 데이터 로드 대기 후 재시도
     return;
@@ -5174,6 +5181,7 @@ function connectUpbitTickerWs(){
     _upbitTickerWs=new WebSocket('wss://api.upbit.com/websocket/v1');
     _upbitTickerWs.binaryType='arraybuffer';
     _upbitTickerWs.onopen=()=>{
+      _upbitFails=0;
       const msg=[{ticket:'wings-up-'+Date.now()},{type:'ticker',codes}];
       try{_upbitTickerWs.send(JSON.stringify(msg));}catch{}
     };
@@ -5196,9 +5204,16 @@ function connectUpbitTickerWs(){
         }
       }catch{}
     };
-    _upbitTickerWs.onclose=()=>{_upbitTickerWs=null;if(G.tab==='upbit')setTimeout(connectUpbitTickerWs,3000);};
+    _upbitTickerWs.onclose=()=>{
+      _upbitTickerWs=null;
+      if(G.tab!=='upbit')return;
+      _upbitFails++;
+      if(_upbitFails>=5){_upbitGaveUp=true;console.warn('[upbit ws] 5회 실패 — 재시도 중단 (IP 차단 가능). 탭 재진입 시 재시도');return;}
+      const delay=Math.min(60000,3000*Math.pow(2,_upbitFails-1));
+      setTimeout(connectUpbitTickerWs,delay);
+    };
     _upbitTickerWs.onerror=()=>{try{_upbitTickerWs.close();}catch{}};
-  }catch{_upbitTickerWs=null;}
+  }catch{_upbitTickerWs=null;_upbitFails++;}
 }
 // 단일 코인 상세 — startDetailRefresh 폴링 대신 WS로
 function connectDetailTickerWs(binSym){
@@ -5250,13 +5265,15 @@ function connectDetailTickerWs(binSym){
 function _closeDetailTickerWs(){if(_detailTickerWs){try{_detailTickerWs.close();}catch{}_detailTickerWs=null;}}
 // 탭별 WS on/off
 function switchTabWebSockets(tab){
-  // 코인 탭이 아닌데 spot WS가 살아있으면 종료
   if(tab!=='coins'&&_coinsTickerWs){try{_coinsTickerWs.close();}catch{}_coinsTickerWs=null;}
   if(tab!=='futures'&&_futTickerWs){try{_futTickerWs.close();}catch{}_futTickerWs=null;}
   if(tab!=='upbit'&&_upbitTickerWs){try{_upbitTickerWs.close();}catch{}_upbitTickerWs=null;}
+  // 탭에 다시 진입하면 give-up 플래그 리셋 (사용자가 직접 탭 누르면 재시도 허용)
+  if(tab==='upbit')_upbitGaveUp=false;
+  if(tab==='kimchi')_upKimGaveUp=false;
   if(tab==='coins')connectCoinsTickerWs();
   else if(tab==='futures')connectFuturesTickerWs();
-  else if(tab==='upbit')setTimeout(connectUpbitTickerWs,500); // G.upbit 채워질 시간
+  else if(tab==='upbit')setTimeout(connectUpbitTickerWs,500);
 }
 // startDetailRefresh를 WS로 교체 (REST 폴링 비활성화)
 const _origStartDetailRefresh=typeof startDetailRefresh==='function'?startDetailRefresh:null;
