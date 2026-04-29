@@ -5457,7 +5457,7 @@ window.addEventListener('popstate',e=>{
       const nick = m.nick || '익명';
       const seed = m.uid || nick;
       const isAdmin = m.uid && ADMIN_UIDS.has(m.uid);
-      const adminBadge = isAdmin ? `<span style="font-size:9px;background:rgba(245,158,11,.18);color:#f59e0b;padding:1px 5px;border-radius:4px;border:1px solid rgba(245,158,11,.4);font-weight:800;flex-shrink:0;">👑 관리자</span>` : '';
+      const adminBadge = '';
       const delBtn = isMeAdmin ? `<span class="chat-del-btn" data-key="${m._k}" style="cursor:pointer;color:#ef4444;font-size:12px;padding:0 4px;flex-shrink:0;opacity:.5;" title="삭제" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">✕</span>` : '';
       // 닉 길이 추정: 한글 1자 ≈ 2 weight, ASCII 1 weight. weight 합이 12 초과면 2행 모드
       const nickWeight = [...nick].reduce((s,ch) => s + (ch.charCodeAt(0) > 127 ? 2 : 1), 0);
